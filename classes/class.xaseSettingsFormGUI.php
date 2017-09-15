@@ -35,7 +35,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
     protected $tpl;
 
     /**
-     * @var ilAssistedExercisePlugin
+     * @var xaseSettingsM1|null|xaseSettingsM3
      */
     protected $mode_settings;
 
@@ -45,7 +45,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
     protected $dic;
 
     //TODO decide with $mode which xaseSettingsMN Class should be additionally used to xaseSettings
-    public function __construct($parent_gui, xaseSettings $xaseSettings, $mode = self::M1) {
+    public function __construct($parent_gui, xaseSettings $xaseSettings, $mode) {
         global $DIC;
 
         $this->dic = $DIC;
@@ -55,11 +55,12 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->ctrl = $this->dic->ctrl();
         $this->parent_gui = $parent_gui;
 
-        if($mode === self::M1) {
+/*        if($mode === self::M1) {
             $this->mode_settings = new xaseSettingsM1();
         } elseif($mode === self::M3) {
             $this->mode_settings = new xaseSettingsM3();
-        }
+        }*/
+        $this->mode_settings = $this->getModeSettings($mode);
         parent::__construct();
 
         $this->initForm();
@@ -81,13 +82,6 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->availabilityForm();
 
         $this->chooseModeForm();
-
-        if($this->mode_settings === self::M1) {
-            $this->initM1Form();
-
-        } elseif($this->mode_settings === self::M2) {
-            $this->initM3Form();
-        }
 
         $this->addCommandButton(ilObjAssistedExerciseGUI::CMD_UPDATE, $this->pl->txt('save'));
         $this->addCommandButton(ilObjAssistedExerciseGUI::CMD_STANDARD, $this->pl->txt("cancel"));
@@ -203,7 +197,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
          *  the mode number is used to set different values for the a_postvar argument
          *   this makes sure that there are different a_postvar values for the different modes and that the rate answer form is displayed properly
          */
-        $mode_number = $is_mode_3 ? 3 : 2;
+        $mode_number = $is_mode_3 ? 3 : 1;
         $cb_rate_answers2 = new ilCheckboxInputGUI($this->pl->txt('rate_student_answers'), "rate_answers" . $mode_number);
         $cb_rate_answers2->setValue("1");
         $cb_rate_answers2->setChecked(true);
@@ -272,7 +266,37 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         }
         $this->parent_gui->object->setTitle($this->getInput('title'));
         $this->parent_gui->object->setDescription($this->getInput('desc'));
+        $this->object->setAssistedExerciseRefId($this->parent_gui->object->getRefId());
+        $this->object->setIsOnline($this->getInput('online'));
+        $this->object->setIsTimeLimited($this->getInput('time_limited'));
+        /**
+         * @var array $time_period
+         */
+        $time_period = $this->getInput('time_period');
 
+        foreach($time_period as $key => $value) {
+
+            $date_time = new ilDateTime($value, IL_CAL_DATETIME);
+            $timestamp = $date_time->get(IL_CAL_UNIX);
+            $time_period[$key] = $timestamp;
+        }
+
+        $this->object->setStartDate($time_period['start']);
+        $this->object->setEndDate($time_period['end']);
+        $this->object->setAlwaysVisible($this->getInput('always_visible'));
+
+        if($this->mode_settings instanceof xaseSettingsM1 && $this->getInput('mode') === '1') {
+            $this->object->setModus(1);
+            $this->mode_settings->setSettingsId($this->object->getId());
+            $this->mode_settings->setRateAnswers($this->getInput('rate_answers' . $this->getInput('mode')) === '1' ? 1 : 0);
+            $this->mode_settings->setDisposalDate();
+        } elseif ($this->mode_settings instanceof xaseSettingsM3 && $this->getInput('mode') === '3') {
+
+        } elseif ($this->getInput('mode') === self::M2) {
+
+        } else {
+            ilUtil::sendFailure($this->pl->txt('please_choose_mode'));
+        }
         return true;
     }
 
@@ -284,9 +308,18 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
             return false;
         }
         //$this->updateObjectData();
-        //$this->object->update();
+        $this->object->update();
 
         return true;
+    }
+
+    protected function getModeSettings($mode) {
+        if($mode === self::M1) {
+            if(xaseSettingsM1::where(['settings_id' => $this->object->getId()])->hasSets()) {
+                return xaseSettingsM1::where(['assisted_exercise_id' => $this->object->getId()]);
+            }
+            return new xaseSettingsM1();
+        }
     }
 
 }

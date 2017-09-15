@@ -84,7 +84,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->tabs = $DIC->tabs();
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC['tpl'];
-        $this->xase_settings = new xaseSettings();
+        $this->xase_settings = $this->getSettings();
     }
     
     final function getType()
@@ -94,11 +94,10 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 
     public function executeCommand() {
 
-       // $this->tpl->getStandardTemplate();
         $this->setTitleAndDescription();
 
         $next_class = $this->dic->ctrl()->getNextClass($this);
-        $cmd = $this->dic->ctrl()->getCmd(self::CMD_STANDARD);
+        $this->dic->ctrl()->getCmd(self::CMD_STANDARD);
 
         switch ($next_class)
         {
@@ -174,33 +173,10 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 
     public function edit() {
         $this->tabs->activateTab(self::CMD_EDIT);
-        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings);
-/*        $this->initPropertiesForm();
-        $this->fillPropertiesForm();
-        $this->tpl->setContent($this->form->getHTML());*/
-
-        //$this->tpl->getStandardTemplate();
+        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings, $this->xase_settings->getModus());
         $xaseSettingsFormGUI->fillForm();
         $this->tpl->setContent($xaseSettingsFormGUI->getHTML());
-        //$this->tpl->show();
     }
-
-
-/*    public function initPropertiesForm() {
-        $this->form = new ilPropertyFormGUI();
-        $this->form->setTitle($this->pl->txt('edit_properties'));
-
-        $ti = new ilTextInputGUI($this->pl->txt('title'), 'title');
-        $ti->setRequired(true);
-        $this->form->addItem($ti);
-        $ta = new ilTextAreaInputGUI($this->pl->txt('description'), 'desc');
-        $this->form->addItem($ta);
-
-        $this->form->addCommandButton('updateProperties', $this->pl->txt('save'));
-
-        $this->form->setFormAction($this->ctrl->getFormAction($this));
-    }*/
-
 
     function fillPropertiesForm() {
         $values['title'] = $this->object->getTitle();
@@ -212,12 +188,19 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 
     public function update() {
         $this->tabs->activateTab(self::CMD_EDIT);
-        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this);
+        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings, $this->xase_settings->getModus());
         if ($xaseSettingsFormGUI->updateObject() && $this->object->update()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
         }
         $xaseSettingsFormGUI->setValuesByPost();
         $this->tpl->setContent($xaseSettingsFormGUI->getHTML());
+    }
+
+    protected function getSettings() {
+        if(xaseSettings::where(['assisted_exercise_id' => $this->object->getRefId()])->hasSets()) {
+            return xaseSettings::where(['assisted_exercise_id' => $this->object->getId()]);
+        }
+        return new xaseSettings();
     }
 
     //TODO check if the commented code snippet is necessary to increase the number of readers

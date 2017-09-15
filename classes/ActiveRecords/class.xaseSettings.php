@@ -22,9 +22,20 @@ class xaseSettings extends ActiveRecord {
      * @db_fieldtype        integer
      * @db_length           8
      * @db_is_primary       true
+     * @con_is_unique       true
      * @con_sequence        true
      */
     protected $id;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull true
+     */
+    protected $assisted_exercise_ref_id;
 
     /**
      * @var int
@@ -185,4 +196,21 @@ class xaseSettings extends ActiveRecord {
     {
         $this->modus = $modus;
     }
+
+    /**
+     * @return int
+     */
+    public function getAssistedExerciseRefId()
+    {
+        return $this->assisted_exercise_ref_id;
+    }
+
+    /**
+     * @param int $assisted_exercise_ref_id
+     */
+    public function setAssistedExerciseRefId($assisted_exercise_ref_id)
+    {
+        $this->assisted_exercise_ref_id = $assisted_exercise_ref_id;
+    }
+
 }
