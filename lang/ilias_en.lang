@@ -1,0 +1,55 @@
+add_item#:#Add Item
+always_visible#:#Always visible
+always_visibility_info#:#Before and after the indicated period it is only the assisted exercise's title that will be displayed. The participants cannot take the assisted exercise.
+assisted_exercise_activation_online_info#:#If online, participants can take the assisted exercise
+availability#:#Availability
+cancel#:#Abbrechen
+changes_saved_success#:#Changes saved
+common_actions#:#Action
+completely_teacher_controlled#:#Completely teacher controlled
+description#:#Description
+finish_time#:#Finish Time
+general_settings#:#General Settings
+max_points#:#Maximum points
+max_achievable_points#:#Maximum achievable points
+number_of_used_hints#:#Number of used hints
+obj_xase#:#Assisted Exercise
+objs_xase_duplicate#:#Copy Assisted Exercise
+online#:#Online
+open#:#Open
+answered#:#Answered
+points#:#Points
+status#:#Status
+item_title#:#Item title
+xase_add#:#Add
+content#:#Content
+edit_properties#:#Properties
+new#:#Create Assisted Exercise
+m1_info#:#Teacher creates question with hints. Student answers them. Teacher rates the questions. Maximum points depend on usage of hints.
+m2_info#:#Student creates questions, without hints. Students give votings.
+m3_info#:#Teacher creates question, with hints. Students can vote for solutions.
+max_achieved_points#:#Maximum achieved points
+mode#:#Mode
+mode_settings#:#Mode settings
+objs_xase#:#Assisted Exercise
+partially_teacher_controlled#:#Partially teacher controlled
+permission_denied#:#You are not allowed to execute this action.
+perm_settings#:#Permissions
+total_used_hints#:#Total of used hints
+disposal_date#:#Disposal date
+save#:#Save
+settings_assisted_exercise#:#Settings Assisted Exercise
+start_time#:#Start Time
+student_creates_question#:#Student creates question
+time_limited#:#Limited Availability Period
+time_period#:#Period
+title#:#Title
+rate_student_answers#:#Rate students answers
+disposals_until#:#Disposals at the latest
+sample_solution_visible#:#Sample solution visible
+after_exercise_completion#:#After exercise completion
+exercise_finished_questions_answered#:#The exercise is considered finished if all questions were answered.
+after_definied_date#:#After definied date:
+cb_additional_points_for_voting#:#Students get x% of the points per item, which they votet for and where the teacher votes them best.
+number_of_percentage#:#Percentage
+votings_after#:#Votings from:

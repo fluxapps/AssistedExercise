@@ -1,0 +1,60 @@
+add_item#:#Item hinzufügen
+always_visible#:#Immer sichtbar
+always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
+assisted_exercise_activation_online_info#:#Wenn Online, können Teilnehmer die unterstüzte Übung absolvieren.
+availability#:#Verfügbarkeit
+cancel#:#Abbrechen
+changes_saved_success#:#Änderungen gespeichert
+common_actions#:#Aktionen
+completely_teacher_controlled#:#komplett Lehrkraft gesteuert
+description#:#Beschreibung
+finish_time#:#Endzeit
+first_name#:#Vorname
+general_settings#:#Allgemeine Einstellungen
+item#:#Item
+item_title#:#Item Titel
+last_name#:#Nachname
+max_points#:#Maximale Punktzahl
+max_achievable_points#:#Maximal erreichbare Punkte
+number_of_used_hints#:#Anzahl verwendete Tipps
+obj_xase#:#Unterstützte Übung
+objs_xase_duplicate#:#Unterstüzte Übung kopieren
+online#:#Online
+open#:#Offen
+answered#:#Beantwortet
+points#:#Punkte
+rated#:#Bewertet
+settings_assisted_exercise#:#Einstellungen unterstützte Übung
+status#:#Status
+xase_add#:#Hinzufügen
+content#:#Inhalt
+edit_properties#:#Einstellungen
+xase_new#:#Unterstützte Übung anlegen
+xase_objs_xase#:#Unterstützte Übung
+m1_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler beantworten die Fragen. Lehrer bewertet diese. Maximalpunktzahl abhängig von den verwendeten Tipps.
+m2_info#:#Schüler erstellt Fragen, ohne Tipps. Schüler geben Votings ab.
+m3_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler können Votings abgeben.
+max_achieved_points#:#Maximal erreichte Punkte
+mode#:#Modus
+mode_settings#:#Modus Einstellungen
+partially_teacher_controlled#:#teilweise Lehrkraft gesteuert
+objs_xase#:#Unterstützte Übung
+permission_denied#:#Sie sind nicht berechtigt diese Aktion durchzuführen.
+perm_settings#:#Rechte
+save#:#Speichern
+start_time#:#Startzeit
+student_creates_question#:#Schüler erstellt Frage
+time_limited#:#Zeitlich begrenzt
+time_period#:#Zeitraum
+title#:#Titel
+total_used_hints#:#Total verwendete Tipps
+disposal_date#:#Abgabedatum
+rate_student_answers#:#Antworten der Schüler bewerten
+disposals_until#:#Abgaben bis spätestens:
+sample_solution_visible#:#Musterlösung einsehbar
+after_exercise_completion#:#Nach Abschluss der Übung
+exercise_finished_questions_answered#:#Die Übung gilt als abgeschlossen wenn alle Fragen beantwortet wurden.
+after_definied_date#:#Ab definiertem Datum:
+cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, welche durch sie gevotet worden sind und durch die Lehrkraft am besten bewertet wurden.
+number_of_percentage#:#Anzahl Prozent
+votings_after#:#Votings ab:
