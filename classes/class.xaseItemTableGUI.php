@@ -263,6 +263,7 @@ class xaseItemTableGUI extends ilTable2GUI
     }
 
     // TODO change static array values
+    // TODO decide if the listing appears in front of the filter
     public function createListing() {
         $f = $this->dic->ui()->factory();
         $renderer = $this->dic->ui()->renderer();

@@ -12,6 +12,7 @@ finish_time#:#Endzeit
 first_name#:#Vorname
 general_settings#:#Allgemeine Einstellungen
 item#:#Item
+item_create#:#Item anlegen
 item_title#:#Item Titel
 last_name#:#Nachname
 max_points#:#Maximale Punktzahl

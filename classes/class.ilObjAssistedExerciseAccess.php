@@ -33,7 +33,7 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 
         switch ($a_permission) {
             case 'read':
-                if (! self::checkOnline($a_obj_id) && ! $DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)) {
+                if (! self::checkOnline($a_ref_id) && ! $DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)) {
                     return false;
                 }
                 break;
@@ -97,7 +97,7 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
      */
     public static function checkOnline($a_id) {
         global $ilDB;
-        return true;
+        //return true;
         $set = $ilDB->query('SELECT is_online FROM rep_robj_xase_settings WHERE id = ' . $ilDB->quote($a_id, 'integer'));
         $rec = $ilDB->fetchAssoc($set);
 

@@ -4,6 +4,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 /**
  * Class xaseItemGUI
  * @ilCtrl_Calls      xaseItemGUI: xaseItemTableGUI
+ * @ilCtrl_Calls      xaseItemGUI: xaseItemFormGUI
  * @ilCtrl_isCalledBy xaseItemGUI: ilObjAssistedExerciseGUI
  */
 
@@ -11,7 +12,23 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 class xaseItemGUI {
 
     const CMD_STANDARD = 'content';
-    const CMD_CREATE = 'create';
+    const CMD_EDIT = 'edit';
+    const CMD_UPDATE = 'update';
+
+    /**
+     * @var ilObjAssistedExercise
+     */
+    public $object;
+
+    /**
+     * @var xaseItem
+     */
+    public $xase_item;
+
+    /**
+     * @var xaseSettings
+     */
+    public $xase_settings;
 
     /**
      * @var \ILIAS\DI\Container
@@ -51,6 +68,9 @@ class xaseItemGUI {
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise_id = $_GET['ref_id'];
+        $this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
+        $this->xase_settings = xaseSettings::find($this->object->getRefId());
+        $this->xase_item = new xaseItem();
     }
 
     public function executeCommand() {
@@ -60,18 +80,53 @@ class xaseItemGUI {
                 $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
                 $this->tabs->activateTab(self::CMD_STANDARD);
                 $this->{$cmd}();
-
         }
+    }
+
+    protected function performCommand() {
+        $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
+        switch ($cmd) {
+            case self::CMD_STANDARD:
+                if ($this->access->hasReadAccess()) {
+                    $this->{$cmd}();
+                    break;
+                } else {
+                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+                    break;
+                }
+            case self::CMD_EDIT:
+            case self::CMD_UPDATE:
+                if ($this->access->hasWriteAccess()) {
+                    $this->{$cmd}();
+                    break;
+                } else {
+                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+                    break;
+                }
+        }
+    }
+
+    public function edit() {
+        $this->tabs->activateTab(self::CMD_STANDARD);
+        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
+        $xaseItemFormGUI->fillForm();
+        $this->tpl->setContent($xaseItemFormGUI->getHTML());
+    }
+
+    public function update() {
+        $this->tabs->activateTab(self::CMD_STANDARD);
+        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
+        if ($xaseItemFormGUI->updateObject()) {
+            ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
+        }
+        $xaseItemFormGUI->setValuesByPost();
+        $this->tpl->setContent($xaseItemFormGUI->getHTML());
     }
 
     public function content() {
         if (! $this->access->hasReadAccess()) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
-
-/*        global $ilCtrl;
-        print_r($ilCtrl->getCallHistory());
-        exit;*/
 
         $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD);
         $this->tpl->setContent($xaseItemTableGUI->getHTML());

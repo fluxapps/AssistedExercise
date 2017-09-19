@@ -84,7 +84,9 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->tabs = $DIC->tabs();
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC['tpl'];
-        $this->xase_settings = $this->getSettings();
+        if(!$this->getCreationMode()) {
+            $this->xase_settings = $this->getSettings();
+        }
     }
     
     final function getType()
@@ -178,14 +180,6 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->tpl->setContent($xaseSettingsFormGUI->getHTML());
     }
 
-    function fillPropertiesForm() {
-        $values['title'] = $this->object->getTitle();
-        $values['desc'] = $this->object->getDescription();
-
-        $this->form->setValuesByArray($values);
-    }
-
-
     public function update() {
         $this->tabs->activateTab(self::CMD_EDIT);
         $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings, $this->xase_settings->getModus());
@@ -197,17 +191,25 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
     }
 
     protected function getSettings() {
-        if(xaseSettings::where(['assisted_exercise_id' => $this->object->getRefId()])->hasSets()) {
-            return xaseSettings::where(['assisted_exercise_id' => $this->object->getId()]);
+        if(xaseSettings::where(['assisted_exercise_ref_id' => intval($this->object->getRefId())])->hasSets()) {
+            return xaseSettings::where(['assisted_exercise_ref_id' => intval($this->object->getRefId())])->first();
         }
-        return new xaseSettings();
+        $xaseSettings = new xaseSettings();
+        $xaseSettings->setAssistedExerciseRefId($this->object->getRefId());
+        $xaseSettings->create();
+        return $xaseSettings;
     }
 
-    //TODO check if the commented code snippet is necessary to increase the number of readers
+/*    function afterSave(ilObject $newObj)
+    {
+        parent::afterSave($newObj);
+        $this->getSettings();
+    }*/
+
     /**
      * show information screen
      */
-/*    function infoScreen()
+    function infoScreen()
     {
         global $DIC;
 
@@ -218,9 +220,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         include_once("./Services/InfoScreen/classes/class.ilInfoScreenGUI.php");
         $info = new ilInfoScreenGUI($this);
         $info->enablePrivateNotes();
-        //$info->addObjectSections();
 
-        // general information
         $this->lng->loadLanguageModule("meta");
 
         $this->addInfoItems($info);
@@ -229,8 +229,6 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         ilChangeEvent::_recordReadEvent("webr", $_GET['ref_id'], $this->obj_id,
             $DIC->user()->getId());
 
-        // forward the command
-        $ret = $this->ctrl->forwardCommand($info);
-        //$tpl->setContent($ret);
-    }*/
+        $this->ctrl->forwardCommand($info);
+    }
 }

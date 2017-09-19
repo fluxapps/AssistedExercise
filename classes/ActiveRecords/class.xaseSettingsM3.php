@@ -81,7 +81,7 @@ class xaseSettingsM3 extends ActiveRecord {
      * @db_length     1
      * @db_is_notnull true
      */
-    protected $voting_points = 1;
+    protected   $voting_points = 1;
 
     /**
      * @var int

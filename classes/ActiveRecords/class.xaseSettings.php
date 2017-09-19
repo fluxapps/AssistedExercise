@@ -94,7 +94,7 @@ class xaseSettings extends ActiveRecord {
     protected $modus = 1;
 
     /**
-     * @return string
+     * @return int
      */
     public function getId()
     {

@@ -20,6 +20,7 @@ open#:#Open
 answered#:#Answered
 points#:#Points
 status#:#Status
+item_create#:#Create Item
 item_title#:#Item title
 xase_add#:#Add
 content#:#Content
