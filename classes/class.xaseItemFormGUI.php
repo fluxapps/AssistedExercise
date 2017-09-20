@@ -1,6 +1,12 @@
 <?php
 
-class xaseItemFormGUI extends ilPropertyFormGUI {
+/**
+ * Class xaseItemFormGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
+class xaseItemFormGUI extends ilPropertyFormGUI
+{
 
     const CMD_ADD_HINT = 'addHint';
 
@@ -48,7 +54,8 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
      */
     protected $mode;
 
-    public function __construct($parent_gui, xaseItem $xaseItem, $mode) {
+    public function __construct($parent_gui, xaseItem $xaseItem, $mode)
+    {
         global $DIC;
 
         $this->dic = $DIC;
@@ -64,7 +71,8 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
         $this->initForm();
     }
 
-    public function initForm() {
+    public function initForm()
+    {
         $this->setTarget('_top');
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
         $this->setTitle($this->pl->txt('item_create'));
@@ -86,7 +94,8 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
         $this->setFormAction($this->ctrl->getFormAction($this));
     }
 
-    public function initM1andM3Form() {
+    public function initM1andM3Form()
+    {
         $this->addCommandButton(self::CMD_ADD_HINT, $this->pl->txt('save'));
 
         $ta = new ilTextAreaInputGUI($this->pl->txt('sample_solution'), 'sample_solution');
@@ -98,11 +107,13 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
         $this->addItem($ti);
     }
 
-    public function addHint() {
+    public function addHint()
+    {
 
     }
 
-    public function fillForm() {
+    public function fillForm()
+    {
 
     }
 
@@ -118,8 +129,9 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
     /**
      * @return bool|string
      */
-    public function updateObject() {
-        if (! $this->fillObject()) {
+    public function updateObject()
+    {
+        if (!$this->fillObject()) {
             return false;
         }
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Class    ilAssistedExercisePlugin
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
 
 require_once('./Services/Repository/classes/class.ilRepositoryObjectPlugin.php');
 
@@ -16,7 +20,8 @@ class ilAssistedExercisePlugin extends ilRepositoryObjectPlugin
     /**
      * @return ilAssistedExercisePlugin
      */
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (!isset(self::$instance)) {
             self::$instance = new self();
         }

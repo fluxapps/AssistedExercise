@@ -1,10 +1,15 @@
 <?php
+
+/**
+ * Class    ilObjAssistedExerciseListGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
 require_once('./Services/Repository/classes/class.ilObjectPluginListGUI.php');
 
 /**
  * Class ilObjAssistedExerciseListGUI
  */
-
 class ilObjAssistedExerciseListGUI extends ilObjectPluginListGUI
 {
 

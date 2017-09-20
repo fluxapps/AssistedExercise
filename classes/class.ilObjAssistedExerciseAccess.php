@@ -1,7 +1,14 @@
 <?php
+
+/**
+ * Class    ilObjAssistedExerciseAccess
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
 require_once('./Services/Repository/classes/class.ilObjectPluginAccess.php');
 
-class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
+class ilObjAssistedExerciseAccess extends ilObjectPluginAccess
+{
 
     /**
      * Checks wether a user may invoke a command or not
@@ -10,15 +17,16 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
      * Please do not check any preconditions handled by
      * ilConditionHandler here. Also don't do usual RBAC checks.
      *
-     * @param    string $a_cmd        command (not permission!)
+     * @param    string $a_cmd command (not permission!)
      * @param    string $a_permission permission
-     * @param    int    $a_ref_id     reference id
-     * @param    int    $a_obj_id     object id
-     * @param    int    $a_user_id    user id (if not provided, current user is taken)
+     * @param    int $a_ref_id reference id
+     * @param    int $a_obj_id object id
+     * @param    int $a_user_id user id (if not provided, current user is taken)
      *
      * @return    boolean        true, if everything is ok
      */
-    public function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = '') {
+    public function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = '')
+    {
         /**
          * @var \ILIAS\DI\Container
          */
@@ -33,7 +41,7 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 
         switch ($a_permission) {
             case 'read':
-                if (! self::checkOnline($a_ref_id) && ! $DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)) {
+                if (!self::checkOnline($a_ref_id) && !$DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)) {
                     return false;
                 }
                 break;
@@ -49,7 +57,8 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
      *
      * @return bool
      */
-    public static function hasReadAccess($ref_id = NULL, $user_id = NULL) {
+    public static function hasReadAccess($ref_id = NULL, $user_id = NULL)
+    {
 
         return (new self)->hasAccess('read', $ref_id, $user_id);
     }
@@ -61,7 +70,8 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
      *
      * @return bool
      */
-    public static function hasWriteAccess($ref_id = NULL, $user_id = NULL) {
+    public static function hasWriteAccess($ref_id = NULL, $user_id = NULL)
+    {
 
         return (new self)->hasAccess('write', $ref_id, $user_id);
     }
@@ -73,12 +83,14 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
      *
      * @return bool
      */
-    public static function hasDeleteAccess($ref_id = NULL, $user_id = NULL) {
+    public static function hasDeleteAccess($ref_id = NULL, $user_id = NULL)
+    {
         return (new self)->hasAccess('delete', $ref_id, $user_id);
     }
 
 
-    protected function hasAccess($permission, $ref_id = NULL, $user_id = NULL) {
+    protected function hasAccess($permission, $ref_id = NULL, $user_id = NULL)
+    {
         global $ilUser, $ilAccess;
         /**
          * @var $ilAccess ilAccessHandler
@@ -90,12 +102,14 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
     }
 
     // TODO implement this method correctly
+
     /**
      * @param $a_id
      *
      * @return bool
      */
-    public static function checkOnline($a_id) {
+    public static function checkOnline($a_id)
+    {
         global $ilDB;
         //return true;
         $set = $ilDB->query('SELECT is_online FROM rep_robj_xase_settings WHERE id = ' . $ilDB->quote($a_id, 'integer'));

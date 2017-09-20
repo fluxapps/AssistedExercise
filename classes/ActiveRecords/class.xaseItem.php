@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 11:11
+ * Class xaseItem
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseItem extends ActiveRecord {
+class xaseItem extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_item';
     }
 
@@ -64,7 +64,7 @@ class xaseItem extends ActiveRecord {
      * @db_length           32
      * @db_is_notnull       true
      */
-    protected $status;
+    protected $item_status;
 
 
     /**
@@ -146,17 +146,17 @@ class xaseItem extends ActiveRecord {
     /**
      * @return string
      */
-    public function getStatus()
+    public function getItemStatus()
     {
-        return $this->status;
+        return $this->item_status;
     }
 
     /**
-     * @param string $status
+     * @param string $item_status
      */
-    public function setStatus($status)
+    public function setItemStatus($item_status)
     {
-        $this->status = $status;
+        $this->item_status = $item_status;
     }
 
     /**

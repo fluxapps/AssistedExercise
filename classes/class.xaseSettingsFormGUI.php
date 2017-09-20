@@ -1,10 +1,16 @@
 <?php
 
+/**
+ * Class xaseSettingsFormGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM1.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM3.php');
 
-class xaseSettingsFormGUI extends ilPropertyFormGUI {
+class xaseSettingsFormGUI extends ilPropertyFormGUI
+{
 
     const M1 = "1";
     const M2 = "2";
@@ -18,6 +24,11 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
      * @var ilObjAssistedExerciseGUI
      */
     protected $parent_gui;
+
+    /**
+     * @var ilObjAssistedExercise
+     */
+    protected $assisted_exercise;
 
     /*
     * @var  ilCtrl
@@ -63,7 +74,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
      */
 
     //TODO decide with $mode which xaseSettingsMN Class should be additionally used to xaseSettings
-    public function __construct($parent_gui, xaseSettings $xaseSettings, $mode) {
+    public function __construct($parent_gui, ilObjAssistedExercise $ilObjAssistedExercise, xaseSettings $xaseSettings, $mode)
+    {
         global $DIC;
 
         $this->dic = $DIC;
@@ -72,20 +84,22 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->tpl = $this->dic['tpl'];
         $this->ctrl = $this->dic->ctrl();
         $this->parent_gui = $parent_gui;
+        $this->assisted_exercise = $ilObjAssistedExercise;
         $this->mode = $mode;
 
-/*        if($mode === self::M1) {
-            $this->mode_settings = new xaseSettingsM1();
-        } elseif($mode === self::M3) {
-            $this->mode_settings = new xaseSettingsM3();
-        }*/
+        /*        if($mode === self::M1) {
+                    $this->mode_settings = new xaseSettingsM1();
+                } elseif($mode === self::M3) {
+                    $this->mode_settings = new xaseSettingsM3();
+                }*/
         $this->mode_settings = $this->getModeSettings($this->mode);
         parent::__construct();
 
         $this->initForm();
     }
 
-    public function initForm() {
+    public function initForm()
+    {
         $this->setTarget('_top');
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
         $this->setTitle($this->pl->txt('general_settings'));
@@ -108,7 +122,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->setFormAction($this->ctrl->getFormAction($this));
     }
 
-    protected function availabilityForm() {
+    protected function availabilityForm()
+    {
 
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->pl->txt('availability'));
@@ -127,20 +142,20 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $dur = new ilDateDurationInputGUI($this->pl->txt("time_period"), "time_period");
         $dur->setShowTime(true);
         //$date = $this->object->getStartDate();
-        if($this->object->getStartDate()) {
+        if ($this->object->getStartDate()) {
             $dur->setStart(new ilDateTime($this->object->getStartDate(), IL_CAL_DATETIME));
         } else {
             $dur->setStart(new ilDateTime(time(), IL_CAL_UNIX));
         }
         //$dur->setStart(new ilDateTime($date ? $date : time(), IL_CAL_UNIX));
         $dur->setStartText($this->pl->txt('start_time'));
-        if($this->object->getEndDate()) {
+        if ($this->object->getEndDate()) {
             $dur->setEnd(new ilDateTime($this->object->getStartDate(), IL_CAL_DATETIME));
         } else {
             $dur->setEnd(new ilDateTime(time(), IL_CAL_UNIX));
         }
-/*        $date = $this->object->getEndDate();
-        $dur->setEnd(new ilDateTime($date ? $date : time(), IL_CAL_UNIX));*/
+        /*        $date = $this->object->getEndDate();
+                $dur->setEnd(new ilDateTime($date ? $date : time(), IL_CAL_UNIX));*/
         $dur->setEndText($this->pl->txt('finish_time'));
         $time_limited_checkbox->addSubItem($dur);
 
@@ -152,7 +167,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->addItem($time_limited_checkbox);
     }
 
-    protected function chooseModeForm() {
+    protected function chooseModeForm()
+    {
 
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->pl->txt('mode_settings'));
@@ -166,7 +182,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $m1->setInfo($this->pl->txt('m1_info'));
 
         //if($mode->getValue() === self::M1) {
-            $this->initM1Form($m1);
+        $this->initM1Form($m1);
         //}
 
         $mode->addOption($m1);
@@ -185,14 +201,16 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->addItem($mode);
     }
 
-    protected function initM1Form(ilRadioOption $radioOption) {
+    protected function initM1Form(ilRadioOption $radioOption)
+    {
         $this->initRateAnswerForm($radioOption);
         $this->initSolutionVisibleForm($radioOption);
     }
 
-    protected function initM3Form(ilRadioOption $radioOption) {
+    protected function initM3Form(ilRadioOption $radioOption)
+    {
         $dt_votings_after = new ilDateTimeInputGUI($this->pl->txt('votings_after'), "votings_after");
-        $dt_votings_after->setDate(new ilDateTime(time(),IL_CAL_UNIX));
+        $dt_votings_after->setDate(new ilDateTime(time(), IL_CAL_UNIX));
         $dt_votings_after->setShowTime(true);
         $radioOption->addSubItem($dt_votings_after);
 
@@ -200,7 +218,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->initSolutionVisibleForm($radioOption, true);
     }
 
-    protected function initRateAnswerForm(ilRadioOption $radioOption, $is_mode_3 = false) {
+    protected function initRateAnswerForm(ilRadioOption $radioOption, $is_mode_3 = false)
+    {
         /*
          *  the mode number is used to set different values for the a_postvar argument
          *   this makes sure that there are different a_postvar values for the different modes and that the rate answer form is displayed properly
@@ -212,11 +231,11 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $radioOption->addSubItem($cb_rate_answers2);
 
         $dt_prop2 = new ilDateTimeInputGUI($this->pl->txt('disposals_until'), "disposals_until" . $mode_number);
-        $dt_prop2->setDate(new ilDateTime(time(),IL_CAL_UNIX));
+        $dt_prop2->setDate(new ilDateTime(time(), IL_CAL_UNIX));
         $dt_prop2->setShowTime(true);
         $cb_rate_answers2->addSubItem($dt_prop2);
 
-        if($is_mode_3) {
+        if ($is_mode_3) {
             $cb_additional_points_for_voting = new ilCheckboxInputGUI($this->pl->txt('cb_additional_points_for_voting'), "additional_points_for_voting");
             $cb_additional_points_for_voting->setValue("1");
             $cb_additional_points_for_voting->setChecked(true);
@@ -225,11 +244,11 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
             $ci_percentage = new ilCustomInputGUI($this->pl->txt('number_of_percentage'), 'number_of_percentage');
             $ci_percentage->setRequired(true);
 
-            $tpl = new ilTemplate('tpl.m3_settings_percentage.html',true,true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
-            $tpl->setVariable('SIZE',2);
-            $tpl->setVariable('MAXLENGTH',2);
-            $tpl->setVariable('POST_VAR','number_of_percentage');
-            if($this->mode_settings instanceof xaseSettingsM3 && !empty($this->mode_settings)) {
+            $tpl = new ilTemplate('tpl.m3_settings_percentage.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
+            $tpl->setVariable('SIZE', 2);
+            $tpl->setVariable('MAXLENGTH', 2);
+            $tpl->setVariable('POST_VAR', 'number_of_percentage');
+            if ($this->mode_settings instanceof xaseSettingsM3 && !empty($this->mode_settings)) {
                 $tpl->setVariable('PROPERTY_VALUE', $this->mode_settings->getVotingPointsPercentage());
             } else {
                 $tpl->setVariable('PROPERTY_VALUE', '10');
@@ -241,7 +260,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         }
     }
 
-    protected function initSolutionVisibleForm(ilRadioOption $radioOption, $is_mode_3 = false) {
+    protected function initSolutionVisibleForm(ilRadioOption $radioOption, $is_mode_3 = false)
+    {
         /*
          *  the mode number is used to set different values for the a_postvar argument
          *   this makes sure that there are different a_postvar values for the different modes and that the rate answer form is displayed properly
@@ -251,7 +271,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $cb_sample_solution_visible->setValue("1");
         $cb_sample_solution_visible->setChecked(true);
 
-        if(!$is_mode_3) {
+        if (!$is_mode_3) {
             $sample_solution_rg = new ilRadioGroupInputGUI('', 'solution_visible_if');
             // $sample_solution_rg->setValue($this->mode_settings->getVisibleIfExerciseFinished() ? 1 : 2);
             $rop_after_exercise = new ilRadioOption($this->pl->txt('after_exercise_completion'), 1);
@@ -262,7 +282,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
             $sample_solution_rg->addOption($rop_start_date);
 
             $dt_prop = new ilDateTimeInputGUI("", "solution_start_date");
-            $dt_prop->setDate(new ilDateTime(time(),IL_CAL_UNIX));
+            $dt_prop->setDate(new ilDateTime(time(), IL_CAL_UNIX));
             $dt_prop->setShowTime(true);
             $rop_start_date->addSubItem($dt_prop);
 
@@ -271,9 +291,10 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $radioOption->addSubItem($cb_sample_solution_visible);
     }
 
-    public function fillForm() {
-        $values['title'] = $this->parent_gui->object->getTitle();
-        $values['desc'] = $this->parent_gui->object->getDescription();
+    public function fillForm()
+    {
+        $values['title'] = $this->assisted_exercise->getTitle();
+        $values['desc'] = $this->assisted_exercise->getDescription();
         $values['online'] = $this->object->getisOnline();
         $values['time_limited'] = $this->object->getisTimeLimited();
         $values['time_period']['start'] = $this->object->getStartDate();
@@ -281,45 +302,47 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $values['always_visible'] = $this->object->getAlwaysVisible();
         $values['mode'] = $this->object->getModus();
 
-        if((int)$this->object->getModus() === 1 || (int)$this->object->getModus() === 3) {
-            foreach($this->fillM1AndM3Form((int) $this->object->getModus()) as $key => $value) {
+        if ((int)$this->object->getModus() === 1 || (int)$this->object->getModus() === 3) {
+            foreach ($this->fillM1AndM3Form((int)$this->object->getModus()) as $key => $value) {
                 $values[$key] = $value;
             }
-            if((int)$this->object->getModus() === 1) {
-                foreach($this->fillM1Form() as $key => $value) {
+            if ((int)$this->object->getModus() === 1) {
+                foreach ($this->fillM1Form() as $key => $value) {
                     $values[$key] = $value;
                 }
-            } elseif((int)$this->object->getModus() === 3) {
+            } elseif ((int)$this->object->getModus() === 3) {
                 foreach ($this->fillM3Form() as $key => $value) {
                     $values[$key] = $value;
                 }
             }
         }
 
-/*        if((int) $this->object->getModus() === 1) {
-            foreach($this->fillM1Form() as $key => $value) {
-                $values[$key] = $value;
-            }
-        }if((int) $this->object->getModus() === 3) {
-            foreach($this->fillM3Form() as $key => $value) {
-                $values[$key] = $value;
-            }
-        }*/
+        /*        if((int) $this->object->getModus() === 1) {
+                    foreach($this->fillM1Form() as $key => $value) {
+                        $values[$key] = $value;
+                    }
+                }if((int) $this->object->getModus() === 3) {
+                    foreach($this->fillM3Form() as $key => $value) {
+                        $values[$key] = $value;
+                    }
+                }*/
         $this->setValuesByArray($values);
     }
 
-    public function fillM1AndM3Form($mode) {
+    public function fillM1AndM3Form($mode)
+    {
         $values['rate_answers' . $mode] = $this->mode_settings->getRateAnswers();
         $values['disposals_until' . $mode] = $this->mode_settings->getDisposalDate();
         $values['sample_solution_visible' . $mode] = $this->mode_settings->getSampleSolutionVisible();
         return $values;
     }
 
-    public function fillM1Form() {
-/*        $values['rate_answers1'] = $this->mode_settings->getRateAnswers();
-        $values['disposals_until1'] = $this->mode_settings->getDisposalDate();
-        $values['sample_solution_visible1'] = $this->mode_settings->getSampleSolutionVisible();*/
-        if($this->mode_settings->getVisibleIfExerciseFinished()) {
+    public function fillM1Form()
+    {
+        /*        $values['rate_answers1'] = $this->mode_settings->getRateAnswers();
+                $values['disposals_until1'] = $this->mode_settings->getDisposalDate();
+                $values['sample_solution_visible1'] = $this->mode_settings->getSampleSolutionVisible();*/
+        if ($this->mode_settings->getVisibleIfExerciseFinished()) {
             $values['solution_visible_if'] = 1;
         } else {
             $values['solution_visible_if'] = 2;
@@ -328,33 +351,35 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         return $values;
     }
 
-    public function fillM3Form() {
-/*        $values['rate_answers3'] = $this->mode_settings->getRateAnswers();
-        $values['disposals_until3'] = $this->mode_settings->getDisposalDate();
-        $values['sample_solution_visible3'] = $this->mode_settings->getSampleSolutionVisible();*/
+    public function fillM3Form()
+    {
+        /*        $values['rate_answers3'] = $this->mode_settings->getRateAnswers();
+                $values['disposals_until3'] = $this->mode_settings->getDisposalDate();
+                $values['sample_solution_visible3'] = $this->mode_settings->getSampleSolutionVisible();*/
         $values['votings_after'] = $this->mode_settings->getStartVotingDate();
         $values['additional_points_for_voting'] = $this->mode_settings->getVotingPoints();
         $values['number_of_percentage'] = $this->mode_settings->getVotingPointsPercentage();
         return $values;
     }
 
-    public function fillObject() {
-        if (! $this->checkInput()) {
+    public function fillObject()
+    {
+        if (!$this->checkInput()) {
             return false;
         }
-        $this->parent_gui->object->setTitle($this->getInput('title'));
-        $this->parent_gui->object->setDescription($this->getInput('desc'));
-        $this->object->setAssistedExerciseRefId($this->parent_gui->object->getRefId());
+        $this->assisted_exercise->setTitle($this->getInput('title'));
+        $this->assisted_exercise->setDescription($this->getInput('desc'));
+        $this->object->setAssistedExerciseObjectId($this->assisted_exercise->getId());
         $this->object->setIsOnline($this->getInput('online'));
         $this->object->setIsTimeLimited($this->getInput('time_limited'));
         /**
          * @var array $time_period
          */
         $time_period = $this->getInput('time_period');
-        foreach($time_period as $key => $value) {
+        foreach ($time_period as $key => $value) {
 
             $date_time = new ilDateTime($value, IL_CAL_DATETIME);
-           /* $timestamp = $date_time->get(IL_CAL_UNIX);*/
+            /* $timestamp = $date_time->get(IL_CAL_UNIX);*/
             $time_period[$key] = $date_time;
         }
 
@@ -362,10 +387,10 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->object->setEndDate($time_period['end']);
         $this->object->setAlwaysVisible($this->getInput('always_visible'));
 
-        if($this->getInput('mode') === '1' || $this->getInput('mode') === '3') {
+        if ($this->getInput('mode') === '1' || $this->getInput('mode') === '3') {
             $this->fillM1AndM3Objects((int)$this->getInput('mode'));
         }
-        if($this->getInput('mode') === '1') {
+        if ($this->getInput('mode') === '1') {
             $this->fillObjectM1();
         } elseif ($this->getInput('mode') === self::M2) {
             $this->object->setModus(2);
@@ -377,15 +402,16 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         return true;
     }
 
-    public function fillObjectM1() {
-/*        $this->object->setModus(1);
-        $this->mode_settings = $this->getModeSettings($this->object->getModus());
-        $this->mode_settings->setSettingsId($this->object->getId());
-        $this->mode_settings->setRateAnswers($this->getInput('rate_answers' . $this->object->getModus()));
-        $disposal_until = new ilDateTime($this->getInput('disposals_until' . $this->object->getModus()), IL_CAL_DATETIME);
-        //$timestamp_disposal_until = $disposal_until->get(IL_CAL_UNIX);
-        $this->mode_settings->setDisposalDate($disposal_until);
-        $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible'. $this->object->getModus()) === '1' ? 1 : 0);*/
+    public function fillObjectM1()
+    {
+        /*        $this->object->setModus(1);
+                $this->mode_settings = $this->getModeSettings($this->object->getModus());
+                $this->mode_settings->setSettingsId($this->object->getId());
+                $this->mode_settings->setRateAnswers($this->getInput('rate_answers' . $this->object->getModus()));
+                $disposal_until = new ilDateTime($this->getInput('disposals_until' . $this->object->getModus()), IL_CAL_DATETIME);
+                //$timestamp_disposal_until = $disposal_until->get(IL_CAL_UNIX);
+                $this->mode_settings->setDisposalDate($disposal_until);
+                $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible'. $this->object->getModus()) === '1' ? 1 : 0);*/
 
         // if the radio group option "After exercise completion" was chosen
         if ($this->getInput('solution_visible_if') === "1") {
@@ -400,14 +426,15 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         }
     }
 
-    public function fillObjectM3() {
-/*        $this->object->setModus(3);
-        $this->mode_settings = $this->getModeSettings($this->object->getModus());
-        $this->mode_settings->setSettingsId($this->object->getId());
-        $this->mode_settings->setRateAnswers($this->getInput('rate_answers' . $this->object->getModus()));
-        $disposal_until = new ilDateTime($this->getInput('disposals_until' . $this->object->getModus()), IL_CAL_DATETIME);
-        $this->mode_settings->setDisposalDate($disposal_until);
-        $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible' . $this->object->getModus()) === '1' ? 1 : 0);*/
+    public function fillObjectM3()
+    {
+        /*        $this->object->setModus(3);
+                $this->mode_settings = $this->getModeSettings($this->object->getModus());
+                $this->mode_settings->setSettingsId($this->object->getId());
+                $this->mode_settings->setRateAnswers($this->getInput('rate_answers' . $this->object->getModus()));
+                $disposal_until = new ilDateTime($this->getInput('disposals_until' . $this->object->getModus()), IL_CAL_DATETIME);
+                $this->mode_settings->setDisposalDate($disposal_until);
+                $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible' . $this->object->getModus()) === '1' ? 1 : 0);*/
 
         $this->mode_settings->setStartVotingDate(new ilDateTime($this->getInput('votings_after'), IL_CAL_DATETIME));
         //$additional_points_for_voting = $this->getInput('additional_points_for_voting');
@@ -416,7 +443,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->mode_settings->setVotingPointsPercentage($this->getInput('number_of_percentage'));
     }
 
-    public function fillM1AndM3Objects($modus) {
+    public function fillM1AndM3Objects($modus)
+    {
         $this->object->setModus($modus);
         $this->mode_settings = $this->getModeSettings($this->object->getModus());
         $this->mode_settings->setSettingsId($this->object->getId());
@@ -426,7 +454,8 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
         $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible' . $this->object->getModus()) === '1' ? 1 : 0);
     }
 
-    public function deletePreviousModeSettings($chosen_mode) {
+    public function deletePreviousModeSettings($chosen_mode)
+    {
 
         if ($chosen_mode != self::M1 && xaseSettingsM1::where(['settings_id' => $this->object->getId()])->hasSets()) {
             $xaseSettingsM1 = xaseSettingsM1::where(['settings_id' => $this->object->getId()])->first();
@@ -441,8 +470,9 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
     /**
      * @return bool|string
      */
-    public function updateObject() {
-        if (! $this->fillObject()) {
+    public function updateObject()
+    {
+        if (!$this->fillObject()) {
             return false;
         }
         $this->deletePreviousModeSettings($this->object->getModus());

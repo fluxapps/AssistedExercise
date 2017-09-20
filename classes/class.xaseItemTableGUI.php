@@ -1,4 +1,11 @@
 <?php
+
+/**
+ * Class xaseItemTableGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ * @ilCtrl_Calls      xaseItemTableGUI: xaseAnswerGUI
+ */
+
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHintAnswer.php');
@@ -6,12 +13,6 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
-
-/**
- * Class xaseItemTableGUI
- *
- * @ilCtrl_Calls      xaseItemTableGUI: xaseAnswerGUI
- */
 
 class xaseItemTableGUI extends ilTable2GUI
 {
@@ -68,9 +69,8 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->setFormName(self::TBL_ID);
         $this->ctrl->saveParameter($a_parent_obj, $this->getNavParameter());
 
-        if(ilObjAssistedExerciseAccess::hasWriteAccess())
-        {
-            $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_CREATE);
+        if (ilObjAssistedExerciseAccess::hasWriteAccess()) {
+            $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
             $ilLinkButton = ilLinkButton::getInstance();
             $ilLinkButton->setCaption($this->pl->txt("add_item"), false);
             $ilLinkButton->setUrl($new_item_link);
@@ -80,7 +80,7 @@ class xaseItemTableGUI extends ilTable2GUI
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
-        $this->setRowTemplate("tpl.items.html","Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
+        $this->setRowTemplate("tpl.items.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
         $this->setFormAction($this->ctrl->getFormActionByClass('xaseitemgui'));
         $this->setExternalSorting(true);
 
@@ -98,7 +98,8 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->parseData();
     }
 
-    protected function addFilterItems() {
+    protected function addFilterItems()
+    {
         $title = new ilTextInputGUI($this->pl->txt('title'), 'title');
         $this->addAndReadFilterItem($title);
 
@@ -113,7 +114,8 @@ class xaseItemTableGUI extends ilTable2GUI
     /**
      * @param $item
      */
-    protected function addAndReadFilterItem(ilFormPropertyGUI $item) {
+    protected function addAndReadFilterItem(ilFormPropertyGUI $item)
+    {
         $this->addFilterItem($item);
         $item->readFromSession();
         if ($item instanceof ilCheckboxInputGUI) {
@@ -126,20 +128,20 @@ class xaseItemTableGUI extends ilTable2GUI
     /**
      * @param array $a_set
      */
-    public function fillRow($a_set) {
+    public function fillRow($a_set)
+    {
         /**
          * @var $xaseItem xaseItem
          */
         $xaseItem = xaseItem::find($a_set['id']);
         $this->tpl->setVariable('TITLE', $xaseItem->getTitle());
-        $this->tpl->setVariable('STATUS', $xaseItem->getStatus());
+        $this->tpl->setVariable('STATUS', $xaseItem->getItemStatus());
         /**
          * @var $xasePoint xasePoint
          */
         $xasePoint = xasePoint::find($xaseItem->getPointId());
 
-        if (!empty($xasePoint))
-        {
+        if (!empty($xasePoint)) {
             $this->tpl->setVariable('MAXPOINTS', $xasePoint->getMaxPoints());
             $this->tpl->setVariable('POINTS', $xasePoint->getTotalPoints());
         }
@@ -150,47 +152,45 @@ class xaseItemTableGUI extends ilTable2GUI
         /**
          * @var $xaseHintAnswer xaseHintAnswer
          */
-        if(!empty($xaseHint))
-        {
+        if (!empty($xaseHint)) {
             $xaseHintAnswer = xaseHintAnswer::where(array('hint_id' => $xaseHint->getId()))->get();
         }
         /**
          * @var $xaseAnswer xaseAnswer
          */
-        if(!empty($xaseHintAnswer))
-        {
+        if (!empty($xaseHintAnswer)) {
             $xaseAnswer = xaseAnswer::where(array('id' => $xaseHintAnswer->getAnswerId()))->get();
         }
 
-        if(!empty($xaseHintAnswer))
-        {
+        if (!empty($xaseHintAnswer)) {
             $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
         }
 
         $this->addActionMenu($xaseItem);
     }
 
-    protected function initColums() {
+    protected function initColums()
+    {
         $all_cols = $this->getSelectableColumns();
-        foreach($this->getSelectedColumns() as $col)
-        {
-            $this->addColumn($all_cols[$col]['txt'], $col,'16.66666666667%');
+        foreach ($this->getSelectedColumns() as $col) {
+            $this->addColumn($all_cols[$col]['txt'], $col, '16.66666666667%');
         }
         $this->addColumn($this->pl->txt('common_actions'), '', '16.66666666667%');
 
-/*        $this->addColumn($this->pl->txt('title'), 'title');
-        $this->addColumn($this->pl->txt('status'), 'status');
-        $this->addColumn($this->pl->txt('max_points'), 'max_points');
-        $this->addColumn($this->pl->txt('number_of_used_hints'), 'number_of_used_hints');
-        $this->addColumn($this->pl->txt('points'), 'points');
-        $this->addColumn($this->pl->txt('common_actions'), '', '150px');*/
+        /*        $this->addColumn($this->pl->txt('title'), 'title');
+                $this->addColumn($this->pl->txt('status'), 'status');
+                $this->addColumn($this->pl->txt('max_points'), 'max_points');
+                $this->addColumn($this->pl->txt('number_of_used_hints'), 'number_of_used_hints');
+                $this->addColumn($this->pl->txt('points'), 'points');
+                $this->addColumn($this->pl->txt('common_actions'), '', '150px');*/
     }
 
 
     /**
      * @param xaseItem $xaseItem
      */
-    protected function addActionMenu(xaseItem $xaseItem) {
+    protected function addActionMenu(xaseItem $xaseItem)
+    {
         $current_selection_list = new ilAdvancedSelectionListGUI();
         $current_selection_list->setListTitle($this->pl->txt('common_actions'));
         $current_selection_list->setId('item_actions' . $xaseItem->getId());
@@ -199,9 +199,9 @@ class xaseItemTableGUI extends ilTable2GUI
 
         //answer
         //$this->ctrl->setParameter($this->parent_obj, xgeoLocationGUI::IDENTIFIER, $xgeoLocation->getId());
-/*        if ($this->access->hasReadAccess()) {
-            $current_selection_list->addItem($this->pl->txt('view_answer'), xgeoLocationGUI::CMD_VIEW, $this->ctrl->getLinkTarget($this->parent_obj, xgeoLocationGUI::CMD_VIEW));
-        }*/
+        /*        if ($this->access->hasReadAccess()) {
+                    $current_selection_list->addItem($this->pl->txt('view_answer'), xgeoLocationGUI::CMD_VIEW, $this->ctrl->getLinkTarget($this->parent_obj, xgeoLocationGUI::CMD_VIEW));
+                }*/
 
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_ANSWER, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_ANSWER));
@@ -213,14 +213,15 @@ class xaseItemTableGUI extends ilTable2GUI
     }
 
 
-    protected function parseData() {
+    protected function parseData()
+    {
         $this->determineOffsetAndOrder();
         $this->determineLimit();
 
         $assistedExerciseId = $this->parent_obj->getAssistedExerciseId();
 
         $collection = xaseItem::getCollection();
-        $collection->where(array( 'assisted_exercise_id' => $this->parent_obj->getAssistedExerciseId() ));
+        $collection->where(array('assisted_exercise_id' => $this->parent_obj->getAssistedExerciseId()));
 
         $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'title';
         $offset = $this->getOffset() ? $this->getOffset() : 0;
@@ -235,7 +236,7 @@ class xaseItemTableGUI extends ilTable2GUI
             switch ($filter_key) {
                 case 'title':
                 case 'status':
-                    $collection->where(array( $filter_key => '%' . $filter_value . '%' ), 'LIKE');
+                    $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
                     break;
             }
         }
@@ -243,7 +244,8 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->setData($collection->getArray());
     }
 
-    public function getSelectableColumns() {
+    public function getSelectableColumns()
+    {
         $cols["title"] = array(
             "txt" => $this->pl->txt("title"),
             "default" => true);
@@ -264,7 +266,8 @@ class xaseItemTableGUI extends ilTable2GUI
 
     // TODO change static array values
     // TODO decide if the listing appears in front of the filter
-    public function createListing() {
+    public function createListing()
+    {
         $f = $this->dic->ui()->factory();
         $renderer = $this->dic->ui()->renderer();
 

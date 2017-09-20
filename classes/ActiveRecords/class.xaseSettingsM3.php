@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 10:49
+ * Class xaseSettingsM3
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseSettingsM3 extends ActiveRecord {
+class xaseSettingsM3 extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_sett_m3';
     }
 
@@ -81,7 +81,7 @@ class xaseSettingsM3 extends ActiveRecord {
      * @db_length     1
      * @db_is_notnull true
      */
-    protected   $voting_points = 1;
+    protected $voting_points = 1;
 
     /**
      * @var int

@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 13:13
+ * Class xaseComment
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseComment extends ActiveRecord {
+class xaseComment extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_comment';
     }
 

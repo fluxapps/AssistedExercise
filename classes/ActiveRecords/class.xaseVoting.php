@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 13:09
+ * Class xaseVoting
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseVoting extends ActiveRecord {
+class xaseVoting extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_voting';
     }
 
@@ -44,7 +44,7 @@ class xaseVoting extends ActiveRecord {
      * @db_length     4
      * @db_is_notnull false
      */
-    protected $nmber_of_upvotings;
+    protected $number_of_upvotings;
 
     /**
      * @return int
@@ -73,17 +73,17 @@ class xaseVoting extends ActiveRecord {
     /**
      * @return int
      */
-    public function getNmberOfUpvotings()
+    public function getNumberOfUpvotings()
     {
-        return $this->nmber_of_upvotings;
+        return $this->number_of_upvotings;
     }
 
     /**
-     * @param int $nmber_of_upvotings
+     * @param int $number_of_upvotings
      */
-    public function setNmberOfUpvotings($nmber_of_upvotings)
+    public function setNumberOfUpvotings($number_of_upvotings)
     {
-        $this->nmber_of_upvotings = $nmber_of_upvotings;
+        $this->number_of_upvotings = $number_of_upvotings;
     }
 
 }

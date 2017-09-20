@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 13:06
+ * Class xaseRating
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseRating extends ActiveRecord {
+class xaseRating extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_rating';
     }
 

@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * Class    ilObjAssistedExerciseGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilObjAssistedExerciseAccess.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseItem.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettings.php');
@@ -31,8 +37,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilCommonActionDispatcherGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
-*/
-
+ */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
     const XASE = 'xase';
@@ -47,7 +52,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
     /**
      * @var xaseSettings
      */
-    public $xase_settings;
+    protected $xase_settings;
 
     /**
      * @var ilCtrl
@@ -75,7 +80,8 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
      */
     protected $tabs;
 
-    protected function afterConstructor() {
+    protected function afterConstructor()
+    {
         global $DIC;
 
         $this->dic = $DIC;
@@ -84,25 +90,25 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->tabs = $DIC->tabs();
         $this->ctrl = $DIC->ctrl();
         $this->tpl = $DIC['tpl'];
-        if(!$this->getCreationMode()) {
+        if (!$this->getCreationMode()) {
             $this->xase_settings = $this->getSettings();
         }
     }
-    
+
     final function getType()
     {
         return self::XASE;
     }
 
-    public function executeCommand() {
+    public function executeCommand()
+    {
 
         $this->setTitleAndDescription();
 
         $next_class = $this->dic->ctrl()->getNextClass($this);
         $this->dic->ctrl()->getCmd(self::CMD_STANDARD);
 
-        switch ($next_class)
-        {
+        switch ($next_class) {
             case 'xaseitemgui':
                 $this->setTabs();
                 $this->setLocator();
@@ -119,13 +125,14 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         }
     }
 
-    protected function performCommand() {
+    protected function performCommand()
+    {
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
             case self::CMD_STANDARD:
                 if ($this->access->hasReadAccess()) {
                     $this->ctrl->redirect(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD);
-                break;
+                    break;
                 } else {
                     ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
                     break;
@@ -173,16 +180,18 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         }
     }
 
-    public function edit() {
+    public function edit()
+    {
         $this->tabs->activateTab(self::CMD_EDIT);
-        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings, $this->xase_settings->getModus());
+        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $this->xase_settings->getModus());
         $xaseSettingsFormGUI->fillForm();
         $this->tpl->setContent($xaseSettingsFormGUI->getHTML());
     }
 
-    public function update() {
+    public function update()
+    {
         $this->tabs->activateTab(self::CMD_EDIT);
-        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->xase_settings, $this->xase_settings->getModus());
+        $xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $this->xase_settings->getModus());
         if ($xaseSettingsFormGUI->updateObject() && $this->object->update()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
         }
@@ -190,21 +199,16 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->tpl->setContent($xaseSettingsFormGUI->getHTML());
     }
 
-    protected function getSettings() {
-        if(xaseSettings::where(['assisted_exercise_ref_id' => intval($this->object->getRefId())])->hasSets()) {
-            return xaseSettings::where(['assisted_exercise_ref_id' => intval($this->object->getRefId())])->first();
+    protected function getSettings()
+    {
+        if (xaseSettings::where(['assisted_exercise_object_id' => intval($this->object->getId())])->hasSets()) {
+            return xaseSettings::where(['assisted_exercise_object_id' => intval($this->object->getId())])->first();
         }
         $xaseSettings = new xaseSettings();
-        $xaseSettings->setAssistedExerciseRefId($this->object->getRefId());
+        $xaseSettings->setAssistedExerciseObjectId($this->object->getId());
         $xaseSettings->create();
         return $xaseSettings;
     }
-
-/*    function afterSave(ilObject $newObj)
-    {
-        parent::afterSave($newObj);
-        $this->getSettings();
-    }*/
 
     /**
      * show information screen

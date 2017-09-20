@@ -1,15 +1,17 @@
 <?php
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
 
 /**
  * Class xaseItemGUI
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  * @ilCtrl_Calls      xaseItemGUI: xaseItemTableGUI
  * @ilCtrl_Calls      xaseItemGUI: xaseItemFormGUI
  * @ilCtrl_isCalledBy xaseItemGUI: ilObjAssistedExerciseGUI
  */
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
 
-class xaseItemGUI {
+class xaseItemGUI
+{
 
     const CMD_STANDARD = 'content';
     const CMD_EDIT = 'edit';
@@ -59,7 +61,8 @@ class xaseItemGUI {
      */
     protected $assisted_exercise_id;
 
-    public function __construct() {
+    public function __construct()
+    {
         global $DIC;
         $this->dic = $DIC;
         $this->tpl = $this->dic['tpl'];
@@ -67,13 +70,14 @@ class xaseItemGUI {
         $this->ctrl = $this->dic->ctrl();
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
-        $this->assisted_exercise_id = $_GET['ref_id'];
         $this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
-        $this->xase_settings = xaseSettings::find($this->object->getRefId());
+        $this->assisted_exercise_id = ilObjectFactory::getInstanceByObjId($this->object->getId());//$_GET['ref_id'];
+        $this->xase_settings = xaseSettings::find($this->object->getId());
         $this->xase_item = new xaseItem();
     }
 
-    public function executeCommand() {
+    public function executeCommand()
+    {
         $nextClass = $this->ctrl->getNextClass();
         switch ($nextClass) {
             default:
@@ -83,7 +87,8 @@ class xaseItemGUI {
         }
     }
 
-    protected function performCommand() {
+    protected function performCommand()
+    {
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
             case self::CMD_STANDARD:
@@ -106,14 +111,16 @@ class xaseItemGUI {
         }
     }
 
-    public function edit() {
+    public function edit()
+    {
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
         $xaseItemFormGUI->fillForm();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
     }
 
-    public function update() {
+    public function update()
+    {
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
         if ($xaseItemFormGUI->updateObject()) {
@@ -123,8 +130,9 @@ class xaseItemGUI {
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
     }
 
-    public function content() {
-        if (! $this->access->hasReadAccess()) {
+    public function content()
+    {
+        if (!$this->access->hasReadAccess()) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
 
@@ -141,14 +149,16 @@ class xaseItemGUI {
         return $this->assisted_exercise_id;
     }
 
-    protected function applyFilter() {
+    protected function applyFilter()
+    {
         $xgeoLocationTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD);
         $xgeoLocationTableGUI->writeFilterToSession();
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 
 
-    protected function resetFilter() {
+    protected function resetFilter()
+    {
         $xgeoLocationTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD);
         $xgeoLocationTableGUI->resetFilter();
         $xgeoLocationTableGUI->resetOffset();

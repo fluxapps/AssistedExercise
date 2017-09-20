@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 11:53
+ * Class xaseAnswer
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
 class xaseAnswer extends ActiveRecord {

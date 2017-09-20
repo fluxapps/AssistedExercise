@@ -1,10 +1,17 @@
 <?php
 
-class xaseSettingsM1 extends ActiveRecord {
+/**
+ * Class xaseSettingsM1
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ */
+
+class xaseSettingsM1 extends ActiveRecord
+{
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_sett_m1';
     }
 

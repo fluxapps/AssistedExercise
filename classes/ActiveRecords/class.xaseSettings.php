@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: bseglias
- * Date: 11.09.17
- * Time: 09:57
+ * Class xaseSettings
+ * @author  Benjamin Seglias <bs@studer-raimann.ch>
  */
 
-class xaseSettings extends ActiveRecord {
+class xaseSettings extends ActiveRecord
+{
 
     /**
      * @return string
      */
-    public static function returnDbTableName() {
+    public static function returnDbTableName()
+    {
         return 'rep_robj_xase_settings';
     }
 
@@ -35,7 +35,7 @@ class xaseSettings extends ActiveRecord {
      * @db_length     4
      * @db_is_notnull true
      */
-    protected $assisted_exercise_ref_id;
+    protected $assisted_exercise_object_id;
 
     /**
      * @var int
@@ -200,17 +200,17 @@ class xaseSettings extends ActiveRecord {
     /**
      * @return int
      */
-    public function getAssistedExerciseRefId()
+    public function getAssistedExerciseObjectId()
     {
-        return $this->assisted_exercise_ref_id;
+        return $this->assisted_exercise_object_id;
     }
 
     /**
-     * @param int $assisted_exercise_ref_id
+     * @param int $assisted_exercise_object_id
      */
-    public function setAssistedExerciseRefId($assisted_exercise_ref_id)
+    public function setAssistedExerciseObjectId($assisted_exercise_object_id)
     {
-        $this->assisted_exercise_ref_id = $assisted_exercise_ref_id;
+        $this->assisted_exercise_object_id = $assisted_exercise_object_id;
     }
 
 }
