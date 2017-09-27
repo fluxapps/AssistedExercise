@@ -55,3 +55,14 @@ cb_additional_points_for_voting#:#Students get x% of the points per item, which 
 number_of_percentage#:#Percentage
 votings_after#:#Votings from:
 please_choose_mode#:#Please choose a mode.
+task#:#Task
+text_hint_btn#:#Create hint
+hint#:#hint
+level_1_hint#:#Level 1 hint
+level_2_hint#:#Level 2 hint
+text_remove_hint_btn#:#Remove hint
+sample_solution#:#Sample Solution
+minus_points#:#Minus points
+specify_max_points#:#Specify maximum points
+hints#:#Hints
+info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved.

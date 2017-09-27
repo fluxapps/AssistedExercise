@@ -8,6 +8,7 @@
  * @ilCtrl_isCalledBy xaseItemGUI: ilObjAssistedExerciseGUI
  */
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
 
 class xaseItemGUI
@@ -56,10 +57,6 @@ class xaseItemGUI
      * @var ilObjAssistedExerciseAccess
      */
     protected $access;
-    /**
-     * @var int
-     */
-    protected $assisted_exercise_id;
 
     public function __construct()
     {
@@ -71,8 +68,7 @@ class xaseItemGUI
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
-        $this->assisted_exercise_id = ilObjectFactory::getInstanceByObjId($this->object->getId());//$_GET['ref_id'];
-        $this->xase_settings = xaseSettings::find($this->object->getId());
+        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
         $this->xase_item = new xaseItem();
     }
 
@@ -117,6 +113,7 @@ class xaseItemGUI
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
         $xaseItemFormGUI->fillForm();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
+        $this->tpl->show();
     }
 
     public function update()
@@ -139,14 +136,6 @@ class xaseItemGUI
         $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD);
         $this->tpl->setContent($xaseItemTableGUI->getHTML());
         $this->tpl->show();
-    }
-
-    /**
-     * @return int
-     */
-    public function getAssistedExerciseId()
-    {
-        return $this->assisted_exercise_id;
     }
 
     protected function applyFilter()

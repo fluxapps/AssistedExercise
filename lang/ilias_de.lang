@@ -60,3 +60,14 @@ cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, w
 number_of_percentage#:#Anzahl Prozent
 votings_after#:#Votings ab:
 please_choose_mode#:#Bitte wählen Sie einen Modus aus.
+task#:#Aufgabe
+text_hint_btn#:#Tipp hinzufügen
+hint#:#Tipp
+level_1_hint#:#Ebene 1 Tipp
+level_2_hint#:#Ebene 2 Tipp
+text_remove_hint_btn#:#Tipp entfernen
+sample_solution#:#Musterlösung
+minus_points#:#Punkteabzug
+specify_max_points#:#Maximalpunktzahl festlegen
+hints#:#Tipps
+info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert.

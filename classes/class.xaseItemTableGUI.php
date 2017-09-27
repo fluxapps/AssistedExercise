@@ -218,10 +218,8 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->determineOffsetAndOrder();
         $this->determineLimit();
 
-        $assistedExerciseId = $this->parent_obj->getAssistedExerciseId();
-
         $collection = xaseItem::getCollection();
-        $collection->where(array('assisted_exercise_id' => $this->parent_obj->getAssistedExerciseId()));
+        $collection->where(array('assisted_exercise_id' => $this->parent_obj->object->getId()));
 
         $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'title';
         $offset = $this->getOffset() ? $this->getOffset() : 0;

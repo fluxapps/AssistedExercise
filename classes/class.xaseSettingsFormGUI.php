@@ -244,7 +244,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
             $ci_percentage = new ilCustomInputGUI($this->pl->txt('number_of_percentage'), 'number_of_percentage');
             $ci_percentage->setRequired(true);
 
-            $tpl = new ilTemplate('tpl.m3_settings_percentage.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
+            $tpl = new ilTemplate('tpl.small_input.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
             $tpl->setVariable('SIZE', 2);
             $tpl->setVariable('MAXLENGTH', 2);
             $tpl->setVariable('POST_VAR', 'number_of_percentage');
@@ -253,7 +253,6 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
             } else {
                 $tpl->setVariable('PROPERTY_VALUE', '10');
             }
-
 
             $ci_percentage->setHTML($tpl->get());
             $cb_additional_points_for_voting->addSubItem($ci_percentage);
