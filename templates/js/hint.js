@@ -4,14 +4,13 @@ $(document).ready(function() {
 
     var hints = [];
 
-    // boolean argument get_current_counter is optional
-    function increase_counter(get_current_counter) {
+    // boolean argument number_only is optional. If it is set the function returns only the counter.
+    function increase_counter(number_only) {
         if(typeof increase_counter.counter == 'undefined') {
             increase_counter.counter = 1;
-        } else if(get_current_counter) {
+        } else if(number_only) {
             return increase_counter.counter;
         }
-        //console.log(increase_counter.counter);
         return increase_counter.counter++;
     }
 
@@ -37,14 +36,65 @@ $(document).ready(function() {
         }
     }
 
+    /**
+     *
+     * The splice() method changes the content of a string by removing a range of
+     * characters and/or adding new characters.
+     *
+     * @param string The string where the splicing is applied to.
+     * @param start start Index at which to start changing the string.
+     * @param rem An integer indicating the number of old chars to remove.
+     * @param newSubStr The String that is spliced in.
+     * @return {string} A new string with the spliced substring.
+     */
+    function splice(string, start, rem, newSubStr) {
+        return string.slice(0, start) + newSubStr + string.slice(start + Math.abs(rem));
+    }
+
     var task = $('#task')[0];
 
+    function initaliseNameAttributes() {
+        $('.hint_form').each(function (i) {
+            var hint_index = i + 1;
+            //TODO handle hidden input
+            $( this ).find('input').each(function (i, el) {
+                var input_jquery_object = $(el);
+                var name_attr = input_jquery_object.attr('name');
+                if (typeof name_attr !== typeof undefined && name_attr !== false) {
+                    var old_name = input_jquery_object.attr('name');
+                    start = old_name.indexOf('[') + 1;
+                    var new_name = splice(old_name, start, 0, hint_index);
+                    input_jquery_object.attr('name', new_name);
+                }
+            });
+        })
+    }
+
+    function setNameAttribute(el) {
+        el.find('input').each(function (i, el) {
+            var input_jquery_object = $(el);
+            var name_attr = input_jquery_object.attr('name');
+            if (typeof name_attr !== typeof undefined && name_attr !== false) {
+                var old_name = input_jquery_object.attr('name');
+                var old_name_only_string = old_name.replace(/[0-9]/, '');
+                start = old_name_only_string.indexOf('[') + 1;
+                var new_name = splice(old_name_only_string, start, 0, increase_counter(true));
+                input_jquery_object.attr('name', new_name);
+            }
+        })
+    }
+
+    initaliseNameAttributes();
 
     function initaliseRemoveBtnIds() {
         $('.remove_hint_btn').each(function(i) {
             $( this ).attr('id', 'remove_hint_'+  ++i);
         });
     }
+
+    /**
+     * Input name muss beim initialisieren, hinzufügen und entfernen eines Tipps gesetzt werden
+     */
 
     initaliseRemoveBtnIds();
 
@@ -57,62 +107,140 @@ $(document).ready(function() {
         text = task.value;
         var pos = parseInt(hint_count, 10);
         var regexExpression = '\\[hint ' + pos + '\\](.*?)\\[\\/hint\\]';
+        console.log("REMOVE HINT FROM TASK regexExpression");
+        console.log(regexExpression);
         var regex = new RegExp(regexExpression, 'i');
         var newText = text.replace(regex, '');
         task.value = newText;
         cleanHintCode();
     }
+/*
+    function getCleanedHintNumbers(hint_numbers) {
+        for (i = 0; i < hint_numbers.length; i++) {
+            //Array index starts at 0, but hint id should start at 1
+            incrementer = i;
+            hint_numbers[i] = ++incrementer;
+        }
+        return hint_numbers;
+    }*/
 
-
-        /*
-        1) get all hint numbers in [hint n]s
-        2) save them into an array
-        3) make a loop which starts at index 0*, loop as long as there are elements in the array of hint numbers
-        4) search the corresponding remove_hint_btn which has the id of the actual hint number in the array
-        5) change the id of the remove_btn to the value of the increment variable
-        6) change the number of [hint n] to the value of the incremented variable
-            a) replace n on the corresponding hint in the hint_matches array
-        7) return the number of hints
-         */
+    //TODO: make first argument array to reduce the number of function calls
+    function adoptInputHintId(element_selectors, id, hint_id) {
+        for(i=0; i < element_selectors.length; i++) {
+            el = $(element_selectors[i]);
+            el_name = el.attr("name");
+            el_new_name = el_name.replace(new RegExp(id), hint_id);
+            el.attr('name', el_new_name);
+        }
+/*        el = $(element_selector);
+        el_name = el.attr("name");
+        el_new_name = el_name.replace(new RegExp(id), hint_id);
+        el.attr('name', el_new_name);*/
+    }
 
     function cleanHintCode() {
-        text = task.value;
+        ta = $('#task');
+        text = ta.val();
+        console.log("clean Hint Code task text");
+        console.log(text);
         var newText = text.replace(/\[hint[\s\S\d]*?\]/g, '[temp]');
         newText = newText.replace(/\[\/hint\]/g, '[/temp]');
+        //TODO vermutung problem text.match und newText.match
+        console.log(newText);
 
         var regex_hints = /\[hint (\d+)\]/gi;
         hint_matches = text.match(regex_hints);
-        console.log("MATCHES");
+
+        console.log("hint_matches");
         console.log(hint_matches);
 
-        var regex_number = /(\d+)/gi;
-        hint_numbers = hint_matches.toString().match(regex_number);
-        console.log("HINT NUMBERS");
-        console.log(hint_numbers);
+        if (hint_matches) {
+            var regex_number = /(\d+)/gi;
 
-        console.log("HINT NUMBERS LENGTH");
-        console.log(hint_numbers.length);
+            hint_numbers = hint_matches.toString().match(regex_number);
 
-        for(var i = 0; i <= hint_numbers.length; i++) {
+            console.log("hint_numbers");
+            console.log(hint_numbers);
+            console.log("hint_numbers.length");
+            console.log(hint_numbers.length);
 
-            console.log("ITERATION " + i);
-            //adopt the ids of the remove btns
-            remove_btn_id = hint_numbers[i];
-            console.log("REMOVE BTN ID");
-            console.log(remove_btn_id);
-            remove_btn = $('#remove_hint_' + remove_btn_id);
-            console.log("REMOVE BTN");
-            console.log(remove_btn);
-            var incrementer = i;
-            var hint_id = ++incrementer;
-            console.log("HINT ID");
-            console.log(hint_id);
-            remove_btn.attr('id', 'remove_hint_' + hint_id);
-            //replace the hint number id
-            newText = newText.replace(/\[temp\]/, '[hint ' + hint_id + ']');
-            newText = newText.replace(/\[\/temp\]/, '[/hint]');
+            /*
+            TODO: function loop through hint_numbers. Replace number of hint n with number of increment variable starting at 1
+            comment that this handle the problem if a hint not at the end will be removed.
+             */
+/*            hint_numbers_cleaned = getCleanedHintNumbers(hint_numbers);
+
+            console.log("hint_numbers_cleaned");
+            console.log(hint_numbers_cleaned);*/
+
+            for(var i = 0; i < hint_numbers.length; i++) {
+                console.log("i");
+                console.log(i);
+                //adopt the ids of the remove btns
+                //remove_btn_id = hint_numbers[i];
+
+                //to select the right remove hint btns the original id has to be used. Cleaning of hints has to be made afterwards.
+                id = hint_numbers[i];
+                console.log("id");
+                console.log(id);
+                remove_btn = $('#remove_hint_' + id);
+                console.log(remove_btn);
+                var incrementer = i;
+                console.log("incrementer");
+                console.log(incrementer);
+                var hint_id = ++incrementer;
+                console.log("hint_id");
+                console.log(hint_id);
+
+/*                console.log("hint_numbers_cleaned[i]");
+                console.log(hint_numbers_cleaned[i]);*/
+
+                //remove_btn.attr('id', 'remove_hint_' + hint_numbers_cleaned[i]);
+                remove_btn.attr('id', 'remove_hint_' + hint_id);
+
+                //is_template = $("input[name=" + name_string + "]");
+                is_template = $("input[name=hint\\[" + id + "\\]\\[is_template\\]]");
+
+                lvl_1_hint = $("input[name=hint\\[" + id + "\\]\\[lvl_1_hint\\]]");
+
+                lvl_1_minus_points = $("input[name=hint\\[" + id + "\\]\\[lvl_1_minus_points\\]]");
+
+                lvl_2_hint = $("input[name=hint\\[" + id + "\\]\\[lvl_2_hint\\]]");
+
+                lvl_2_minus_points = $("input[name=hint\\[" + id + "\\]\\[lvl_2_minus_points\\]]");
+
+                selectors = [is_template, lvl_1_hint, lvl_1_minus_points, lvl_2_hint, lvl_2_minus_points];
+
+                adoptInputHintId(selectors, id, hint_id);
+
+                //replace the hint number id
+                newText = newText.replace(/\[temp\]/, '[hint ' + hint_id + ']');
+                newText = newText.replace(/\[\/temp\]/, '[/hint]');
+            }
+            task.value = newText;
         }
-        task.value = newText;
+    }
+
+    /*
+    take the text from task where [hint n] correspond to the incremented value (take [hint n]test[/hint]
+    insert the value in the text of the hint_to_label_text
+     */
+    function adoptHintToLabel() {
+        //console.log("ADOPT HINT TO LABEL FUNCTION")
+        var hint_tos = $('.hint_to');
+        //console.log(hint_tos);
+
+        for(i = 0; i < hint_tos.length;) {
+            //console.log("i: " + i);
+            hint_to_jquery_object = $(hint_tos[i]);
+            //console.log(hint_to_jquery_object);
+            hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
+            //console.log(hint_to_label);
+            hint_to_label_text = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label").text();
+            //console.log(hint_to_label_text);
+            hint_to_label.text(hint_to_label_text.replace(/[0-9]/, ++i));
+            //console.log(hint_to_label.text());
+        }
     }
 
     toggle_form_header_gui_and_label();
@@ -149,33 +277,31 @@ $(document).ready(function() {
                 var hidden_form = hint_form.filter(function() {
                     return $(this).css('display') == 'none';
                 });
+
                 //append_target is the wrapper for the hint forms
                 var append_target = hint_form.closest('.col-sm-9');
                 var copy_hidden_form = hidden_form.clone(true);
+
                 copy_hidden_form.appendTo(append_target);
 
-                console.log("Remove BTN ID Hidden Form");
-                console.log(hidden_form.children('.col-sm-9').last().children('a').attr('id'));
 
                 hidden_form.css({ display: 'inline-block'});
 
-                console.log("START TEST HINT TO");
-                //console.log(hidden_form);
-                //console.log(hidden_form.children("div.hint_to"));
-                //console.log(hidden_form.children().eq(0));
-                console.log(hidden_form.find("div.hint_to").children('.col-sm-9').children("label"));
-
                 hidden_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
-                //console.log(hidden_form.closest("div.hint_to"));
 
                 //hidden_form.closest('.hint_to').children('col-sm-9 > label').value = task.value.substring(startPos, endPos);
 
-                console.log("Remove BTN ID copy hidden form");
-                console.log(copy_hidden_form.children('.col-sm-9').last().children('a').attr('id'));
+                //shown hint forms will be validated because of the value 1
+                hidden_form.find('input[name*="[is_template]"]').val("1");
 
                 hidden_form = copy_hidden_form;
 
                 setRemoveBtnId(hidden_form);
+
+                setNameAttribute(hidden_form);
+
+                // set value of is_template to 0. This makes sure that this input will not be considered in check input
+                hidden_form.find('input[name*="[is_template]"]').val("0");
 
                 toggle_form_header_gui_and_label();
 
@@ -197,14 +323,26 @@ $(document).ready(function() {
             $( event.target ).closest( ".hint_form" ).remove();
             decrease_counter();
 
-
-            //the id of the not displayed hint form has to be changed
+            //the id of the not displayed hint form remove hint button has to be changed as well as the name attribute
             hidden_form = $('.hint_form').filter(function() {
                 return $(this).css('display') == 'none';
             });
 
-
             hidden_form.children('.col-sm-9').last().children('a').attr('id', 'remove_hint_' + increase_counter(true));
+
+/*            hidden_form.children('div.col-sm-9').each(function (i, el) {
+                var input = $(el).find('input');
+                var name_attr = input.attr('name');
+                if (typeof name_attr !== typeof undefined && name_attr !== false) {
+                    var old_name = input.attr('name');
+                    var old_name_only_string = old_name.replace(/[0-9]/g, '');
+                    input.attr('name', old_name_only_string + increase_counter(true));
+                }
+            });*/
+
+            setNameAttribute(hidden_form);
+
+            adoptHintToLabel();
 
             toggle_form_header_gui_and_label();
         });

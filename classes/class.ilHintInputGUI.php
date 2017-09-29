@@ -61,21 +61,19 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     {
         global $DIC;
         $this->dic = $DIC;
-        $this->lvl_1_hint = new ilTextInputGUI("Ebene 1 Tipp", "lvl_1_hint_");
+        $this->lvl_1_hint = new ilTextInputGUI("Ebene 1 Tipp", "hint[][lvl_1_hint]");
         $this->lvl_1_hint->setRequired(true);
-        $this->lvl_1_minus_points = new ilNumberInputGUI("Punkteabzug", "lvl_1_minus_points_");
+        $this->lvl_1_minus_points = new ilNumberInputGUI("Punkteabzug", "hint[][lvl_1_minus_points]");
         $this->lvl_1_minus_points->setSize(4);
         $this->lvl_1_minus_points->setRequired(true);
-        $this->lvl_2_hint = new ilTextInputGUI("Ebene 2 Tipp", "lvl_2_hint_");
-        $this->lvl_2_minus_points = new ilNumberInputGUI("Punkteabzug", "lvl_2_minus_points_");
+        $this->lvl_2_hint = new ilTextInputGUI("Ebene 2 Tipp", "hint[][lvl_2_hint]");
+        $this->lvl_2_minus_points = new ilNumberInputGUI("Punkteabzug", "hint[][lvl_2_minus_points]");
         $this->lvl_2_minus_points->setSize(4);
         $btn_remove_hint = ilJsLinkButton::getInstance();
         $btn_remove_hint->setCaption('text_remove_hint_btn');
         $btn_remove_hint->setName('text_remove_hint_btn');
-        $hint_number = 1;
         $btn_remove_hint->setId('remove_hint_');
         $btn_remove_hint->addCSSClass('remove_hint_btn');
-        //$btn_remove_hint->setOnClick("remove_hint_btn()");
         $this->setRemoveHintBtn($btn_remove_hint->render());
 
         $DIC->ui()->mainTemplate()->addCss("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/default/less/hint_form.css");
@@ -83,6 +81,36 @@ class ilHintInputGUI extends ilFormPropertyGUI {
         parent::__construct($a_title, $a_postvar);
         $this->setType("hint");
     }
+
+    /**
+     * @return bool
+     */
+    public function checkInput()
+    {
+        // Wenn inputbenennung wie folgt: name="hint[1][lvl_1_minus_points]"
+        foreach ($_POST['hint'] as $id => $data) {
+            //don't check hidden input
+            if ($data['is_template'] == 1) {
+                return true;
+            }
+            if (empty($data["lvl_1_hint"]) || empty($data["lvl_1_minus_points"]) || empty($data["lvl_2_hint"]) || empty($data["lvl_2_minus_points"])) {
+                ilUtil::sendFailure("");
+                return false;
+            }
+            if(!is_numeric($data("lvl_1_minus_points") || !is_numeric($data["lvl_2_minus_points"]))) {
+                return false;
+            }
+            return true;
+        }
+        //evtl. set disablestandardmessage
+        ilUtil::sendFailure("Achtung!!!");
+        return false;
+        //$lvl_1_minus_points = $this->lvl_1_minus_points->checkInput();
+        //$lvl_2_minus_points = $this->lvl_2_minus_points->checkInput();
+
+        //return ($lvl_1_minus_points && $lvl_2_minus_points);
+    }
+
 
     /**
      * @return ilTextInputGUI
@@ -164,17 +192,18 @@ class ilHintInputGUI extends ilFormPropertyGUI {
         $this->remove_hint_btn = $remove_hint_btn;
     }
 
-    //TODO check if method is necessary, since ilTextInputGUI and ilNumberInputGUI already implement this method
     /**
      * Set value by array
      *
      * @param	array	$a_values	value array
      */
-/*    function setValueByArray($a_values)
+    function setValueByArray($a_values)
     {
-        $this->setLvlHint($a_values[$this->getPostVar()]["lvl_hint"]);
-        $this->setLvlMinusPoints($a_values[$this->getPostVar()]["lvl_minus_points"]);
-    }*/
+/*        $this->lvl_1_hint->setTitle($a_values[$this->getPostVar()]["lvl_1_hint"]);
+        $this->lvl_1_minus_points->setValue($a_values[$this->getPostVar()]["lvl_1_minus_points"]);
+        $this->lvl_2_hint->setTitle($a_values[$this->getPostVar()]["lvl_2_hint"]);
+        $this->lvl_2_minus_points->setValue($a_values[$this->getPostVar()]["lvl_2_minus_points"]);*/
+    }
 
     //TODO check if method is necessary, since ilTextInputGUI and ilNumberInputGUI already implement this method
     /**
@@ -200,7 +229,11 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     /**
      * Insert property html
      */
+    //TODO check if post is empty (first rendering), loop through post variables, fill template again if condition is met (condition is e.q. met if lvl_1_hint is not empty)
     function insert($a_tpl) {
+
+        // hint[*id*][.....]
+
         $tpl = new ilTemplate("tpl.prop_hint.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
         $tpl->setCurrentBlock("lvl_1_hint");

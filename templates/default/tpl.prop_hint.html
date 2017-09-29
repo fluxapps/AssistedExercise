@@ -1,4 +1,5 @@
 <div class="hint_form" id="{HINT_FORM_ID}" style="display: none">
+    <input type="hidden" name="hint[][is_template]" value="1">
     <div class="hint_to">
         <label class="col-sm-3 control-label">Tipp zu:</label>
         <div class="col-sm-9">
@@ -6,7 +7,7 @@
         </div>
     </div>
     <!-- BEGIN lvl_1_hint -->
-    <label for="{LAB_ID}" class="col-sm-3 control-label">{PROPERTY_TITLE}<!-- BEGIN std_hid_title --> <span class="ilAccHeadingHidden">{PHID_TITLE}</span><!-- END std_hid_title --><span class="asterisk">*</span></label>
+    <label for="{LAB_ID}" class="col-sm-3 control-label">{PROPERTY_TITLE}<span class="ilAccHeadingHidden">{PHID_TITLE}</span><span class="asterisk">*</span></label>
     <div class="col-sm-9">
         {LVL_1_HINT}
     </div>

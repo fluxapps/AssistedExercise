@@ -16,6 +16,8 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     const M2 = 2;
     const M3 = 3;
 
+    const ITEM_STATUS_OPEN = 'open';
+
     const CMD_ADD_HINT = 'addHint';
     const CMD_REMOVE_HINT = 'removeHint';
 
@@ -27,6 +29,21 @@ class xaseItemFormGUI extends ilPropertyFormGUI
      * @var xaseItemGUI
      */
     protected $parent_gui;
+
+    /**
+     * @var ilObjAssistedExercise
+     */
+    protected $assisted_exercise;
+
+    /**
+     * @var xaseSampleSolution
+     */
+    protected $xase_sample_solution;
+
+    /**
+     * @var xasePoint
+     */
+    protected $xase_point;
 
     /*
     * @var  ilCtrl
@@ -78,11 +95,15 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->tpl = $this->dic['tpl'];
         $this->ctrl = $this->dic->ctrl();
         $this->parent_gui = $parent_gui;
+        $this->assisted_exercise = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
+        $this->xase_sample_solution = $this->getXaseSampleSolution($this->object->getSampleSolutionId());
+        $this->xase_point = $this->getXasePoint($this->object->getPointId());
+
         $this->mode = $mode;
         $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
-        if($this->xase_settings->getModus() === self::M1) {
+        if($this->xase_settings->getModus() == self::M1) {
             $this->mode_settings = xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
-        } elseif($this->xase_settings->getModus() === self::M3) {
+        } elseif($this->xase_settings->getModus() == self::M3) {
             $this->mode_settings = xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
         }
         parent::__construct();
@@ -213,6 +234,22 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         return $task;
     }
 
+    protected function getXaseSampleSolution($sample_solution_id) {
+        $xaseSampleSolution = xaseSampleSolution::where(array('id' => $sample_solution_id))->get();
+        if (!empty($xaseSampleSolution)) {
+            $xaseSampleSolution = new xaseSampleSolution();
+        }
+        return $xaseSampleSolution;
+    }
+
+    protected function getXasePoint($point_id) {
+        $xasePoint = xasePoint::where(array('id' => $point_id))->get();
+        if (!empty($xasePoint)) {
+            $xasePoint = new xasePoint();
+        }
+        return $xasePoint;
+    }
+
     public function fillForm()
     {
         $array = array (
@@ -224,19 +261,22 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             /**
              * @var xaseSampleSolution $xaseSampleSolution
              */
-            $xaseSampleSolution = xaseSampleSolution::where(array('id' => $this->object->getSampleSolutionId()))->get();
-            $array["sample_solution"] = $xaseSampleSolution->getSolution();
-            $xasePoints = xasePoint::where(array('id' => $this->object->getPointId()))->get();
+/*            $xaseSampleSolution = xaseSampleSolution::where(array('id' => $this->object->getSampleSolutionId()))->get();*/
+            if($this->xase_sample_solution) {
+                $array["sample_solution"] = $this->xase_sample_solution->getSolution();
+            }
             /**
              * @var xasePoint $xasePoints
              */
-            $array["specify_max_points"] = $xasePoints->getMaxPoints();
+            /*$xasePoints = xasePoint::where(array('id' => $this->object->getPointId()))->get();*/
 
+            if ($this->xase_point) {
+                $array["specify_max_points"] = $this->xase_point->getMaxPoints();
+            }
             //TODO finish create create fillForm
             $hints = $this->getHintsByItem($this->object->getId());
 
-
-
+            $this->setValuesByArray($array);
         }
     }
 
@@ -249,9 +289,27 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         if (!$this->checkInput()) {
             return false;
         }
-
+        $this->object->setAssistedExerciseId($this->assisted_exercise->getId());
+        $this->object->setTitle($this->getInput('title'));
+        $this->object->setTask($this->getInput('task'));
+        $this->object->setSampleSolutionId($this->xase_sample_solution->getId());
+        $this->xase_sample_solution->setSolution($this->getInput('sample_solution'));
+        $this->object->setPointId($this->xase_point->getId());
+        $this->xase_point->setMaxPoints($this->getInput('specify_max_points'));
+        $this->object->setItemStatus(self::ITEM_STATUS_OPEN);
 
         return true;
+    }
+
+    /**
+     * Method fillHintObject
+     * 1) hidden_input als hint counter
+     * 2) $number = POST['hint_cunter']
+     *  loopen durch hint specifi post names e.q. lvl_1_hint_n
+     *      a)setzen der id anhand der increment variable Wertes der jeweiligen Iteration
+     */
+    protected function fillHintObjects() {
+
     }
 
     /**

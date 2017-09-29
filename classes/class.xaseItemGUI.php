@@ -125,6 +125,7 @@ class xaseItemGUI
         }
         $xaseItemFormGUI->setValuesByPost();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
+        $this->tpl->show();
     }
 
     public function content()
