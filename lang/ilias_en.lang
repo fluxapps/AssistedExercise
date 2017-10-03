@@ -66,3 +66,4 @@ minus_points#:#Minus points
 specify_max_points#:#Specify maximum points
 hints#:#Hints
 info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved.
+msg_input_hints#:#Please fill out all required hint inputs. Required fields are marked with a *. The Input value for minus points has to be numeric. If you want to add a 2 level hint, you have to fill both inputs.

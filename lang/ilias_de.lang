@@ -71,3 +71,4 @@ minus_points#:#Punkteabzug
 specify_max_points#:#Maximalpunktzahl festlegen
 hints#:#Tipps
 info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert.
+msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.

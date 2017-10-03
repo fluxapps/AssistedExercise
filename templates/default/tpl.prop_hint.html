@@ -1,9 +1,10 @@
-<div class="hint_form" id="{HINT_FORM_ID}" style="display: none">
+<div class="hint_form" id="{HINT_FORM_ID}" {DISPLAY}>
     <input type="hidden" name="hint[][is_template]" value="1">
     <div class="hint_to">
         <label class="col-sm-3 control-label">Tipp zu:</label>
         <div class="col-sm-9">
             <label></label>
+            <input type="hidden" name="hint[][label]" value="{HIDDEN_LABEL_INPUT}">
         </div>
     </div>
     <!-- BEGIN lvl_1_hint -->

@@ -85,6 +85,11 @@ class xaseItemFormGUI extends ilPropertyFormGUI
      */
     protected $mode;
 
+    /**
+     * @var xaseHint[]
+     */
+    protected $xase_hints = [];
+
     public function __construct($parent_gui, xaseItem $xaseItem, $mode)
     {
         global $DIC;
@@ -106,6 +111,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         } elseif($this->xase_settings->getModus() == self::M3) {
             $this->mode_settings = xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
         }
+        $this->xase_hints = $this->getHintsByItem($this->object->getId());
         parent::__construct();
 
         $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/hint.js');
@@ -236,7 +242,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
 
     protected function getXaseSampleSolution($sample_solution_id) {
         $xaseSampleSolution = xaseSampleSolution::where(array('id' => $sample_solution_id))->get();
-        if (!empty($xaseSampleSolution)) {
+        if (empty($xaseSampleSolution)) {
             $xaseSampleSolution = new xaseSampleSolution();
         }
         return $xaseSampleSolution;
@@ -244,7 +250,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
 
     protected function getXasePoint($point_id) {
         $xasePoint = xasePoint::where(array('id' => $point_id))->get();
-        if (!empty($xasePoint)) {
+        if (empty($xasePoint)) {
             $xasePoint = new xasePoint();
         }
         return $xasePoint;
@@ -273,7 +279,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             if ($this->xase_point) {
                 $array["specify_max_points"] = $this->xase_point->getMaxPoints();
             }
-            //TODO finish create create fillForm
+            //TODO finish fillForm
             $hints = $this->getHintsByItem($this->object->getId());
 
             $this->setValuesByArray($array);
