@@ -54,7 +54,7 @@ class xaseLevel extends ActiveRecord
      * @db_length     1
      * @db_is_notnull true
      */
-    protected $hint_level = 1;
+    protected $hint_level;
 
     /**
      * @var string

@@ -159,9 +159,6 @@ $(document).ready(function() {
     function adoptHintToLabel() {
         var hint_tos = $('.hint_to');
 
-        console.log("adopthinttolabel");
-        console.log(hint_tos);
-        console.log(hint_tos.length);
         for(i = 0; i < hint_tos.length;) {
             hint_to_jquery_object = $(hint_tos[i]);
             hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
@@ -173,9 +170,6 @@ $(document).ready(function() {
     function setHintToLabelByHiddenInput() {
         var hint_tos = $('.hint_to');
 
-        console.log("sethinttolabelbyhiddeninput");
-        console.log(hint_tos);
-        console.log(hint_tos.length);
         for(i = 0; i < hint_tos.length; i++) {
             hint_to_jquery_object = $(hint_tos[i]);
             hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
@@ -189,21 +183,15 @@ $(document).ready(function() {
     function adoptIncreaseCounter() {
         var hint_form = $(".hint_form");
 
-        console.log("adoptIncreaseCounter()");
-        console.log(hint_form);
-        console.log(hint_form.length);
         if(hint_form.length > 1) {
-            console.log("hint_form.length is bigger than 1");
             for(i = 0; i < hint_form.length; i++) {
                 increase_counter();
             }
         }
-        console.log(increase_counter(true));
     }
 
     function prependToHintFormWrapper() {
 
-        console.log("PREPENDTOHINTFORMWRAPPER");
         var hint_form = $(".hint_form");
         var hidden_form = hint_form.filter(function() {
             return $(this).css('display') == 'none';
@@ -222,11 +210,88 @@ $(document).ready(function() {
 
         console.log(visible_hint_form.length);
         for(i = visible_hint_form.length -1; i >= 0; i--) {
-            console.log(visible_hint_form[i]);
             prepend_target.prepend(visible_hint_form[i]);
         }
 
         //adoptIncreaseCounter()
+    }
+
+    function loadExistingHintData() {
+        var existing_hint_data = $('.existing-hint-data');
+        if(existing_hint_data.length) {
+            existing_hint_data.each( function(index, element) {
+
+                var hint_form = $(".hint_form");
+                var hidden_form = hint_form.filter(function() {
+                    return $(this).css('display') == 'none';
+                });
+
+                var hint_data_form = hidden_form.clone(true);
+
+                $(hint_data_form).css({ display: 'inline-block' });
+
+                /**
+                 * in the first iteration prepend the hint form to the hidden hint form
+                 * after the first iteration append the hint form to the last child of displayed hint forms
+                 */
+                if (index === 0) {
+                    var prepend_target = hidden_form.closest('.col-sm-9');
+
+                    prepend_target.prepend(hint_data_form);
+                } else {
+                    var not_hidden_forms = hint_form.filter(function() {
+                        return $(this).css('display') == 'inline-block';
+                    });
+
+                    not_hidden_forms.last().after(hint_data_form);
+                }
+
+                jquery_element = $(element);
+
+                json_object_data_hints = $.parseJSON(jquery_element.attr('data-hints'));
+
+                is_template_input = hint_data_form.find('input[name*="[is_template]"]');
+
+                $(is_template_input).val(json_object_data_hints.is_template);
+
+                hint_to = hint_data_form.find('.hint_to');
+
+                hint_to_label = $(hint_to).children("div.col-sm-9").children("label");
+
+                hint_to_label.text(json_object_data_hints.label);
+
+                json_object_data_level_1 = $.parseJSON(jquery_element.attr('data-level-1'));
+
+                lvl_1_hint_input = $(hint_data_form.find("input[name*='lvl_1_hint']"));
+
+                lvl_1_hint_input.val(json_object_data_level_1.hint);
+
+                debugger;
+
+                hint_id = $(hint_data_form.find("input[name*='hint_id']"));
+
+                hint_id.val(json_object_data_hints.id);
+
+                json_object_data_level_1_minus_points = $.parseJSON(jquery_element.attr('data-level-1-minus-points'));
+
+                lvl_1_minus_ponts_input = $(hint_data_form.find("input[name*='lvl_1_minus_points']"));
+
+                lvl_1_minus_ponts_input.val(json_object_data_level_1_minus_points.minus_points);
+
+                json_object_data_level_2 = $.parseJSON(jquery_element.attr('data-level-2'));
+
+                lvl_2_hint_input = $(hint_data_form.find("input[name*='lvl_2_hint']"));
+
+                lvl_2_hint_input.val(json_object_data_level_2.hint);
+
+                json_object_data_level_2_minus_points = $.parseJSON(jquery_element.attr('data-level-2-minus-points'));
+
+                lvl_2_minus_ponts_input = $(hint_data_form.find("input[name*='lvl_2_minus_points']"));
+
+                lvl_2_minus_ponts_input.val(json_object_data_level_2_minus_points.minus_points);
+            });
+            toggle_form_header_gui_and_label();
+        }
     }
 
     toggle_form_header_gui_and_label();
@@ -239,6 +304,8 @@ $(document).ready(function() {
     adoptHintToLabel();
 
     setHintToLabelByHiddenInput();
+
+    loadExistingHintData();
 
     initaliseNameAttributes();
 
@@ -337,29 +404,17 @@ $(document).ready(function() {
         console.log("hint to label test");
         var hint_tos = $('.hint_to');
 
-        console.log(hint_tos);
-
         for(i = 0; i < hint_tos.length; i++) {
-            //console.log("i: " + i);
-            hint_to_jquery_object = $(hint_tos[i]);
-            //console.log(hint_to_jquery_object);
-            hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
-            //console.log(hint_to_label);
-            hint_to_label_text = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label").text();
 
-            console.log(hint_to_label);
+            hint_to_jquery_object = $(hint_tos[i]);
+
+            hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
+
+            hint_to_label_text = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label").text();
 
             hidden_hint_to_label_input = hint_to_label.siblings("input[name*='label']");
 
-            console.log(hidden_hint_to_label_input);
-
-            //console.log(hidden_hint_to_label_input);
-
             hidden_hint_to_label_input.val(hint_to_label_text);
-
-            //hidden_hint_to_label_input.value = hint_to_label_text;
-            //hint_to_label.siblings("input[name*='label']").attr('value', hint_to_label_text);
-            //console.log(hint_to_label.text());
         }
         //TEST
         hidden_form = $('.hint_form').filter(function() {

@@ -9,6 +9,7 @@ require_once('./Services/UIComponent/Button/classes/class.ilJsLinkButton.php');
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSampleSolution.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilHintInputGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseLevel.php');
 
 class xaseItemFormGUI extends ilPropertyFormGUI
 {
@@ -90,7 +91,12 @@ class xaseItemFormGUI extends ilPropertyFormGUI
      */
     protected $xase_hints = [];
 
-    public function __construct($parent_gui, xaseItem $xaseItem, $mode)
+    /**
+     * @var ilHintInputGUI
+     */
+    protected $hint_input_gui;
+
+    public function __construct($parent_gui, xaseItem $xaseItem, xaseSettings $xaseSettings)
     {
         global $DIC;
 
@@ -104,12 +110,13 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->xase_sample_solution = $this->getXaseSampleSolution($this->object->getSampleSolutionId());
         $this->xase_point = $this->getXasePoint($this->object->getPointId());
 
-        $this->mode = $mode;
-        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
+        $this->xase_settings = $xaseSettings;
+        $this->mode = $xaseSettings->getModus();
+        //$this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
         if($this->xase_settings->getModus() == self::M1) {
-            $this->mode_settings = xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
+            $this->mode_settings = $this->getModusSettings(xaseSettingsM1::class);//xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
         } elseif($this->xase_settings->getModus() == self::M3) {
-            $this->mode_settings = xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
+            $this->mode_settings = $this->getModusSettings(xaseSettingsM3::class);//xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
         }
         $this->xase_hints = $this->getHintsByItem($this->object->getId());
         parent::__construct();
@@ -209,14 +216,14 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $header->setTitle($this->pl->txt('Hint 1'));
         $this->addItem($header);
 
-        $hint_input_gui = new ilHintInputGUI();
-        $hint_input_gui->setRemoveHintBtn($this->initRemoveHintBtn());
-        $this->addItem($hint_input_gui);
+        $this->hint_input_gui = new ilHintInputGUI();
+        $this->hint_input_gui->setRemoveHintBtn($this->initRemoveHintBtn());
+        $this->addItem($this->hint_input_gui);
     }
 
     public function initHintForm() {
-        $hint_input_gui = new ilHintInputGUI($this->pl->txt('hints'), "");
-        $this->addItem($hint_input_gui);
+        $this->hint_input_gui = new ilHintInputGUI($this->pl->txt('hints'), "");
+        $this->addItem($this->hint_input_gui);
         return $this;
     }
 
@@ -241,7 +248,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     }
 
     protected function getXaseSampleSolution($sample_solution_id) {
-        $xaseSampleSolution = xaseSampleSolution::where(array('id' => $sample_solution_id))->get();
+        $xaseSampleSolution = xaseSampleSolution::where(array('id' => $sample_solution_id))->first();
         if (empty($xaseSampleSolution)) {
             $xaseSampleSolution = new xaseSampleSolution();
         }
@@ -249,11 +256,19 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     }
 
     protected function getXasePoint($point_id) {
-        $xasePoint = xasePoint::where(array('id' => $point_id))->get();
+        $xasePoint = xasePoint::where(array('id' => $point_id))->first();
         if (empty($xasePoint)) {
             $xasePoint = new xasePoint();
         }
         return $xasePoint;
+    }
+
+    protected function getModusSettings($modus_settings) {
+        $xaseModus = $modus_settings::where(array('settings_id' => $this->xase_settings->getId()))->get();
+        if (empty($xaseModus)) {
+            $xaseModus = new $modus_settings();
+        }
+        return $xaseModus;
     }
 
     public function fillForm()
@@ -277,17 +292,62 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             /*$xasePoints = xasePoint::where(array('id' => $this->object->getPointId()))->get();*/
 
             if ($this->xase_point) {
-                $array["specify_max_points"] = $this->xase_point->getMaxPoints();
+                $array["max_points"] = $this->xase_point->getMaxPoints();
             }
             //TODO finish fillForm
-            $hints = $this->getHintsByItem($this->object->getId());
+            /**
+             * @var $hint xaseHint
+             */
+            $hints_array = $this->getHintsByItem($this->object->getId());
+            foreach ($hints_array as $hint) {
+                $hint_array['id'] = $hint->getId();
+                $hint_array['item_id'] = $hint->getItemId();
+                $hint_array['hint_number'] = $hint->getHintNumber();
+                $hint_array['is_template'] = $hint->getisTemplate();
+                $hint_array['label'] = $hint->getLabel();
+
+/*                $json_encoded_hint = json_encode($hint_array);
+                $json_hints[] = $json_encoded_hint;*/
+
+                $hints[] = $hint_array;
+
+                $levels_array = $this->getLevelsByHintId($hint_array['id']);
+
+                /**
+                 * @var $level xaseLevel
+                 */
+                foreach ($levels_array as $level) {
+                    $level_array['id'] = $level->getId();
+                    $level_array['hint_id'] = $level->getHintId();
+                    $level_array['point_id'] = $level->getPointId();
+                    $level_array['hint_level'] = $level->getHintLevel();
+                    $level_array['hint'] = $level->getHint();
+
+/*                    $json_encoded_level = json_encode($level_array);
+                    $json_levels[] = $json_encoded_level;*/
+
+                    $levels[] = $level_array;
+
+                    $point = xasePoint::where(array('id' => $level->getPointId()))->first();
+
+                    if(!empty($point)) {
+                        /**
+                         * @var $point xasePoint
+                         */
+                        $point_array['id'] = $point->getId();
+                        $point_array['minus_points'] = $point->getMinusPoints();
+
+                        //$json_encoded_point = json_encode($point_array);
+                        $points[] = $point_array;
+                    }
+                }
+            }
+            $this->hint_input_gui->setExistingHintData($hints);
+            $this->hint_input_gui->setExistingLevelData($levels);
+            $this->hint_input_gui->setMinusPoints($points);
 
             $this->setValuesByArray($array);
         }
-    }
-
-    protected function getHintsByItem($item_id) {
-        return xaseHint::where(array('item_id' => $item_id))->get();
     }
 
     public function fillObject()
@@ -298,24 +358,106 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->object->setAssistedExerciseId($this->assisted_exercise->getId());
         $this->object->setTitle($this->getInput('title'));
         $this->object->setTask($this->getInput('task'));
-        $this->object->setSampleSolutionId($this->xase_sample_solution->getId());
         $this->xase_sample_solution->setSolution($this->getInput('sample_solution'));
+        $this->xase_sample_solution->store();
+        $this->object->setSampleSolutionId($this->xase_sample_solution->getId());
+
+        $this->xase_point->setMaxPoints($this->getInput('max_points'));
+        $this->xase_point->store();
         $this->object->setPointId($this->xase_point->getId());
-        $this->xase_point->setMaxPoints($this->getInput('specify_max_points'));
         $this->object->setItemStatus(self::ITEM_STATUS_OPEN);
 
         return true;
     }
 
-    /**
-     * Method fillHintObject
-     * 1) hidden_input als hint counter
-     * 2) $number = POST['hint_cunter']
-     *  loopen durch hint specifi post names e.q. lvl_1_hint_n
-     *      a)setzen der id anhand der increment variable Wertes der jeweiligen Iteration
+    protected function getHintsByItem($item_id) {
+        return xaseHint::where(array('item_id' => $item_id))->get();
+    }
+
+    protected function getLevelsByHintId($hint_id) {
+        return xaseLevel::where(array('hint_id' => $hint_id))->get();
+    }
+
+    /*
+     * store hint number in hint table
+     * 1) get hint numbers from task text
+     * 2) check if a hint for this item with the corresponding hint number already exists
+     *  a) yes
+     *      update hint
+     *  b) no
+     *      create new hint
+     * store the hint information from post with the right index in the corresponding hint
      */
     protected function fillHintObjects() {
+        $task = $this->object->getTask();
+/*        preg_match_all('(\d+)', $task, $matches);
+        $matches = array_unique($matches);
+        for ($i = 0; $i < count($matches); $i++) {
 
+        }*/
+
+        if (is_array($_POST['hint'])) {
+            foreach ($_POST['hint'] as $id => $data) {
+                if(in_array($id, $this->xase_hints)) {
+                    $hint = $this->xase_hints[$id];
+                } else {
+                    $hint = new xaseHint();
+                }
+
+                if ($data["is_template"] == 0) {
+                    continue;
+                }
+
+                $hint->setItemId($this->object->getId());
+                $hint->setHintNumber($id);
+                $hint->setIsTemplate($data["is_template"]);
+                $hint->setLabel($data["label"]);
+
+                $hint->store();
+
+                $levels = $this->getLevelsByHintId($hint->getId());
+
+                if (empty($levels)) {
+                    $level_1 = new xaseLevel();
+                    $level_1->setHintId($hint->getId());
+                    $level_1_point = new xasePoint();
+                    $level_1_point->setMinusPoints($data["lvl_1_minus_points"]);
+                    $level_1_point->store();
+                    $level_1->setPointId($level_1_point->getId());
+                    $level_1->setHintLevel(1);
+                    $level_1->setHint($data["lvl_1_hint"]);
+                    $level_1->store();
+
+                    $level_2 = new xaseLevel();
+                    $level_2->setHintId($hint->getId());
+                    $level_2_point = new xasePoint();
+                    $level_2_point->setMinusPoints($data["lvl_2_minus_points"]);
+                    $level_2_point->store();
+                    $level_2->setPointId($level_2_point->getId());
+                    $level_2->setHintLevel(2);
+                    $level_2->setHint($data["lvl_2_hint"]);
+                    $level_2->store();
+                } else {
+                    //TODO store points in points table and save hint_id
+                    $levels[0]['hint_level'] = 1;
+                    $levels[0]['lvl_1_hint'] = $data["lvl_1_hint"];
+                    $levels[0]['lvl_1_minus_points'] = $data["lvl_1_minus_points"];
+
+                    $levels[1]['hint_level'] = 2;
+                    $levels[1]['lvl_2_hint'] = $data["lvl_2_hint"];
+                    $levels[1]['lvl_2_minus_points'] = $data["lvl_2_minus_points"];
+
+                    /**
+                     * @var xaseLevel $level
+                     */
+                    foreach($levels as $level) {
+
+                        $level->store();
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -327,6 +469,10 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             return false;
         }
         $this->object->store();
+
+        if(!$this->fillHintObjects()) {
+            return false;
+        }
         return true;
     }
 

@@ -8,6 +8,7 @@
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHint.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHintAnswer.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
@@ -133,6 +134,7 @@ class xaseItemTableGUI extends ilTable2GUI
         /**
          * @var $xaseItem xaseItem
          */
+        //$a_set contains the items
         $xaseItem = xaseItem::find($a_set['id']);
         $this->tpl->setVariable('TITLE', $xaseItem->getTitle());
         $this->tpl->setVariable('STATUS', $xaseItem->getItemStatus());
@@ -143,27 +145,40 @@ class xaseItemTableGUI extends ilTable2GUI
 
         if (!empty($xasePoint)) {
             $this->tpl->setVariable('MAXPOINTS', $xasePoint->getMaxPoints());
-            $this->tpl->setVariable('POINTS', $xasePoint->getTotalPoints());
+            if(!empty($xasePoint->getTotalPoints())) {
+                $this->tpl->setVariable('POINTS', $xasePoint->getTotalPoints());
+            } else {
+                $this->tpl->setVariable('POINTS', 0);
+            }
         }
         /**
          * @var $xaseHint xaseHint
          */
         $xaseHint = xaseHint::where(array('item_id' => $xaseItem->getId()))->get();
+
         /**
          * @var $xaseHintAnswer xaseHintAnswer
          */
         if (!empty($xaseHint)) {
-            $xaseHintAnswer = xaseHintAnswer::where(array('hint_id' => $xaseHint->getId()))->get();
+            $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->get();
         }
+        /**
+         * @var $xaseHintAnswer xaseHintAnswer
+         */
+/*        if (!empty($xaseHint)) {
+            $xaseHintAnswer = xaseHintAnswer::where(array('hint_id' => $xaseHint->getId()))->get();
+        }*/
         /**
          * @var $xaseAnswer xaseAnswer
          */
-        if (!empty($xaseHintAnswer)) {
+/*        if (!empty($xaseHintAnswer)) {
             $xaseAnswer = xaseAnswer::where(array('id' => $xaseHintAnswer->getAnswerId()))->get();
-        }
+        }*/
 
-        if (!empty($xaseHintAnswer)) {
+        if (!empty($xaseAnswer)) {
             $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
+        } else {
+            $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
         }
 
         $this->addActionMenu($xaseItem);
@@ -193,16 +208,13 @@ class xaseItemTableGUI extends ilTable2GUI
     {
         $current_selection_list = new ilAdvancedSelectionListGUI();
         $current_selection_list->setListTitle($this->pl->txt('common_actions'));
-        $current_selection_list->setId('item_actions' . $xaseItem->getId());
+        $current_selection_list->setId('item_actions_' . $xaseItem->getId());
         $current_selection_list->setUseImages(false);
 
-
-        //answer
-        //$this->ctrl->setParameter($this->parent_obj, xgeoLocationGUI::IDENTIFIER, $xgeoLocation->getId());
-        /*        if ($this->access->hasReadAccess()) {
-                    $current_selection_list->addItem($this->pl->txt('view_answer'), xgeoLocationGUI::CMD_VIEW, $this->ctrl->getLinkTarget($this->parent_obj, xgeoLocationGUI::CMD_VIEW));
-                }*/
-
+        $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+        if ($this->access->hasWriteAccess()) {
+            $current_selection_list->addItem($this->pl->txt('edit_item'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
+        }
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_ANSWER, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_ANSWER));
         }
@@ -221,6 +233,10 @@ class xaseItemTableGUI extends ilTable2GUI
         $collection = xaseItem::getCollection();
         $collection->where(array('assisted_exercise_id' => $this->parent_obj->object->getId()));
 
+        $collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id', array('max_points', 'total_points'));
+
+        $collection->leftjoin(xaseAnswer::returnDbTableName(), 'id', 'item_id', array('number_of_used_hints'));
+
         $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'title';
         $offset = $this->getOffset() ? $this->getOffset() : 0;
 
@@ -229,6 +245,8 @@ class xaseItemTableGUI extends ilTable2GUI
 
         $collection->orderBy($sorting_column, $sorting_direction);
         $collection->limit($offset, $num);
+
+        //$collection->debug();
 
         foreach ($this->filter as $filter_key => $filter_value) {
             switch ($filter_key) {
@@ -256,7 +274,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $cols["number_of_used_hints"] = array(
             "txt" => $this->pl->txt("number_of_used_hints"),
             "default" => true);
-        $cols["points"] = array(
+        $cols["total_points"] = array(
             "txt" => $this->pl->txt("points"),
             "default" => true);
         return $cols;

@@ -32,6 +32,7 @@
 
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 require_once('./Services/Form/classes/class.ilNumberInputGUI.php');
+require_once('./Services/UIComponent/Button/classes/class.ilJsLinkButton.php');
 
 class ilHintInputGUI extends ilFormPropertyGUI {
 
@@ -44,6 +45,9 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     protected $hint_to_label;
     //saves the values for the different hints
     protected $values = [];
+    protected $existing_hint_data = [];
+    protected $existing_level_data = [];
+    protected $minus_points = [];
 
     /**
      * Constructor
@@ -213,6 +217,53 @@ class ilHintInputGUI extends ilFormPropertyGUI {
         $this->hint_to_label = $hint_to_label;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getExistingHintData()
+    {
+        return $this->existing_hint_data;
+    }
+
+    /**
+     * @param mixed $existing_hint_data
+     */
+    public function setExistingHintData($existing_hint_data)
+    {
+        $this->existing_hint_data = $existing_hint_data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExistingLevelData()
+    {
+        return $this->existing_level_data;
+    }
+
+    /**
+     * @param array $existing_level_data
+     */
+    public function setExistingLevelData($existing_level_data)
+    {
+        $this->existing_level_data = $existing_level_data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMinusPoints()
+    {
+        return $this->minus_points;
+    }
+
+    /**
+     * @param array $minus_points
+     */
+    public function setMinusPoints($minus_points)
+    {
+        $this->minus_points = $minus_points;
+    }
 
     /**
      * Set value by array
@@ -233,6 +284,7 @@ class ilHintInputGUI extends ilFormPropertyGUI {
        }
     }
 
+    //TODO SET HINT ID VARIABLE
     /**
      * Insert property html
      */
@@ -271,6 +323,42 @@ class ilHintInputGUI extends ilFormPropertyGUI {
         $tpl->setCurrentBlock("remove_btn");
         $tpl->setVariable("REMOVE_HINT_BUTTON", $this->getRemoveHintBtn());
         $tpl->parseCurrentBlock("remove_btn");
+
+        if (!empty($this->getExistingHintData())) {
+            foreach ($this->getExistingHintData() as $hint_data) {
+                $tpl->setCurrentBlock("existing_hint_data");
+                $tpl->setVariable("CONTENT", htmlentities(json_encode($hint_data, JSON_UNESCAPED_UNICODE)));
+
+                if (!empty($this->getExistingLevelData())) {
+                    foreach ($this->getExistingLevelData() as $level_data) {
+                        if ($level_data['hint_id'] !== $hint_data['id']) {
+                            continue;
+                        } else {
+                            if($level_data['hint_level'] == 1) {
+                                $tpl->setVariable("CONTENT_LEVEL_1", htmlentities(json_encode($level_data, JSON_UNESCAPED_UNICODE)));
+                            } else {
+                                $tpl->setVariable("CONTENT_LEVEL_2", htmlentities(json_encode($level_data, JSON_UNESCAPED_UNICODE)));
+                            }
+                        }
+
+                        if(!empty($this->getExistingLevelData())) {
+                            foreach ($this->getMinusPoints() as $minus_point) {
+                                if ($minus_point['id'] !== $level_data['point_id']) {
+                                    continue;
+                                } else {
+                                    if($level_data['hint_level'] == 1) {
+                                        $tpl->setVariable("CONTENT_LEVEL_1_MINUS_POINTS", htmlentities(json_encode($minus_point, JSON_UNESCAPED_UNICODE)));
+                                    } else {
+                                        $tpl->setVariable("CONTENT_LEVEL_2_MINUS_POINTS", htmlentities(json_encode($minus_point, JSON_UNESCAPED_UNICODE)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $tpl->parseCurrentBlock("existing_hint_data");
+            }
+        }
 
         $a_tpl->setCurrentBlock("prop_generic");
         //$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
@@ -335,6 +423,40 @@ class ilHintInputGUI extends ilFormPropertyGUI {
                 $tpl->setVariable("REMOVE_HINT_BUTTON", $this->getRemoveHintBtn());
                 $tpl->parseCurrentBlock("remove_btn");
 
+                if (!empty($this->getExistingHintData())) {
+                    foreach ($this->getExistingHintData() as $hint_data) {
+                        $tpl->setCurrentBlock("existing_hint_data");
+                        $tpl->setVariable("CONTENT", htmlentities(json_encode($hint_data, JSON_UNESCAPED_UNICODE)));
+
+                        if (!empty($this->getExistingLevelData())) {
+                            foreach ($this->getExistingLevelData() as $level_data) {
+                                if ($level_data['hint_id'] !== $hint_data['id']) {
+                                    continue;
+                                } else {
+                                    if($level_data['hint_level'] == 1) {
+                                        $tpl->setVariable("CONTENT_LEVEL_1", htmlentities(json_encode($level_data, JSON_UNESCAPED_UNICODE)));
+                                    } else {
+                                        $tpl->setVariable("CONTENT_LEVEL_2", htmlentities(json_encode($level_data, JSON_UNESCAPED_UNICODE)));
+                                    }
+                                }
+                                if(!empty($this->getExistingLevelData())) {
+                                    foreach ($this->getMinusPoints() as $minus_point) {
+                                        if ($minus_point['id'] !== $level_data['point_id']) {
+                                            continue;
+                                        } else {
+                                            if($level_data['hint_level'] == 1) {
+                                                $tpl->setVariable("CONTENT_LEVEL_1_MINUS_POINTS", htmlentities(json_encode($minus_point, JSON_UNESCAPED_UNICODE)));
+                                            } else {
+                                                $tpl->setVariable("CONTENT_LEVEL_2_MINUS_POINTS", htmlentities(json_encode($minus_point, JSON_UNESCAPED_UNICODE)));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        $tpl->parseCurrentBlock("existing_hint_data");
+                    }
+                }
                 $a_tpl->setCurrentBlock("prop_generic");
                 //$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
                 $a_tpl->setVariable("PROP_GENERIC", $tpl->get());

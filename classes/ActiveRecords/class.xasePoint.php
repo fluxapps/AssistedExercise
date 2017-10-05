@@ -26,15 +26,6 @@ class xasePoint extends ActiveRecord
      */
     protected $id;
 
-    /**
-     * @var int
-     *
-     * @db_has_field  true
-     * @db_fieldtype  integer
-     * @db_length     4
-     * @db_is_notnull true
-     */
-    protected $point_id;
 
     /**
      * @var int
@@ -42,7 +33,7 @@ class xasePoint extends ActiveRecord
      * @db_has_field  true
      * @db_fieldtype  integer
      * @db_length     4
-     * @db_is_notnull true
+     * @db_is_notnull false
      */
     protected $max_points;
 
@@ -53,7 +44,7 @@ class xasePoint extends ActiveRecord
      * @db_has_field  true
      * @db_fieldtype  integer
      * @db_length     4
-     * @db_is_notnull true
+     * @db_is_notnull false
      */
     protected $total_points;
 
@@ -63,7 +54,7 @@ class xasePoint extends ActiveRecord
      * @db_has_field  true
      * @db_fieldtype  integer
      * @db_length     4
-     * @db_is_notnull true
+     * @db_is_notnull false
      */
     protected $points_teacher;
 
@@ -73,7 +64,7 @@ class xasePoint extends ActiveRecord
      * @db_has_field  true
      * @db_fieldtype  integer
      * @db_length     4
-     * @db_is_notnull true
+     * @db_is_notnull false
      */
     protected $additional_points;
 
@@ -83,7 +74,7 @@ class xasePoint extends ActiveRecord
      * @db_has_field  true
      * @db_fieldtype  integer
      * @db_length     4
-     * @db_is_notnull true
+     * @db_is_notnull false
      */
     protected $minus_points;
 

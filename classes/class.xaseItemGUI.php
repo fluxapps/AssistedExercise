@@ -14,6 +14,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 class xaseItemGUI
 {
 
+    const ITEM_IDENTIFIER = 'item_id';
     const CMD_STANDARD = 'content';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
@@ -69,7 +70,8 @@ class xaseItemGUI
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
         $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
-        $this->xase_item = new xaseItem();
+        //TODO set item_id Parameter
+        $this->xase_item = new xaseItem($_GET[self::ITEM_IDENTIFIER]);
     }
 
     public function executeCommand()
@@ -110,7 +112,7 @@ class xaseItemGUI
     public function edit()
     {
         $this->tabs->activateTab(self::CMD_STANDARD);
-        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
+        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         $xaseItemFormGUI->fillForm();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
         $this->tpl->show();
@@ -119,7 +121,7 @@ class xaseItemGUI
     public function update()
     {
         $this->tabs->activateTab(self::CMD_STANDARD);
-        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings->getModus());
+        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         if ($xaseItemFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
         }

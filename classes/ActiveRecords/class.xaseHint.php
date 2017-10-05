@@ -37,6 +37,36 @@ class xaseHint extends ActiveRecord
     protected $item_id;
 
     /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull true
+     */
+    protected $hint_number;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     1
+     * @db_is_notnull true
+     */
+    protected $is_template;
+
+    /**
+     * @var string
+     *
+     * @db_has_field        true
+     * @db_fieldtype        text
+     * @db_length           600
+     * @db_is_notnull       true
+     */
+    protected $label;
+
+    /**
      * @return int
      */
     public function getId()
@@ -58,6 +88,54 @@ class xaseHint extends ActiveRecord
     public function setItemId($item_id)
     {
         $this->item_id = $item_id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHintNumber()
+    {
+        return $this->hint_number;
+    }
+
+    /**
+     * @param int $hint_number
+     */
+    public function setHintNumber($hint_number)
+    {
+        $this->hint_number = $hint_number;
+    }
+
+    /**
+     * @return int
+     */
+    public function getisTemplate()
+    {
+        return $this->is_template;
+    }
+
+    /**
+     * @param int $is_template
+     */
+    public function setIsTemplate($is_template)
+    {
+        $this->is_template = $is_template;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
     }
 
 }

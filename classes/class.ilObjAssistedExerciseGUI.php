@@ -37,6 +37,8 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilCommonActionDispatcherGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilObjAssistedExerciseListGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
