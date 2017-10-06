@@ -3,22 +3,20 @@ $(document).ready(function() {
     //TODO: remove console.logs and unecessary comments. Handle document.selection and else hint_trigger_text click cases
 
     var task = $('#task')[0];
+    var counter = 0;
 
     // boolean argument number_only is optional. If it is set the function returns only the counter.
     function increase_counter(number_only) {
-        if(typeof increase_counter.counter == 'undefined') {
-            return increase_counter.counter = 1;
-        } else if(number_only) {
-            return increase_counter.counter;
+        if(number_only) {
+            return counter;
         }
-        temp = jQuery.extend(true, {}, increase_counter);
-        increase_counter.counter++;
 
-        return temp.counter;
+        counter++;
+        return counter;
     }
 
     function decrease_counter() {
-        return increase_counter.counter--;
+        return counter--;
     }
 
     function toggle_form_header_gui_and_label() {
@@ -131,6 +129,8 @@ $(document).ready(function() {
 
                 hint_to_hidden_input = $("input[name=hint\\[" + id + "\\]\\[label\\]]");
 
+                hint_id_hidden_input = $("input[name=hint\\[" + id + "\\]\\[hint_id\\]]");
+
                 is_template = $("input[name=hint\\[" + id + "\\]\\[is_template\\]]");
 
                 lvl_1_hint = $("input[name=hint\\[" + id + "\\]\\[lvl_1_hint\\]]");
@@ -141,7 +141,7 @@ $(document).ready(function() {
 
                 lvl_2_minus_points = $("input[name=hint\\[" + id + "\\]\\[lvl_2_minus_points\\]]");
 
-                selectors = [hint_to_hidden_input, is_template, lvl_1_hint, lvl_1_minus_points, lvl_2_hint, lvl_2_minus_points];
+                selectors = [hint_to_hidden_input, hint_id_hidden_input,is_template, lvl_1_hint, lvl_1_minus_points, lvl_2_hint, lvl_2_minus_points];
 
                 adoptInputHintId(selectors, id, hint_id);
 
@@ -184,7 +184,8 @@ $(document).ready(function() {
         var hint_form = $(".hint_form");
 
         if(hint_form.length > 1) {
-            for(i = 0; i < hint_form.length; i++) {
+            console.log(hint_form);
+            for(i = 1; i < hint_form.length; i++) {
                 increase_counter();
             }
         }
@@ -198,15 +199,15 @@ $(document).ready(function() {
         });
 
         var visible_hint_form = hint_form.filter(function() {
-           return $(this).css('display') == 'inline-block';
+            return $(this).css('display') == 'inline-block';
         });
 
         var prepend_target = hidden_form.closest('.col-sm-9');
 
-/*        for(i = 0; i < visible_hint_form.length; i++) {
-            console.log(visible_hint_form[i]);
-            prepend_target.prepend(visible_hint_form[i]);
-        }  */
+        /*        for(i = 0; i < visible_hint_form.length; i++) {
+                    console.log(visible_hint_form[i]);
+                    prepend_target.prepend(visible_hint_form[i]);
+                }  */
 
         console.log(visible_hint_form.length);
         for(i = visible_hint_form.length -1; i >= 0; i--) {
@@ -266,8 +267,6 @@ $(document).ready(function() {
 
                 lvl_1_hint_input.val(json_object_data_level_1.hint);
 
-                debugger;
-
                 hint_id = $(hint_data_form.find("input[name*='hint_id']"));
 
                 hint_id.val(json_object_data_hints.id);
@@ -298,8 +297,6 @@ $(document).ready(function() {
 
     prependToHintFormWrapper();
 
-    adoptIncreaseCounter();
-
     //TODO check if this is necessary
     adoptHintToLabel();
 
@@ -307,71 +304,78 @@ $(document).ready(function() {
 
     loadExistingHintData();
 
+    adoptIncreaseCounter();
+
     initaliseNameAttributes();
 
     initaliseRemoveBtnIds();
 
     $('#hint_trigger_text').click(function() {
-            var sel;
-            var code_start = "[hint " + increase_counter() + "]";
-            console.log("CHECK INCREASE COUNTER" + code_start);
-            var code_end = "[/hint]";
+        var sel;
+        var code_start = "[hint " + increase_counter() + "]";
+        console.log("CHECK INCREASE COUNTER" + code_start);
+        var code_end = "[/hint]";
 
-            if (document.selection) {
-                //For browsers like Internet Explorer
-                task.focus();
-                sel = document.selection.createRange();
-                sel.text = code_start + sel.text + code_end;
-                task.focus();
-            }
-            else if (task.selectionStart || task.selectionStart == '0') {
-                //For browsers like Firefox and Webkit based
-                var startPos = task.selectionStart;
-                var endPos = task.selectionEnd;
-                var scrollTop = task.scrollTop;
+        if (document.selection) {
+            //For browsers like Internet Explorer
+            task.focus();
+            sel = document.selection.createRange();
+            sel.text = code_start + sel.text + code_end;
+            task.focus();
+        }
+        else if (task.selectionStart || task.selectionStart == '0') {
+            //For browsers like Firefox and Webkit based
+            var startPos = task.selectionStart;
+            var endPos = task.selectionEnd;
+            var scrollTop = task.scrollTop;
 
-                task.value = task.value.substring(0, startPos)
-                    + code_start
-                    + task.value.substring(startPos, endPos)
-                    + code_end
-                    + task.value.substring(endPos, task.value.length);
+            task.value = task.value.substring(0, startPos)
+                + code_start
+                + task.value.substring(startPos, endPos)
+                + code_end
+                + task.value.substring(endPos, task.value.length);
 
-                task.focus();
-                task.scrollTop = scrollTop;
+            task.focus();
+            task.scrollTop = scrollTop;
 
-                var hint_form = $(".hint_form");
-                var hidden_form = hint_form.filter(function() {
-                    return $(this).css('display') == 'none';
-                });
+            var hint_form = $(".hint_form");
+            var hidden_form = hint_form.filter(function() {
+                return $(this).css('display') == 'none';
+            });
 
-                //append_target is the wrapper for the hint forms
-                var append_target = hint_form.closest('.col-sm-9');
-                var copy_hidden_form = hidden_form.clone(true);
+            //append_target is the wrapper for the hint forms
+            var append_target = hint_form.closest('.col-sm-9');
+            var copy_hidden_form = hidden_form.clone(true);
 
-                copy_hidden_form.appendTo(append_target);
+            copy_hidden_form.appendTo(append_target);
 
-                hidden_form.css({ display: 'inline-block'});
+            hidden_form.css({ display: 'inline-block'});
 
-                hidden_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
+            hidden_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
 
-                //TODO change is_template 1 and 0 logic
-                hidden_form.find('input[name*="[is_template]"]').val("1");
+            //TODO change is_template 1 and 0 logic
+            debugger;
+            hidden_form.find('input[name*="[is_template]"]').val("1");
 
-                hidden_form = copy_hidden_form;
+            setRemoveBtnId(hidden_form);
 
-                setRemoveBtnId(hidden_form);
+            setNameAttribute(hidden_form);
 
-                setNameAttribute(hidden_form);
+            hidden_form = copy_hidden_form;
 
-                // set value of is_template to 0. This makes sure that this input will not be considered in check input
-                hidden_form.find('input[name*="[is_template]"]').val("0");
+/*            setRemoveBtnId(hidden_form);
 
-                toggle_form_header_gui_and_label();
+            setNameAttribute(hidden_form);*/
 
-            } else {
-                task.value += code_start + code_end;
-                task.focus();
-            }
+            // set value of is_template to 0. This makes sure that this input will not be considered in check input
+            hidden_form.find('input[name*="[is_template]"]').val("0");
+
+            toggle_form_header_gui_and_label();
+
+        } else {
+            task.value += code_start + code_end;
+            task.focus();
+        }
     });
 
     setTimeout(function() {
@@ -401,6 +405,7 @@ $(document).ready(function() {
     }, 2000);
 
     $("input[name='cmd\[update\]']").on("click", function (e) {
+        debugger;
         console.log("hint to label test");
         var hint_tos = $('.hint_to');
 
@@ -420,8 +425,8 @@ $(document).ready(function() {
         hidden_form = $('.hint_form').filter(function() {
             return $(this).css('display') == 'none';
         });
+
         hidden_form.find('input[name*="[is_template]"]').val("0");
         //TEST END
     })
 });
-

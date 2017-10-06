@@ -326,6 +326,8 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 
         if (!empty($this->getExistingHintData())) {
             foreach ($this->getExistingHintData() as $hint_data) {
+                $tpl->setVariable("HIDDEN_LABEL_INPUT", $hint_data['label']);
+                $tpl->setVariable("HINT_ID", $hint_data['id']);
                 $tpl->setCurrentBlock("existing_hint_data");
                 $tpl->setVariable("CONTENT", htmlentities(json_encode($hint_data, JSON_UNESCAPED_UNICODE)));
 
@@ -391,6 +393,7 @@ class ilHintInputGUI extends ilFormPropertyGUI {
                 $tpl = new ilTemplate("tpl.prop_hint.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
                 $tpl->setVariable("DISPLAY", "style='display: inline-block;'");
                 $tpl->setVariable("HIDDEN_LABEL_INPUT", $data['label']);
+                $tpl->setVariable("HINT_ID", $data['hint_id']);
                 $tpl->setCurrentBlock("lvl_1_hint");
                 $tpl->setVariable("LAB_ID", $this->getLvl1Hint()->getFieldId());
                 $tpl->setVariable("PROPERTY_TITLE", $this->getLvl1Hint()->getTitle());
