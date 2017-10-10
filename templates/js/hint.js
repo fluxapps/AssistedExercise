@@ -46,7 +46,7 @@ $(document).ready(function() {
 
     function initaliseNameAttributes() {
         $('.hint_form').each(function (i) {
-            var hint_index = i + 1;
+            var hint_index = i;
             //TODO handle hidden input
             $( this ).find('input').each(function (i, el) {
                 var input_jquery_object = $(el);
@@ -75,9 +75,10 @@ $(document).ready(function() {
         })
     }
 
+    //TEST not pre increment i
     function initaliseRemoveBtnIds() {
         $('.remove_hint_btn').each(function(i) {
-            $( this ).attr('id', 'remove_hint_'+  ++i);
+            $( this ).attr('id', 'remove_hint_'+  i);
         });
     }
 
@@ -159,11 +160,11 @@ $(document).ready(function() {
     function adoptHintToLabel() {
         var hint_tos = $('.hint_to');
 
-        for(i = 0; i < hint_tos.length;) {
+        for(i = 0; i < hint_tos.length; i++) {
             hint_to_jquery_object = $(hint_tos[i]);
             hint_to_label = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label");
             hint_to_label_text = $(hint_to_jquery_object.children("div.col-sm-9")[0]).children("label").text();
-            hint_to_label.text(hint_to_label_text.replace(/[0-9]/, ++i));
+            hint_to_label.text(hint_to_label_text.replace(/[0-9]/, i));
         }
     }
 
@@ -184,7 +185,6 @@ $(document).ready(function() {
         var hint_form = $(".hint_form");
 
         if(hint_form.length > 1) {
-            console.log(hint_form);
             for(i = 1; i < hint_form.length; i++) {
                 increase_counter();
             }
@@ -231,11 +231,13 @@ $(document).ready(function() {
 
                 $(hint_data_form).css({ display: 'inline-block' });
 
+                $(hint_data_form).appendTo(hidden_form.closest('.col-sm-9'));
+
                 /**
                  * in the first iteration prepend the hint form to the hidden hint form
                  * after the first iteration append the hint form to the last child of displayed hint forms
                  */
-                if (index === 0) {
+/*                if (index === 0) {
                     var prepend_target = hidden_form.closest('.col-sm-9');
 
                     prepend_target.prepend(hint_data_form);
@@ -245,7 +247,7 @@ $(document).ready(function() {
                     });
 
                     not_hidden_forms.last().after(hint_data_form);
-                }
+                }*/
 
                 jquery_element = $(element);
 
@@ -295,7 +297,7 @@ $(document).ready(function() {
 
     toggle_form_header_gui_and_label();
 
-    prependToHintFormWrapper();
+    //prependToHintFormWrapper();
 
     //TODO check if this is necessary
     adoptHintToLabel();
@@ -344,24 +346,24 @@ $(document).ready(function() {
             });
 
             //append_target is the wrapper for the hint forms
-            var append_target = hint_form.closest('.col-sm-9');
-            var copy_hidden_form = hidden_form.clone(true);
 
-            copy_hidden_form.appendTo(append_target);
+            var append_target = hidden_form.closest('.col-sm-9');
+            var new_hint_form = hidden_form.clone(true);
 
-            hidden_form.css({ display: 'inline-block'});
+            new_hint_form.appendTo(append_target);
 
-            hidden_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
+            new_hint_form.css({ display: 'inline-block'});
+
+            new_hint_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
 
             //TODO change is_template 1 and 0 logic
-            debugger;
-            hidden_form.find('input[name*="[is_template]"]').val("1");
+            new_hint_form.find('input[name*="[is_template]"]').val("1");
 
-            setRemoveBtnId(hidden_form);
+            setRemoveBtnId(new_hint_form);
 
-            setNameAttribute(hidden_form);
+            setNameAttribute(new_hint_form);
 
-            hidden_form = copy_hidden_form;
+            //hidden_form = copy_hidden_form;
 
 /*            setRemoveBtnId(hidden_form);
 
@@ -405,7 +407,6 @@ $(document).ready(function() {
     }, 2000);
 
     $("input[name='cmd\[update\]']").on("click", function (e) {
-        debugger;
         console.log("hint to label test");
         var hint_tos = $('.hint_to');
 

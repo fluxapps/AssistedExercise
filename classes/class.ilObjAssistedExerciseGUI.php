@@ -8,7 +8,9 @@
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilObjAssistedExerciseAccess.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseItem.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettings.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
@@ -38,7 +40,6 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
- * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilObjAssistedExerciseListGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
@@ -108,7 +109,9 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
         $this->setTitleAndDescription();
 
         $next_class = $this->dic->ctrl()->getNextClass($this);
+        //die(var_dump($next_class));
         $this->dic->ctrl()->getCmd(self::CMD_STANDARD);
+
 
         switch ($next_class) {
             case 'xaseitemgui':
@@ -120,6 +123,15 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
                 $this->tpl->getStandardTemplate();
                 $xaseItemGUI = new xaseItemGUI();
                 $this->ctrl->forwardCommand($xaseItemGUI);
+                break;
+
+            case 'xaseanswergui':
+                $this->setTabs();
+                $this->setLocator();
+                $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+                $this->tpl->getStandardTemplate();
+                $xaseAnswerGUI = new xaseAnswerGUI($this->object);
+                $this->ctrl->forwardCommand($xaseAnswerGUI);
                 break;
 
             default:

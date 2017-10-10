@@ -212,18 +212,18 @@ class xaseItemTableGUI extends ilTable2GUI
         $current_selection_list->setUseImages(false);
 
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+        $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_item'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
         }
         if ($this->access->hasWriteAccess()) {
-            $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_ANSWER, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_ANSWER));
+            $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
         }
-        if ($this->access->hasWriteAccess()) {
+/*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
-        }
+        }*/
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
     }
-
 
     protected function parseData()
     {

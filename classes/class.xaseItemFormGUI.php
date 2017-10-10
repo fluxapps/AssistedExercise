@@ -211,7 +211,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->addItem($custom_input_gui);
     }
 
-    public function initHint2Form() {
+/*    public function initHint2Form() {
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->pl->txt('Hint 1'));
         $this->addItem($header);
@@ -219,7 +219,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->hint_input_gui = new ilHintInputGUI();
         $this->hint_input_gui->setRemoveHintBtn($this->initRemoveHintBtn());
         $this->addItem($this->hint_input_gui);
-    }
+    }*/
 
     public function initHintForm() {
         $this->hint_input_gui = new ilHintInputGUI($this->pl->txt('hints'), "");
@@ -227,7 +227,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         return $this;
     }
 
-    public function applyIndicesToTaskText( $task )
+/*    public function applyIndicesToTaskText( $task )
     {
         $parts	= explode( '[hint', $task );
         $i = 0;
@@ -245,7 +245,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             $i++;
         }
         return $task;
-    }
+    }*/
 
     protected function getXaseSampleSolution($sample_solution_id) {
         $xaseSampleSolution = xaseSampleSolution::where(array('id' => $sample_solution_id))->first();
