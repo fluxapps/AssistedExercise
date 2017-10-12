@@ -128,7 +128,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     public function initForm()
     {
         $this->setTarget('_top');
-        $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
         $this->setTitle($this->pl->txt('item_create'));
 
         $ti = new ilTextInputGUI($this->pl->txt('title'), 'title');
@@ -154,6 +153,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->addCommandButton(xaseItemGUI::CMD_UPDATE, $this->pl->txt('save'));
         $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
 
+        $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
         $this->setFormAction($this->ctrl->getFormAction($this));
     }
 
@@ -378,6 +378,10 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         return xaseLevel::where(array('hint_id' => $hint_id))->get();
     }
 
+    protected function getMaxHintNumber($item_id) {
+        $this->dic->database()->query("SELECT max(hint_number) FROM ilias.rep_robj_xase_hint where item_id = ".$this->dic->database()->quote($item_id, "integer"));
+    }
+
     /*
      * store hint number in hint table
      * 1) get hint numbers from task text
@@ -388,28 +392,55 @@ class xaseItemFormGUI extends ilPropertyFormGUI
      *      create new hint
      * store the hint information from post with the right index in the corresponding hint
      */
+
+    /**
+     * wenn hint bereits existiert id von hint geben statt 0, 1, 2, 3...
+     */
     protected function fillHintObjects() {
         $task = $this->object->getTask();
-/*        preg_match_all('(\d+)', $task, $matches);
-        $matches = array_unique($matches);
-        for ($i = 0; $i < count($matches); $i++) {
+        /*        preg_match_all('(\d+)', $task, $matches);
+                $matches = array_unique($matches);
+                for ($i = 0; $i < count($matches); $i++) {
 
-        }*/
+                }*/
+
+        $max_hint_number = $this->getMaxHintNumber($this->object->getId());
 
         if (is_array($_POST['hint'])) {
             foreach ($_POST['hint'] as $id => $data) {
-                if(in_array($id, $this->xase_hints)) {
-                    $hint = $this->xase_hints[$id];
-                } else {
+                if(!empty($this->xase_hints)) {
+                    foreach ($this->xase_hints as $xase_hint) {
+                        if ($data['hint_id'] == $xase_hint->getId()) {
+                            $hint = $xase_hint;
+                        }
+                    }
+                }
+                if(empty($hint) || empty($this->xase_hints) ||  $data['hint_id'] !== $hint->getId()) {
                     $hint = new xaseHint();
                 }
+
+                /*                if(in_array($data['hint_id'], $this->xase_hints)) {
+                                    $key = array_search($data['hint_id'], $this->xase_hints);
+                                    $hint = $this->xase_hints[$key];
+                                }*/
+                /*                if(in_array($id, $this->xase_hints)) {
+                                    $hint = $this->xase_hints[$id];
+                                }*/ /*else {
+                    $hint = new xaseHint();
+                }*/
 
                 if ($data["is_template"] == 0) {
                     continue;
                 }
 
                 $hint->setItemId($this->object->getId());
-                $hint->setHintNumber($id);
+                if(empty($max_hint_number)) {
+                    $hint->setHintNumber($id);
+                } else {
+                    $max_hint_number++;
+                    $hint->setHintNumber($max_hint_number);
+                }
+
                 $hint->setIsTemplate($data["is_template"]);
                 $hint->setLabel($data["label"]);
 
@@ -438,14 +469,23 @@ class xaseItemFormGUI extends ilPropertyFormGUI
                     $level_2->setHint($data["lvl_2_hint"]);
                     $level_2->store();
                 } else {
+
+                    /**
+                     * @var xaseLevel $level
+                     */
+/*                    foreach($levels as $level) {
+                        $level->setHintLevel(1);
+                        $level->setHint($data["lvl_1_hint"]);
+                        $level->set
+                    }*/
                     //TODO store points in points table and save hint_id
-                    $levels[0]['hint_level'] = 1;
+/*                    $levels[0]['hint_level'] = 1;
                     $levels[0]['lvl_1_hint'] = $data["lvl_1_hint"];
                     $levels[0]['lvl_1_minus_points'] = $data["lvl_1_minus_points"];
 
                     $levels[1]['hint_level'] = 2;
                     $levels[1]['lvl_2_hint'] = $data["lvl_2_hint"];
-                    $levels[1]['lvl_2_minus_points'] = $data["lvl_2_minus_points"];
+                    $levels[1]['lvl_2_minus_points'] = $data["lvl_2_minus_points"];*/
 
                     /**
                      * @var xaseLevel $level

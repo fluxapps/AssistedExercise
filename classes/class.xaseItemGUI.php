@@ -114,6 +114,7 @@ class xaseItemGUI
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         $xaseItemFormGUI->fillForm();
+        //echo $xaseItemFormGUI->getHTML(); exit();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
         $this->tpl->show();
     }

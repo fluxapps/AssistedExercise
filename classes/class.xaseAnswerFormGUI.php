@@ -108,12 +108,6 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
 
         $ta = new ilNonEditableValueGUI($this->pl->txt('task'), 'task', true);
 
-/*        $hints = $this->getHintsByItem($this->xase_item->getId());
-
-        foreach ($hints as $hint) {
-            $hint_ids[] = $hint->getId();
-        }*/
-
         preg_match_all('/\[hint (\d+)\]/i',$this->xase_item->getTask(), $hint_matches);
 
         $hint_numbers = $hint_matches[1];

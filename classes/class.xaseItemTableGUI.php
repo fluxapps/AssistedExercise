@@ -82,6 +82,7 @@ class xaseItemTableGUI extends ilTable2GUI
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
         $this->setRowTemplate("tpl.items.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
+
         $this->setFormAction($this->ctrl->getFormActionByClass('xaseitemgui'));
         $this->setExternalSorting(true);
 
