@@ -58,6 +58,87 @@ $(document).ready(function(){
         //$(element).attr('data-trigger', 'focus');
     });
 
+    var hint_minus_points = {};
+    var data_level_object = {};
+
+    function noteUsedHints(hint_id, data_level) {
+        console.log('note_used_hints');
+
+        for(var i=0; i < data_hints.length; i++) {
+            if(data_hints[i].hint_number == hint_id) {
+                var db_hint_id = data_hints[i].id;
+                break;
+            }
+        }
+
+        //TODO check if in the object, at the corresponding key (db_hint_id), the minus points at the data_level_ key is set
+/*        if((db_hint_id in hint_minus_points) && ()) {
+            return;
+        }*/
+
+        debugger;
+
+        var data_level_key = "data_level_" + data_level;
+
+        if( !(db_hint_id in hint_minus_points) ) {
+            hint_minus_points[db_hint_id] = {};
+        }
+
+        if( (data_level_key in hint_minus_points[db_hint_id]) ) {
+            return;
+        }
+
+        if(data_level == 1) {
+            for(var i=0; i < data_level_1.length; i++) {
+                if(db_hint_id == data_level_1[i].hint_id) {
+                    var points_id = data_level_1[i].point_id;
+                    break;
+                }
+            }
+            for(var i=0; i < data_level_1_minus_points.length; i++) {
+                if(points_id == data_level_1_minus_points[i].id) {
+                    var minus_points = data_level_1_minus_points[i].minus_points;
+                    break;
+                }
+            }
+        } else {
+            for(var i=0; i < data_level_2.length; i++) {
+                if(db_hint_id == data_level_2[i].hint_id) {
+                    var points_id = data_level_2[i].point_id;
+                    break;
+                }
+            }
+            for(var i=0; i < data_level_2_minus_points.length; i++) {
+                if(points_id == data_level_2_minus_points[i].id) {
+                    var minus_points = data_level_2_minus_points[i].minus_points;
+                    break;
+                }
+            }
+        }
+
+        if(data_level == 1) {
+            //data_level_object.data_level_1 = minus_points;
+            //hint_minus_points[db_hint_id] = data_level_object.data_level_1;
+            hint_minus_points[db_hint_id].data_level_1 = minus_points;
+        } else {
+/*            data_level_object.data_level_2 = minus_points;
+            hint_minus_points[db_hint_id] = data_level_object.data_level_2;*/
+            hint_minus_points[db_hint_id].data_level_2 = minus_points;
+        }
+
+        //hint_minus_points[db_hint_id].minus_points = data_level_object;
+
+/*        if(!hint_minus_points[db_hint_id][data_level]) {
+            hint_minus_points[db_hint_id][data_level] = minus_points;
+        }*/
+
+        console.log(JSON.stringify(hint_minus_points));
+
+        $('#used_hints').val(JSON.stringify(hint_minus_points));
+
+        console.log($('#used_hints').val());
+    }
+
     var saved_popover_content = [];
 
     function createBackLink(hint_id, data_level) {
@@ -141,17 +222,16 @@ $(document).ready(function(){
 
             $('[data-toggle="popover"]').popover();*/
 
-
-
             var hint_id = $(event.target).attr('data-hint-id');
             var data_level = $(event.target).attr('data-level');
+            noteUsedHints(hint_id, data_level);
+
             //save old popover_content before removal
             var popover_content = $(event.target).parent();
             //save the data in an array
             if(!saved_popover_content[hint_id]) {
                 saved_popover_content[hint_id] = [];
-            };
-
+            }
 
             console.log('popover_content.html():');
             console.dir(popover_content.html());
@@ -232,5 +312,23 @@ $(document).ready(function(){
         }, 10);
     });
      $('[data-toggle="popover"]').popover();
+
+    function toggleHints(show_hints) {
+        if (show_hints) {
+            tooltips.removeAttr('style');
+        } else {
+            tooltips.attr('style', 'display:none;');
+        }
+    }
+
+    $('input[name=\'hints_shown\']').change(
+        function(){
+            debugger;
+            if (this.checked) {
+                toggleHints(true);
+            } else {
+                toggleHints(false);
+            }
+        });
 });
 

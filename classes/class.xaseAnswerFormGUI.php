@@ -137,8 +137,9 @@ EOT;
         $this->addItem($ta);
 
         if ($this->mode == 1 || $this->mode == 3) {
-            $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'hints_shown');
+            $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'show_hints');
             $this->toogle_hint_checkbox->setChecked(true);
+            $this->toogle_hint_checkbox->setValue(1);
             $this->addItem($this->toogle_hint_checkbox);
         }
 
@@ -148,6 +149,8 @@ EOT;
         $this->addItem($answer);
 
         $this->initHintData();
+
+        $this->initHiddenUsedHintsInput();
 
         $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
         $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
@@ -228,15 +231,28 @@ EOT;
         }
     }
 
+    public function initHiddenUsedHintsInput() {
+        $hidden_used_hints = new ilHiddenInputGUI('used_hints');
+        $this->addItem($hidden_used_hints);
+    }
+
     public function fillForm()
     {
-        $this->xase_answer->getNumberOfUsedHints > 0 ? $this->toogle_hint_checkbox->setChecked(true) : $this->toogle_hint_checkbox->setChecked(false);
+        //$this->xase_answer->getNumberOfUsedHints > 0 ? $this->toogle_hint_checkbox->setChecked(true) : $this->toogle_hint_checkbox->setChecked(false);
         $array = array(
-            'task' => $this->xase_answer->getBody()
+            'task' => $this->xase_answer->getBody(),
+            'show_hints' => $this->xase_answer->getShowHints()
         );
         $this->setValuesByArray($array);
     }
 
+    public function getTotalMinusPoints($user_id, $item_id) {
+        xasePoint::where(['item_id' => $item_id])->where(['user_id' => $user_id])->first();
+    }
+
+    /**
+     * @return bool
+     */
     public function fillObject()
     {
         if (!$this->checkInput()) {
@@ -246,6 +262,69 @@ EOT;
         $this->xase_answer->setItemId($this->xase_item->getId());
         //TODO change number of used hints to a dynamic number
         $this->xase_answer->setNumberOfUsedHints(8);
+
+        if (empty($this->xase_answer->getUsedHints())) {
+            $this->xase_answer->setUsedHints($this->getInput('used_hints'));
+        } else {
+            $db_used_hints = json_decode($this->xase_answer->getUsedHints(), true);
+
+/*            should not be necessary as the array is sorted at the end of the function
+            ksort($db_used_hints);
+            foreach($db_used_hints as $db_hint => $data) {
+                ksort($db_hint);
+            }*/
+
+            $new_used_hints = json_decode($this->getInput('used_hints'), true);
+
+            ksort($new_used_hints);
+            foreach($new_used_hints as $new_hint => $data) {
+                ksort($new_hint);
+            }
+            //$difference_db_new_hints = array_diff_assoc($db_used_hints, $new_used_hints);
+            //$difference_new_db_hints = array_diff_assoc($new_used_hints, $db_used_hints);
+
+/*            $difference_new_db_hints = array_map('unserialize',
+                array_diff(array_map('serialize', $db_used_hints), array_map('serialize', $new_used_hints)));*/
+
+            $difference_new_db_hints = array_map('unserialize',
+                array_diff(array_map('serialize', $new_used_hints), array_map('serialize', $db_used_hints)));
+
+/*            foreach($difference_new_db_hints as $key => $value) {
+                if(!array_key_exists($key, $db_used_hints)) {
+                    foreach($value as $k => $v) {
+                        $db_used_hints[$key][$v] = $v;
+                    }
+                } else {
+                    foreach($value as $k => $v) {
+                        if($db_used_hints[$key]
+                    }
+                }
+            }*/
+
+            foreach($difference_new_db_hints as $key => $value) {
+                foreach($value as $k => $v) {
+                    $db_used_hints[$key][$k] = $v;
+                }
+            }
+            ksort($db_used_hints);
+
+            foreach($db_used_hints as $hint => $data) {
+                ksort($hint);
+            }
+            $total_minus_points = 0;
+            foreach($db_used_hints as $hint => $data) {
+                foreach($data as $k => $v) {
+                    $total_minus_points += $v;
+                }
+            }
+            /**
+             * @var xasePoint $xase_point
+             */
+            $xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
+            $xase_point->setMinusPoints($total_minus_points);
+            $xase_point->store();
+        }
+
         $this->xase_answer->setBody($this->getInput('answer'));
         $this->xase_answer->store();
         $xase_hint_answer = new xaseHintAnswer();

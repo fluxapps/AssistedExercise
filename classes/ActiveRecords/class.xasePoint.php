@@ -36,6 +36,16 @@ class xasePoint extends ActiveRecord
      */
     protected $user_id;
 
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull false
+     */
+    protected $item_id;
+
 
     /**
      * @var int
