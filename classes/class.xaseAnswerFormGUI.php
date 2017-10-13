@@ -115,7 +115,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
         $replacement_array = [];
         foreach ($hint_numbers as $hint_number) {
             $replacement_array[] = <<<EOT
- <a href="#"><span id="{$hint_number}" class="glyphicon glyphicon-exclamation-sign"></span></a> 
+ <a href="#" data-hint-id="{$hint_number}" class="hint-popover-link"><span class="glyphicon glyphicon-exclamation-sign"></span></a> 
 EOT;
         }
         preg_match_all('/\[\/hint\]/',$this->xase_item->getTask(), $hint_delimiter_matches);
