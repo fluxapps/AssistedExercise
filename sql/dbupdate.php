@@ -12,9 +12,6 @@ xaseComment::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHint.php');
 xaseHint::updateDB();
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHintAnswer.php');
-xaseHintAnswer::updateDB();
-
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseItem.php');
 xaseItem::updateDB();
 

@@ -103,11 +103,33 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
     public function initForm()
     {
         $this->setTarget('_top');
+        $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        $this->setTitle($this->pl->txt('answer_item'));
+        $this->setTitle($this->pl->txt('answer_item') . " " . $this->xase_item->getTitle());
 
-        $ta = new ilNonEditableValueGUI($this->pl->txt('task'), 'task', true);
+        $this->initTaskInput();
 
+        if ($this->mode == 1 || $this->mode == 3) {
+            $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'show_hints');
+            $this->toogle_hint_checkbox->setChecked(true);
+            $this->toogle_hint_checkbox->setValue(1);
+            $this->addItem($this->toogle_hint_checkbox);
+        }
+
+        $answer = new ilTextAreaInputGUI($this->pl->txt('answer'), 'answer');
+        $answer->setRequired(true);
+        $answer->setRows(10);
+        $this->addItem($answer);
+
+        $this->initHintData();
+
+        $this->initHiddenUsedHintsInput();
+
+        $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
+        $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
+    }
+
+    protected function replace_hint_identifiers_with_glyphs() {
         preg_match_all('/\[hint (\d+)\]/i',$this->xase_item->getTask(), $hint_matches);
 
         $hint_numbers = $hint_matches[1];
@@ -132,28 +154,36 @@ EOT;
 
         $task_text_with_glyphicons_cleaned = preg_replace('/\[hint (\d+)\]/i',"" , $task_text_with_glyphicons);
 
-        $test_text_and_html = $task_text_with_glyphicons_cleaned;
+        return $task_text_with_glyphicons_cleaned;
+    }
+
+    /*
+     * //TODO check if this method is necessary
+     * this method is used after data is sent via post
+     */
+    public function replace_gaps_with_glyphs() {
+        preg_match_all('/h(\d+)/g',$this->xase_item->getTask(), $hint_matches);
+
+        $hint_numbers = $hint_matches[1];
+
+        $replacement_array = [];
+        foreach ($hint_numbers as $hint_number) {
+            $replacement_array[] = <<<EOT
+ <a href="#" data-hint-id="{$hint_number}" class="hint-popover-link"><span class="glyphicon glyphicon-exclamation-sign"></span></a> 
+EOT;
+        }
+        $task_text_with_glyphicons = preg_replace('[\s]', $replacement_array, $this->xase_item->getTask(), 1);
+
+        return $task_text_with_glyphicons;
+    }
+
+    protected function initTaskInput() {
+        $ta = new ilNonEditableValueGUI($this->pl->txt('task'), 'task', true);
+
+        $test_text_and_html = $this->replace_hint_identifiers_with_glyphs();
+
         $ta->setValue($test_text_and_html);
         $this->addItem($ta);
-
-        if ($this->mode == 1 || $this->mode == 3) {
-            $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'show_hints');
-            $this->toogle_hint_checkbox->setChecked(true);
-            $this->toogle_hint_checkbox->setValue(1);
-            $this->addItem($this->toogle_hint_checkbox);
-        }
-
-        $answer = new ilTextAreaInputGUI($this->pl->txt('answer'), 'answer');
-        $answer->setRequired(true);
-        $answer->setRows(10);
-        $this->addItem($answer);
-
-        $this->initHintData();
-
-        $this->initHiddenUsedHintsInput();
-
-        $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
-        $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
     }
 
     protected function getHintsByItem($item_id) {
@@ -238,16 +268,53 @@ EOT;
 
     public function fillForm()
     {
-        //$this->xase_answer->getNumberOfUsedHints > 0 ? $this->toogle_hint_checkbox->setChecked(true) : $this->toogle_hint_checkbox->setChecked(false);
         $array = array(
-            'task' => $this->xase_answer->getBody(),
-            'show_hints' => $this->xase_answer->getShowHints()
+            'task' => $this->replace_hint_identifiers_with_glyphs(),
+            'show_hints' => $this->xase_answer->getShowHints(),
+            'answer' => $this->xase_answer->getBody(),
+        );
+        $this->setValuesByArray($array);
+    }
+
+    /*
+     * This method is used to fill the task input if the form was sent with invalid data.
+     */
+    public function fillTaskInput()
+    {
+        $array = array(
+            'task' => $this->replace_hint_identifiers_with_glyphs(),
         );
         $this->setValuesByArray($array);
     }
 
     public function getTotalMinusPoints($user_id, $item_id) {
-        xasePoint::where(['item_id' => $item_id])->where(['user_id' => $user_id])->first();
+        return xasePoint::where(array( 'item_id' => $item_id, 'user_id' => $user_id ), '=')->first();
+    }
+
+    protected function getNumberOfUsedHints($hints_array) {
+        $hints_array = json_decode($hints_array, true);
+        $number_of_used_hints = 0;
+        foreach($hints_array as $hint => $data) {
+            $number_of_used_hints++;
+        }
+        return $number_of_used_hints;
+    }
+
+    protected function getNewTotalMinusPoints($hints_array) {
+        $hints_array = json_decode($hints_array, true);
+        $total_minus_points = 0;
+        foreach($hints_array as $hint => $data) {
+            foreach($data as $k => $v) {
+                $total_minus_points += $v;
+            }
+        }
+        return $total_minus_points;
+    }
+
+    protected function getItemMaxPoints($item_point_id) {
+        $statement = $this->dic->database()->query("SELECT max_points FROM ilias.rep_robj_xase_point where id = ".$this->dic->database()->quote($item_point_id, "integer") . " AND max_points IS NOT NULL");
+        $result = $statement->fetchAssoc();
+        return $result;
     }
 
     /**
@@ -260,11 +327,28 @@ EOT;
         }
         $this->xase_answer->setUserId($this->dic->user()->getId());
         $this->xase_answer->setItemId($this->xase_item->getId());
-        //TODO change number of used hints to a dynamic number
-        $this->xase_answer->setNumberOfUsedHints(8);
+        $this->xase_answer->setShowHints($this->getInput('show_hints'));
 
         if (empty($this->xase_answer->getUsedHints())) {
-            $this->xase_answer->setUsedHints($this->getInput('used_hints'));
+            $used_hints = $this->getInput('used_hints');
+            $this->xase_answer->setUsedHints($used_hints);
+            if(!empty($used_hints)) {
+                $this->xase_answer->setNumberOfUsedHints($this->getNumberOfUsedHints($used_hints));
+            }
+            $xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
+
+            //if the user has already answered the item but has not used any hints don't create a new entry in the db
+            if(empty($xase_point)) {
+                $xase_point = new xasePoint();
+                $xase_point->setUserId($this->dic->user()->getId());
+                $xase_point->setItemId($this->xase_item->getId());
+                $item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
+                $xase_point->setMaxPoints($item_max_points['max_points']);
+            }
+            if(!empty($used_hints)) {
+                $xase_point->setMinusPoints($this->getNewTotalMinusPoints($used_hints));
+            }
+            $xase_point->store();
         } else {
             $db_used_hints = json_decode($this->xase_answer->getUsedHints(), true);
 
@@ -276,18 +360,60 @@ EOT;
 
             $new_used_hints = json_decode($this->getInput('used_hints'), true);
 
-            ksort($new_used_hints);
-            foreach($new_used_hints as $new_hint => $data) {
-                ksort($new_hint);
+            if(!empty($new_used_hints)) {
+                ksort($new_used_hints);
+                foreach($new_used_hints as $new_hint => $data) {
+                    ksort($data);
+                }
+                $difference_new_db_hints = array_map('unserialize',
+                    array_diff(array_map('serialize', $new_used_hints), array_map('serialize', $db_used_hints)));
+
+                foreach($difference_new_db_hints as $key => $value) {
+                    foreach($value as $k => $v) {
+                        $db_used_hints[$key][$k] = $v;
+                    }
+                }
+                ksort($db_used_hints);
+
+                foreach($db_used_hints as $hint => $data) {
+                    ksort($data);
+                }
+/*                $total_minus_points = 0;
+                $number_of_used_hints = 0;
+                foreach($db_used_hints as $hint => $data) {
+                    foreach($data as $k => $v) {
+                        $total_minus_points += $v;
+                    }
+                    $number_of_used_hints++;
+                }*/
+
+                $this->xase_answer->setNumberOfUsedHints($this->getNumberOfUsedHints($db_used_hints));
+
+                /**
+                 * @var xasePoint $xase_point
+                 */
+                $xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
+/*                if (empty($xase_point)) {
+                    $xase_point = new xasePoint();
+                    $xase_point->setUserId($this->dic->user()->getId());
+                    $xase_point->setItemId($this->xase_item->getId());
+                }*/
+
+                if(empty($xase_point)) {
+                    $xase_point = new xasePoint();
+                    $xase_point->setUserId($this->dic->user()->getId());
+                    $xase_point->setItemId($this->xase_item->getId());
+                    $item_max_points = $this->getItemMaxPoints($this->xase_item->getId());
+                    $xase_point->setMaxPoints($item_max_points['max_points']);
+                }
+                $xase_point->setMinusPoints($this->getNewTotalMinusPoints($db_used_hints));
+                $xase_point->store();
             }
             //$difference_db_new_hints = array_diff_assoc($db_used_hints, $new_used_hints);
             //$difference_new_db_hints = array_diff_assoc($new_used_hints, $db_used_hints);
 
 /*            $difference_new_db_hints = array_map('unserialize',
                 array_diff(array_map('serialize', $db_used_hints), array_map('serialize', $new_used_hints)));*/
-
-            $difference_new_db_hints = array_map('unserialize',
-                array_diff(array_map('serialize', $new_used_hints), array_map('serialize', $db_used_hints)));
 
 /*            foreach($difference_new_db_hints as $key => $value) {
                 if(!array_key_exists($key, $db_used_hints)) {
@@ -300,38 +426,15 @@ EOT;
                     }
                 }
             }*/
-
-            foreach($difference_new_db_hints as $key => $value) {
-                foreach($value as $k => $v) {
-                    $db_used_hints[$key][$k] = $v;
-                }
-            }
-            ksort($db_used_hints);
-
-            foreach($db_used_hints as $hint => $data) {
-                ksort($hint);
-            }
-            $total_minus_points = 0;
-            foreach($db_used_hints as $hint => $data) {
-                foreach($data as $k => $v) {
-                    $total_minus_points += $v;
-                }
-            }
-            /**
-             * @var xasePoint $xase_point
-             */
-            $xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
-            $xase_point->setMinusPoints($total_minus_points);
-            $xase_point->store();
         }
 
         $this->xase_answer->setBody($this->getInput('answer'));
         $this->xase_answer->store();
-        $xase_hint_answer = new xaseHintAnswer();
+/*        $xase_hint_answer = new xaseHintAnswer();
         $xase_hint_answer->setAnswerId($this->xase_answer->getId());
         //TODO change static hint id
         $xase_hint_answer->setHintId(1);
-        $xase_hint_answer->store();
+        $xase_hint_answer->store();*/
 
         return true;
     }

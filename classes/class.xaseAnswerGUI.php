@@ -108,14 +108,19 @@ class xaseAnswerGUI extends ilPropertyFormGUI
         $this->tpl->show();
     }
 
+    //1) In Erfolgsfall Weiterleitung auf edit Command ($xaseAnswerFormGUI->updateObject())
+    //2) In Fehlerfall a)POST Variable anpassen / b) Methode fillTaskInput aufrufen
     public function update()
     {
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
         $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
         if ($xaseAnswerFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
+            $this->ctrl->redirect($this, self::CMD_STANDARD);
         }
+
         $xaseAnswerFormGUI->setValuesByPost();
+        $xaseAnswerFormGUI->fillTaskInput();
         $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
         $this->tpl->show();
     }

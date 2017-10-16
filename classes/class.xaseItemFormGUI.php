@@ -151,9 +151,10 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->initHintForm();
 
         $this->addCommandButton(xaseItemGUI::CMD_UPDATE, $this->pl->txt('save'));
-        $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
+        $this->addCommandButton(xaseItemGUI::CMD_CANCEL, $this->pl->txt("cancel"));
 
-        $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
+        //$this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
+        $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this));
     }
 
@@ -362,10 +363,14 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->xase_sample_solution->store();
         $this->object->setSampleSolutionId($this->xase_sample_solution->getId());
 
+        //xase_points has to be persisted twice in order to get the id for the object and set the item id from the object
         $this->xase_point->setMaxPoints($this->getInput('max_points'));
         $this->xase_point->store();
         $this->object->setPointId($this->xase_point->getId());
         $this->object->setItemStatus(self::ITEM_STATUS_OPEN);
+        $this->object->store();
+        $this->xase_point->setItemId($this->object->getId());
+        $this->xase_point->store();
 
         return true;
     }
@@ -508,7 +513,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         if (!$this->fillObject()) {
             return false;
         }
-        $this->object->store();
+//        $this->object->store();
 
         if(!$this->fillHintObjects()) {
             return false;

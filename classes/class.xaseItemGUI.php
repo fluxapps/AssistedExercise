@@ -16,6 +16,7 @@ class xaseItemGUI
 
     const ITEM_IDENTIFIER = 'item_id';
     const CMD_STANDARD = 'content';
+    const CMD_CANCEL = 'cancel';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
 
@@ -76,6 +77,7 @@ class xaseItemGUI
 
     public function executeCommand()
     {
+
         $nextClass = $this->ctrl->getNextClass();
         switch ($nextClass) {
             default:
@@ -111,6 +113,7 @@ class xaseItemGUI
 
     public function edit()
     {
+        $this->ctrl->saveParameter($this, self::ITEM_IDENTIFIER);
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         $xaseItemFormGUI->fillForm();
@@ -121,6 +124,7 @@ class xaseItemGUI
 
     public function update()
     {
+        $this->ctrl->saveParameter($this, self::ITEM_IDENTIFIER);
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         if ($xaseItemFormGUI->updateObject()) {
@@ -155,6 +159,10 @@ class xaseItemGUI
         $xgeoLocationTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD);
         $xgeoLocationTableGUI->resetFilter();
         $xgeoLocationTableGUI->resetOffset();
+        $this->ctrl->redirect($this, self::CMD_STANDARD);
+    }
+
+    protected function cancel() {
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 

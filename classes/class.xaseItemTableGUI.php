@@ -9,7 +9,6 @@
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHintAnswer.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
@@ -158,24 +157,11 @@ class xaseItemTableGUI extends ilTable2GUI
         $xaseHint = xaseHint::where(array('item_id' => $xaseItem->getId()))->get();
 
         /**
-         * @var $xaseHintAnswer xaseHintAnswer
-         */
-        if (!empty($xaseHint)) {
-            $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->get();
-        }
-        /**
-         * @var $xaseHintAnswer xaseHintAnswer
-         */
-/*        if (!empty($xaseHint)) {
-            $xaseHintAnswer = xaseHintAnswer::where(array('hint_id' => $xaseHint->getId()))->get();
-        }*/
-        /**
          * @var $xaseAnswer xaseAnswer
          */
-/*        if (!empty($xaseHintAnswer)) {
-            $xaseAnswer = xaseAnswer::where(array('id' => $xaseHintAnswer->getAnswerId()))->get();
-        }*/
-
+        if (!empty($xaseHint)) {
+            $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->first();
+        }
         if (!empty($xaseAnswer)) {
             $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
         } else {
