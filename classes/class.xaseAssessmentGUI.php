@@ -1,19 +1,17 @@
 <?php
-
 /**
- * Class xaseAnswerGUI
- * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ * Class xaseAssessmentGUI
+ * @author: Benjamin Seglias   <bs@studer-raimann.ch>
  */
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentFormGUI.php');
 
-
-
-class xaseAnswerGUI
+class xaseAssessmentGUI
 {
-    const CMD_STANDARD = 'edit';
-    const CMD_UPDATE = 'update';
-    const CMD_CANCEL = 'cancel';
+    const   CMD_STANDARD = 'edit';
+    const   CMD_UPDATE = 'update';
+    const   CMD_CANCEL = 'update';
+    const   CMD_ADD_SUBMITTED_EXERCISE = "add_submitted_exercise";
 
     /**
      * @var ilObjAssistedExercise
@@ -48,7 +46,7 @@ class xaseAnswerGUI
      */
     protected $xase_item;
 
-    public function __construct(ilObjAssistedExercise $assisted_exericse)
+    public function __construct(ilObjAssistedExercise $assisted_exercise)
     {
         global $DIC;
         $this->dic = $DIC;
@@ -57,11 +55,8 @@ class xaseAnswerGUI
         $this->ctrl = $this->dic->ctrl();
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
-        $this->assisted_exercise = $assisted_exericse;
         $this->xase_item = new xaseItem($_GET['item_id']);
-        $this->xase_answer = $this->getAnswer();
-
-        //parent::__construct();
+        $this->assisted_exercise = $assisted_exercise;
     }
 
     public function executeCommand()
@@ -91,39 +86,31 @@ class xaseAnswerGUI
         }
     }
 
-    protected function getAnswer() {
-        $xaseAnswer = xaseAnswer::where(array( 'item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId() ), array( 'item_id' => '=', 'user_id' => '=' ))->first();
-        if (empty($xaseAnswer)) {
-            $xaseAnswer = new xaseAnswer();
-        }
-        return $xaseAnswer;
-    }
-
     public function edit()
     {
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
-        $xaseAnswerFormGUI->fillForm();
-        $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, $this->xase_item);
+        $xaseAssessmentFormGUI->fillForm();
+        $this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
         $this->tpl->show();
     }
 
     public function update()
     {
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
-        if ($xaseAnswerFormGUI->updateObject()) {
+        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, $this->xase_item);
+        if ($xaseAssessmentFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
             $this->ctrl->redirect($this, self::CMD_STANDARD);
         }
 
-        $xaseAnswerFormGUI->setValuesByPost();
-        $xaseAnswerFormGUI->fillTaskInput();
-        $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+        $xaseAssessmentFormGUI->setValuesByPost();
+        $this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
         $this->tpl->show();
     }
 
     public function cancel() {
         $this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_CANCEL);
     }
+
 }

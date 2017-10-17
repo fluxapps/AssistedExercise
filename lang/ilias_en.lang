@@ -70,3 +70,11 @@ msg_input_hints#:#Please fill out all required hint inputs. Required fields are 
 answer_item#:#Answer Item
 show_hints#:#Show hints
 answer#:#Answer
+submit_for_assessment#:#Submit for assessment
+assessment_for_item#:#Assessment for item
+submitted_by#:#Submitted by
+show_used_hints#:#Show used hints
+comment#:#Comment
+submissions#:#Submissions
+first_name#:#First name
+assessed#:#assessed

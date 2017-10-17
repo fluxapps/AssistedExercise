@@ -36,6 +36,9 @@ xaseSettingsM3::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php');
 xaseVoting::updateDB();
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAssessment.php');
+xaseAssessment::updateDB();
+
 ?>
 
 

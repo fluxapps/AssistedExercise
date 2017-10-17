@@ -48,6 +48,16 @@ class xaseAnswer extends ActiveRecord {
      *
      * @db_has_field  true
      * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull false
+     */
+    protected $point_id;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
      * @db_length     1
      * @db_is_notnull false
      */
@@ -82,6 +92,24 @@ class xaseAnswer extends ActiveRecord {
      * @db_is_notnull       true
      */
     protected $body;
+
+    /**
+     * @var string
+     *
+     * @db_has_field        true
+     * @db_fieldtype        timestamp
+     */
+    protected $submission_date;
+
+    /**
+     * @var string
+     *
+     * @db_has_field        true
+     * @db_fieldtype        text
+     * @db_length           32
+     * @db_is_notnull       false
+     */
+    protected $answer_status;
 
     /**
      * @return int
@@ -121,6 +149,22 @@ class xaseAnswer extends ActiveRecord {
     public function setItemId($item_id)
     {
         $this->item_id = $item_id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPointId()
+    {
+        return $this->point_id;
+    }
+
+    /**
+     * @param int $point_id
+     */
+    public function setPointId($point_id)
+    {
+        $this->point_id = $point_id;
     }
 
     /**
@@ -187,4 +231,35 @@ class xaseAnswer extends ActiveRecord {
         $this->body = $body;
     }
 
+    /**
+     * @return string
+     */
+    public function getSubmissionDate()
+    {
+        return $this->submission_date;
+    }
+
+    /**
+     * @param string $submission_date
+     */
+    public function setSubmissionDate($submission_date)
+    {
+        $this->submission_date = $submission_date;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAnswerStatus()
+    {
+        return $this->answer_status;
+    }
+
+    /**
+     * @param string $answer_status
+     */
+    public function setAnswerStatus($answer_status)
+    {
+        $this->answer_status = $answer_status;
+    }
 }

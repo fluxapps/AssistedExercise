@@ -10,6 +10,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettings.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSubmissionGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
@@ -40,6 +41,8 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAssessmentGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
@@ -134,6 +137,24 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
                 $this->ctrl->forwardCommand($xaseAnswerGUI);
                 break;
 
+            case 'xaseassessmentgui':
+                $this->setTabs();
+                $this->setLocator();
+                $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+                $this->tpl->getStandardTemplate();
+                $xaseAssessmentGUI = new xaseAssessmentGUI($this->object);
+                $this->ctrl->forwardCommand($xaseAssessmentGUI);
+                break;
+
+            case 'xasesubmissiongui':
+                $this->setTabs();
+                $this->setLocator();
+                $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+                $this->tpl->getStandardTemplate();
+                $xaseSubmissionGUI = new xaseSubmissionGUI();
+                $this->ctrl->forwardCommand($xaseSubmissionGUI);
+                break;
+
             default:
                 return parent::executeCommand();
         }
@@ -179,6 +200,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
             $this->tabs->addTab('content', $this->pl->txt('content'), $this->ctrl->getLinkTarget(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD));
             $this->addInfoTab();
             if ($this->access->hasWriteAccess()) {
+                $this->tabs->addTab(xaseSubmissionGUI::CMD_STANDARD, $this->pl->txt('submissions'), $this->ctrl->getLinkTarget(new xaseSubmissionGUI(), xaseSubmissionGUI::CMD_STANDARD));
                 $this->tabs->addTab(self::CMD_EDIT, $this->pl->txt('edit_properties'), $this->ctrl->getLinkTarget($this, self::CMD_EDIT));
             }
             if ($this->checkPermissionBool('edit_permission')) {

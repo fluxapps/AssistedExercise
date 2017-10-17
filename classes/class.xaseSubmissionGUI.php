@@ -1,21 +1,17 @@
 <?php
-
 /**
- * Class xaseItemGUI
- * @author  Benjamin Seglias <bs@studer-raimann.ch>
- * @ilCtrl_Calls      xaseItemGUI: xaseItemTableGUI
- * @ilCtrl_Calls      xaseItemGUI: xaseItemFormGUI
- * @ilCtrl_isCalledBy xaseItemGUI: ilObjAssistedExerciseGUI
+ * Class xaseSubmissionGUI
+ * @author: Benjamin Seglias   <bs@studer-raimann.ch>
  */
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
 
-class xaseItemGUI
+class xaseSubmissionGUI
 {
-
     const ITEM_IDENTIFIER = 'item_id';
-    const CMD_STANDARD = 'content';
+    const SUBMISSION_IDENTIFIER = 'submission_id';
+    const CMD_STANDARD = 'show_submissions';
     const CMD_CANCEL = 'cancel';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
@@ -24,6 +20,11 @@ class xaseItemGUI
      * @var ilObjAssistedExercise
      */
     public $object;
+
+    /**
+     * @var xaseItem
+     */
+    public $xase_assessment;
 
     /**
      * @var xaseItem
@@ -92,13 +93,6 @@ class xaseItemGUI
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
             case self::CMD_STANDARD:
-                if ($this->access->hasReadAccess()) {
-                    $this->{$cmd}();
-                    break;
-                } else {
-                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-                    break;
-                }
             case self::CMD_EDIT:
             case self::CMD_UPDATE:
                 if ($this->access->hasWriteAccess()) {
@@ -135,34 +129,33 @@ class xaseItemGUI
         $this->tpl->show();
     }
 
-    public function content()
+    public function show_submissions()
     {
-        if (!$this->access->hasReadAccess()) {
+        if (!$this->access->hasWriteAccess()) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
 
-        $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD, $this->object);
-        $this->tpl->setContent($xaseItemTableGUI->getHTML());
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $this->tpl->setContent($xaseSubmissionTableGUI->getHTML());
         $this->tpl->show();
     }
 
     protected function applyFilter()
     {
-        $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD, $this->object);
-        $xaseItemTableGUI->writeFilterToSession();
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $xaseSubmissionTableGUI->writeFilterToSession();
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 
     protected function resetFilter()
     {
-        $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD, $this->object);
-        $xaseItemTableGUI->resetFilter();
-        $xaseItemTableGUI->resetOffset();
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $xaseSubmissionTableGUI->resetFilter();
+        $xaseSubmissionTableGUI->resetOffset();
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 
     protected function cancel() {
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
-
 }

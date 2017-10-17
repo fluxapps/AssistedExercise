@@ -75,3 +75,11 @@ msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind m
 answer_item#:#Item beantworten
 show_hints#:#Tipps anzeigen
 answer#:#Antwort
+submit_for_assessment#:#Übung zur Bewertung einreichen
+assessment_for_item#:#Bewertung für Item
+submitted_by#:#eingereicht von
+show_used_hints#:#Verwendete Tipps anzeigen
+comment#:#Kommentar
+submissions#:#Abgaben
+first_name#:#Vorname
+assessed#:#Bewertet

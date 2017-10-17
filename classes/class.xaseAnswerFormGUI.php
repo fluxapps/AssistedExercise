@@ -8,8 +8,6 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 
 class xaseAnswerFormGUI extends ilPropertyFormGUI
 {
-    const ANSWER_IDENTIFIER = 'answer_id';
-
     /**
      * @var ilObjAssistedExercise
      */
@@ -126,7 +124,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
         $this->initHiddenUsedHintsInput();
 
         $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
-        $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
+        $this->addCommandButton(xaseAnswerGUI::CMD_CANCEL, $this->pl->txt("cancel"));
     }
 
     protected function replace_hint_identifiers_with_glyphs() {
