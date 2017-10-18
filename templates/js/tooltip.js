@@ -321,9 +321,8 @@ $(document).ready(function(){
         }
     }
 
-    $('input[name=\'hints_shown\']').change(
+    $('input[name=\'show_hints\']').change(
         function(){
-            debugger;
             if (this.checked) {
                 toggleHints(true);
             } else {

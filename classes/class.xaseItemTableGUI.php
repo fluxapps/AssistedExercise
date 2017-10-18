@@ -41,6 +41,11 @@ class xaseItemTableGUI extends ilTable2GUI
     protected $parent_obj;
 
     /**
+     * @var xaseItem
+     */
+    public $xase_item;
+
+    /**
      * @var ilAssistedExercisePlugin
      */
     protected $pl;
@@ -74,6 +79,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->setFormName(self::TBL_ID);
         $this->ctrl->saveParameter($a_parent_obj, $this->getNavParameter());
         $this->assisted_exercise = $assisted_exercise;
+        $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
         if (ilObjAssistedExerciseAccess::hasWriteAccess()) {
             $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
@@ -84,12 +90,12 @@ class xaseItemTableGUI extends ilTable2GUI
             $DIC->toolbar()->addButtonInstance($ilLinkButton);
 
             if ($this->canExerciseBeSubmittedForAssessment()) {
-                $new_assessment_link = $this->ctrl->getLinkTargetByClass("xaseAssessmentGUI", xaseAssessmentGUI::CMD_ADD_SUBMITTED_EXERCISE);
-                $assessmentLinkButton = ilLinkButton::getInstance();
-                $assessmentLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
-                $assessmentLinkButton->setUrl($new_assessment_link);
+                $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
+                $submissionLinkButton = ilLinkButton::getInstance();
+                $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
+                $submissionLinkButton->setUrl($new_submission_link);
                 /** @var $ilToolbar ilToolbarGUI */
-                $DIC->toolbar()->addButtonInstance($assessmentLinkButton);
+                $DIC->toolbar()->addButtonInstance($submissionLinkButton);
             }
         }
 
@@ -300,6 +306,16 @@ class xaseItemTableGUI extends ilTable2GUI
         return $renderer->render($unordered);
     }
 
+    static function getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $dic, $user) {
+        foreach($all_items_assisted_exercise as $item_assisted_exercise) {
+            $all_items_assisted_exercise_ids[] = $item_assisted_exercise->getId();
+        }
+        $all_items_assisted_exercise_ids_string = implode(', ', $all_items_assisted_exercise_ids);
+        $statement = $dic->database()->query("SELECT * FROM ilias.rep_robj_xase_answer where user_id = ".$user->getId() . " AND item_id IN ($all_items_assisted_exercise_ids_string)");
+        $result = $statement->fetchAssoc();
+        return $result;
+    }
+
     protected function canExerciseBeSubmittedForAssessment() {
         /*
          * 1) retrieve all items from the current assisted exercise
@@ -312,17 +328,25 @@ class xaseItemTableGUI extends ilTable2GUI
          *          return false
          */
         $all_items_assisted_exercise = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
-        $answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId()))->get();
+        //$answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->get();
+        $answers_from_current_user = self::getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $this->dic, $this->dic->user());
 
         foreach($all_items_assisted_exercise as $item) {
             $all_item_ids[] = $item->getId();
         }
 
         foreach($answers_from_current_user as $answer) {
-            $item_ids_from_answers[] = $answer->getItemId();
+            if(is_array($answer)) {
+                $item_ids_from_answers[] = $answer['item_id'];
+            } else {
+                $item_ids_from_answers[] = $answers_from_current_user['item_id'];
+                break;
+            }
         }
 
-        $not_answered_items = array_diff($all_item_ids, $item_ids_from_answers);
+        if(is_array($all_item_ids) && is_array($item_ids_from_answers)) {
+            $not_answered_items = array_diff($all_item_ids, $item_ids_from_answers);
+        }
 
         if(empty($not_answered_items)) {
             return true;

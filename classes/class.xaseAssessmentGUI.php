@@ -11,7 +11,7 @@ class xaseAssessmentGUI
     const   CMD_STANDARD = 'edit';
     const   CMD_UPDATE = 'update';
     const   CMD_CANCEL = 'update';
-    const   CMD_ADD_SUBMITTED_EXERCISE = "add_submitted_exercise";
+    const   ASSESSMENT_IDENTIFIER = 'assessment_id';
 
     /**
      * @var ilObjAssistedExercise

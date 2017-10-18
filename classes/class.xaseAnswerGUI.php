@@ -11,6 +11,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 
 class xaseAnswerGUI
 {
+    const ANSWER_IDENTIFIER = 'answer_id';
     const CMD_STANDARD = 'edit';
     const CMD_UPDATE = 'update';
     const CMD_CANCEL = 'cancel';
@@ -60,7 +61,6 @@ class xaseAnswerGUI
         $this->assisted_exercise = $assisted_exericse;
         $this->xase_item = new xaseItem($_GET['item_id']);
         $this->xase_answer = $this->getAnswer();
-
         //parent::__construct();
     }
 

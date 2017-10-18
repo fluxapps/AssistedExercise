@@ -78,3 +78,7 @@ comment#:#Comment
 submissions#:#Submissions
 first_name#:#First name
 assessed#:#assessed
+assess#:#Assess
+yes#:#Yes
+no#:#No
+success_message_exercise_submitted#:#Thank you very much. The exercise was submitted for assessment.

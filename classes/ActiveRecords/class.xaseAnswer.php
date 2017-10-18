@@ -5,6 +5,11 @@
  */
 
 class xaseAnswer extends ActiveRecord {
+
+    const ANSWER_STATUS_SUBMITTED = 'submitted';
+    const ANSWER_STATUS_RATED = 'rated';
+
+
     /**
      * @return string
      */
@@ -110,6 +115,16 @@ class xaseAnswer extends ActiveRecord {
      * @db_is_notnull       false
      */
     protected $answer_status;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     1
+     * @db_is_notnull false
+     */
+    protected $is_assessed;
 
     /**
      * @return int
@@ -261,5 +276,21 @@ class xaseAnswer extends ActiveRecord {
     public function setAnswerStatus($answer_status)
     {
         $this->answer_status = $answer_status;
+    }
+
+    /**
+     * @return int
+     */
+    public function getisAssessed()
+    {
+        return $this->is_assessed;
+    }
+
+    /**
+     * @param int $is_assessed
+     */
+    public function setIsAssessed($is_assessed)
+    {
+        $this->is_assessed = $is_assessed;
     }
 }

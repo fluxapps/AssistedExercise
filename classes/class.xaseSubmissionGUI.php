@@ -5,21 +5,20 @@
  */
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemFormGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSubmissionTableGUI.php');
 
 class xaseSubmissionGUI
 {
-    const ITEM_IDENTIFIER = 'item_id';
-    const SUBMISSION_IDENTIFIER = 'submission_id';
-    const CMD_STANDARD = 'show_submissions';
+    const CMD_STANDARD = 'showSubmissions';
     const CMD_CANCEL = 'cancel';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
+    const CMD_ADD_SUBMITTED_EXERCISE = "addSubmittedExercise";
 
     /**
      * @var ilObjAssistedExercise
      */
-    public $object;
+    public $assisted_exercise;
 
     /**
      * @var xaseItem
@@ -70,10 +69,10 @@ class xaseSubmissionGUI
         $this->ctrl = $this->dic->ctrl();
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
-        $this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
-        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
+        $this->assisted_exercise = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
+        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
         //TODO set item_id Parameter
-        $this->xase_item = new xaseItem($_GET[self::ITEM_IDENTIFIER]);
+        $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
     }
 
     public function executeCommand()
@@ -107,7 +106,7 @@ class xaseSubmissionGUI
 
     public function edit()
     {
-        $this->ctrl->saveParameter($this, self::ITEM_IDENTIFIER);
+        $this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         $xaseItemFormGUI->fillForm();
@@ -118,7 +117,7 @@ class xaseSubmissionGUI
 
     public function update()
     {
-        $this->ctrl->saveParameter($this, self::ITEM_IDENTIFIER);
+        $this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(self::CMD_STANDARD);
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         if ($xaseItemFormGUI->updateObject()) {
@@ -129,27 +128,50 @@ class xaseSubmissionGUI
         $this->tpl->show();
     }
 
-    public function show_submissions()
+    public function addSubmittedExercise() {
+        //get only the answers from the items from the current exercise
+
+        //$answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->get();
+
+        $all_items_assisted_exercise = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+
+        $answers_from_current_user = xaseItemTableGUI::getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $this->dic, $this->dic->user());
+
+        //redirect auf item ansicht und Erfolgsmeldung ausgeben
+        /*
+         * @var xaseAnswer $answers_from_current_user
+         */
+        //TODO test it with multiple answers to see what the variables contains in this case
+        foreach($answers_from_current_user as $answer_from_current_user) {
+            $answer_from_current_user->setAnswerStatus(xaseAnswer::ANSWER_STATUS_SUBMITTED);
+            $answers_from_current_user->setSubmissionDate(date('Y-m-d H:i:s'));
+            $answers_from_current_user->setIsAssessed(0);
+        }
+
+        ilUtil::sendSuccess($this->pl->txt('success_message_exercise_submitted'));
+    }
+
+    public function showSubmissions()
     {
         if (!$this->access->hasWriteAccess()) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
 
-        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
         $this->tpl->setContent($xaseSubmissionTableGUI->getHTML());
         $this->tpl->show();
     }
 
     protected function applyFilter()
     {
-        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
         $xaseSubmissionTableGUI->writeFilterToSession();
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 
     protected function resetFilter()
     {
-        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->object);
+        $xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
         $xaseSubmissionTableGUI->resetFilter();
         $xaseSubmissionTableGUI->resetOffset();
         $this->ctrl->redirect($this, self::CMD_STANDARD);

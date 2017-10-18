@@ -5,8 +5,10 @@
  */
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseHint.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAssessment.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php');
+require_once('./Services/ActiveRecord/_Examples/Message/class.arUser.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
@@ -16,7 +18,6 @@ require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 class xaseSubmissionTableGUI extends ilTable2GUI
 {
     const CMD_STANDARD = 'content';
-    const CMD_ASSESSMENT_IDENTIFIER = 'assessment_id';
     const TBL_ID = 'tbl_xase_submissions';
 
     /**
@@ -43,6 +44,11 @@ class xaseSubmissionTableGUI extends ilTable2GUI
      * @var xaseAnswer
      */
     protected $xase_answer;
+
+    /**
+     * @var xaseSettings
+     */
+    public $xase_settings;
 
     /**
      * @var ilAssistedExercisePlugin
@@ -78,7 +84,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->setFormName(self::TBL_ID);
         $this->ctrl->saveParameter($a_parent_obj, $this->getNavParameter());
         $this->assisted_exercise = $assisted_exercise;
-        $this->xase_answer = $this->getSubmittedAnswers();
+        //$this->xase_answer = $this->getSubmittedAnswers();
+        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $assisted_exercise->getId()])->first();
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
@@ -87,7 +94,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->setFormAction($this->ctrl->getFormActionByClass('xasesubmissiongui'));
         $this->setExternalSorting(true);
 
-        $this->setDefaultOrderField("submitted_date");
+        $this->setDefaultOrderField("submission_date");
         $this->setDefaultOrderDirection("asc");
         $this->setExternalSegmentation(true);
         $this->setEnableHeader(true);
@@ -102,11 +109,11 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
     protected function addFilterItems()
     {
-        $first_name = new ilTextInputGUI($this->pl->txt('first_name'), 'first_name');
-        $this->addAndReadFilterItem($first_name);
+        $firstname = new ilTextInputGUI($this->pl->txt('firstname'), 'firstname');
+        $this->addAndReadFilterItem($firstname);
 
-        $last_name = new ilTextInputGUI($this->pl->txt('last_name'), 'last_name');
-        $this->addAndReadFilterItem($last_name);
+        $lastname = new ilTextInputGUI($this->pl->txt('lastname'), 'lastname');
+        $this->addAndReadFilterItem($lastname);
 
         $item = new ilTextInputGUI($this->pl->txt('item'), 'item');
         $this->addAndReadFilterItem($item);
@@ -134,79 +141,164 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         }
     }
 
+    protected function getAssessment($answer_id) {
+        $xaseAssessment = xaseAssessment::where(array('answer_id' => $answer_id))->first();
+        if (empty($xaseAssessment)) {
+            $xaseAssessment = new xaseAssessment();
+        }
+        return $xaseAssessment;
+    }
+
     /**
      * @param array $a_set
      */
     public function fillRow($a_set)
     {
         /**
-         * @var $xaseItem xaseItem
+         * @var $xaseAnswer xaseAnswer
          */
         //$a_set contains the items
-        $xaseItem = xaseItem::find($a_set['id']);
-        $this->tpl->setVariable('FIRSTNAME', $this->dic->user()->getFirstname());
-        $this->tpl->setVariable('LASTNAME', $this->dic->user()->getLastname());
-        $this->tpl->setVariable('SUBMISSIONDATE', $this->xase_answer->getSubmissionDate());
-        $this->tpl->setVariable('ITEMTITEL');
+        $xaseAnswer = xaseAnswer::find($a_set['id']);
+
+        if ($this->isColumnSelected('firstname')) {
+            $this->tpl->setCurrentBlock("firstname");
+            $this->tpl->setVariable('FIRSTNAME', $this->dic->user()->getFirstname());
+            $this->tpl->parseCurrentBlock();
+        }
+        if ($this->isColumnSelected('lastname')) {
+            $this->tpl->setCurrentBlock("lastname");
+            $this->tpl->setVariable('LASTNAME', $this->dic->user()->getLastname());
+            $this->tpl->parseCurrentBlock();
+        }
+        if ($this->isColumnSelected('submission_date')) {
+            $this->tpl->setCurrentBlock('submissiondate');
+            $this->tpl->setVariable('SUBMISSIONDATE', $xaseAnswer->getSubmissionDate());
+            $this->tpl->parseCurrentBlock();
+        }
+
+        /*
+         * @var xaseItem $item
+         */
+        $item = xaseItem::where(array('id' => $xaseAnswer->getItemId()))->first();
+        if ($this->isColumnSelected('item_title')) {
+            $this->tpl->setCurrentBlock('itemtitle');
+            $this->tpl->setVariable('ITEMTITLE', $item->getTitle());
+            $this->tpl->parseCurrentBlock();
+        }
+        if ($this->isColumnSelected('assessed')) {
+            $this->tpl->setCurrentBlock('assessed');
+            $this->tpl->setVariable('ASSESSED', $xaseAnswer->getisAssessed() ? $this->pl->txt('yes') : $this->pl->txt('no'));
+            $this->tpl->parseCurrentBlock();
+        }
+        if ($this->isColumnSelected('number_of_used_hints')) {
+            $this->tpl->setCurrentBlock('numberofusedhints');
+            $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
+            $this->tpl->parseCurrentBlock();
+        }
+
         /**
          * @var $xasePoint xasePoint
          */
-        $xasePoint = xasePoint::find($xaseItem->getPointId());
+        $xasePoint = xasePoint::find($xaseAnswer->getPointId());
 
         if (!empty($xasePoint)) {
-            $this->tpl->setVariable('MAXPOINTS', $xasePoint->getMaxPoints());
-            if(!empty($xasePoint->getTotalPoints())) {
-                $this->tpl->setVariable('POINTS', $xasePoint->getTotalPoints());
-            } else {
-                $this->tpl->setVariable('POINTS', 0);
+            if ($this->isColumnSelected('max_points')) {
+                $this->tpl->setCurrentBlock('maxpoints');
+                if(!empty($xasePoint->getMaxPoints())) {
+                    $this->tpl->setVariable('MAXPOINTS', $xasePoint->getMaxPoints());
+                } else {
+                    $this->tpl->setVariable('MAXPOINTS', 0);
+                }
+                $this->tpl->parseCurrentBlock();
+            }
+            if($this->xase_settings->getModus() == 3) {
+                if ($this->isColumnSelected('points_teacher')) {
+                    $this->tpl->setCurrentBlock("pointsteacher");
+                    if (!empty($xasePoint->getPointsTeacher())) {
+                        $this->tpl->setVariable('POINTSTEACHER', $xasePoint->getPointsTeacher());
+                    } else {
+                        $this->tpl->setVariable('POINTSTEACHER', 0);
+                    }
+                    $this->tpl->parseCurrentBlock();
+                }
+                if ($this->isColumnSelected('additional_points')) {
+                    $this->tpl->setCurrentBlock("additionalpointsvoting");
+                    if(!empty($xasePoint->getAdditionalPoints())) {
+                        $this->tpl->setVariable('ADDITIONALPOINTSVOTING', $xasePoint->getAdditionalPoints());
+                    } else {
+                        $this->tpl->setVariable('ADDITIONALPOINTSVOTING', 0);
+                    }
+                    $this->tpl->parseCurrentBlock();
+                }
+            }
+            if ($this->isColumnSelected('points')) {
+                $this->tpl->setCurrentBlock("points");
+                if (!empty($xasePoint->getTotalPoints())) {
+                    $this->tpl->setVariable('TOTALPOINTS', $xasePoint->getTotalPoints());
+                } else {
+                    $this->tpl->setVariable('TOTALPOINTS', 0);
+                }
+                $this->tpl->parseCurrentBlock();
             }
         }
         /**
-         * @var $xaseHint xaseHint
+         * @var $xaseVoting xaseVoting
          */
-        $xaseHint = xaseHint::where(array('item_id' => $xaseItem->getId()))->get();
+        $xaseVoting = xaseVoting::where(array('answer_id' => $xaseAnswer->getId()))->first();
 
         /**
          * @var $xaseAnswer xaseAnswer
          */
-        if (!empty($xaseHint)) {
-            $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->first();
-        }
-        if (!empty($xaseAnswer)) {
-            $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
-        } else {
-            $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
+        if ($this->xase_settings->getModus() == 3 && $this->isColumnSelected('number_of_upvotings')) {
+            $this->tpl->setCurrentBlock("number_up_votings");
+            if(!empty($xaseVoting)) {
+                $this->tpl->setVariable('NUMBERUPVOTINGS', $xaseVoting->getNumberOfUpvotings());
+            } else {
+                $this->tpl->setVariable('NUMBERUPVOTINGS', 0);
+            }
+            $this->tpl->parseCurrentBlock();
         }
 
-        $this->addActionMenu($xaseItem);
+        $xaseAssessment = $this->getAssessment($xaseAnswer->getId());
+
+        $this->addActionMenu($xaseAnswer, $xaseAssessment);
     }
 
     protected function initColums()
     {
+        $number_of_selected_columns = count($this->getSelectedColumns());
+        //add one to the number of columns for the action
+        $number_of_selected_columns++;
+        $column_width = 100 / $number_of_selected_columns . '%';
+
         $all_cols = $this->getSelectableColumns();
         foreach ($this->getSelectedColumns() as $col) {
-            $this->addColumn($all_cols[$col]['txt'], $col, '16.66666666667%');
+            $this->addColumn($all_cols[$col]['txt'], $col, $column_width);
         }
-        $this->addColumn($this->pl->txt('common_actions'), '', '16.66666666667%');
+
+        $this->addColumn($this->pl->txt('common_actions'), '', $column_width);
     }
 
     /**
      * @param xaseItem $xaseItem
      */
-    protected function addActionMenu(xaseItem $xaseItem)
+    protected function addActionMenu(xaseAnswer $xaseAnswer, xaseAssessment $xaseAssessment)
     {
         $current_selection_list = new ilAdvancedSelectionListGUI();
         $current_selection_list->setListTitle($this->pl->txt('common_actions'));
-        $current_selection_list->setId('item_actions_' . $xaseItem->getId());
+        $current_selection_list->setId('answer_actions' . $xaseAnswer->getId());
         $current_selection_list->setUseImages(false);
 
-        $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
-        $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+        $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseAnswer->getId());
+        $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
+        $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAssessmentGUI::ASSESSMENT_IDENTIFIER, $xaseAssessment->getId());
         if ($this->access->hasWriteAccess()) {
-            $current_selection_list->addItem($this->pl->txt('edit_item'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
+            $current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
         }
-        if ($this->access->hasWriteAccess()) {
-            $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
+        if($this->xase_settings->getModus() == 3) {
+            if ($this->access->hasWriteAccess()) {
+                $current_selection_list->addItem($this->pl->txt('show_upvotings'), xaseVotingGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xasevotinggui', xaseVotingGUI::CMD_STANDARD));
+            }
         }
         /*        if ($this->access->hasWriteAccess()) {
                     $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
@@ -220,16 +312,16 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->determineLimit();
 
         $collection = xaseAnswer::getCollection();
-        $collection->where(array('status' => 'submitted'), '=');
+        $collection->where(array('answer_status' => 'submitted'));
 
-        $collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id');
+        $collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array('assessment_comment'));
 
-        $collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id');
+        $collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id', array('max_points', 'total_points', 'points_teacher', 'additional_points', 'minus_points'));
 
-        $xaseSettings = xaseSettings::getCollection()->where(array('assisted_exercise_object_id' => $this->getId()), '=')->first();
+        $collection->leftjoin(arUser::returnDbTableName(), 'user_id', 'usr_id', array('firstname', 'lastname'));
 
-        if($xaseSettings->getModus() == 3) {
-            $collection->leftjoin(xaseVoting::returnDbTableName(), 'id', 'answer_id');
+        if($this->xase_settings->getModus() == 3) {
+            $collection->leftjoin(xaseVoting::returnDbTableName(), 'id', 'answer_id', array('number_of_upvotings'));
         }
 
         $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'submission_date';
@@ -245,8 +337,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
         foreach ($this->filter as $filter_key => $filter_value) {
             switch ($filter_key) {
-                case 'first_name':
-                case 'last_name':
+                case 'firstname':
+                case 'lastname':
                 case 'item_title':
                 case 'assessed':
                     $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
@@ -259,39 +351,47 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
     public function getSelectableColumns()
     {
+        $cols["firstname"] = array(
+            "txt" => $this->pl->txt("firstname"),
+            "default" => true);
+        $cols["lastname"] = array(
+            "txt" => $this->pl->txt("lastname"),
+            "default" => true);
         $cols["submission_date"] = array(
             "txt" => $this->pl->txt("submission_date"),
             "default" => true);
-        $cols["first_name"] = array(
-            "txt" => $this->pl->txt("first_name"),
-            "default" => false);
-        $cols["last_name"] = array(
-            "txt" => $this->pl->txt("last_name"),
-            "default" => false);
         $cols["item_title"] = array(
             "txt" => $this->pl->txt("item_title"),
-            "default" => false);
+            "default" => true);
         $cols["assessed"] = array(
             "txt" => $this->pl->txt("assessed"),
-            "default" => false);
+            "default" => true);
         $cols["max_points"] = array(
             "txt" => $this->pl->txt("max_points"),
             "default" => true);
         $cols["number_of_used_hints"] = array(
             "txt" => $this->pl->txt("number_of_used_hints"),
-            "default" => false);
-        $cols["points_teacher"] = array(
-            "txt" => $this->pl->txt("points_teacher"),
-            "default" => false);
-        $cols["additional_points"] = array(
-            "txt" => $this->pl->txt("additional_points"),
-            "default" => false);
-        $cols["total_points"] = array(
-            "txt" => $this->pl->txt("total_points"),
-            "default" => false);
-        $cols["number_of_upvotings"] = array(
-            "txt" => $this->pl->txt("number_of_upvotings"),
-            "default" => false);
+            "default" => true);
+        if($this->xase_settings->getModus() == 3) {
+            $cols["points_teacher"] = array(
+                "txt" => $this->pl->txt("points_teacher"),
+                "default" => true);
+            $cols["additional_points"] = array(
+                "txt" => $this->pl->txt("additional_points"),
+                "default" => true);
+            $cols["points"] = array(
+                "txt" => $this->pl->txt("total_points"),
+                "default" => true);
+        } elseif($this->xase_settings->getModus() == 1) {
+            $cols["points"] = array(
+                "txt" => $this->pl->txt("points"),
+                "default" => true);
+        }
+        if($this->xase_settings->getModus() == 3) {
+            $cols["number_of_upvotings"] = array(
+                "txt" => $this->pl->txt("number_of_upvotings"),
+                "default" => false);
+        }
         return $cols;
     }
 
@@ -319,9 +419,9 @@ class xaseSubmissionTableGUI extends ilTable2GUI
      * (when the user clicks submission button, save the submission date for all answers of the user)
      */
 
-    protected function getSubmittedAnswers() {
+/*    protected function getSubmittedAnswers() {
         $statement = $this->dic->database()->query("SELECT submission_date FROM ilias.rep_robj_xase_answer where submission_date IS NOT NULL");
         $result = $statement->fetchAssoc();
         return $result;
-    }
+    }*/
 }

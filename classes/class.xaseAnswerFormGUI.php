@@ -123,7 +123,9 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
 
         $this->initHiddenUsedHintsInput();
 
-        $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
+        if($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED || $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
+            $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
+        }
         $this->addCommandButton(xaseAnswerGUI::CMD_CANCEL, $this->pl->txt("cancel"));
     }
 
@@ -347,6 +349,7 @@ EOT;
                 $xase_point->setMinusPoints($this->getNewTotalMinusPoints($used_hints));
             }
             $xase_point->store();
+            $this->xase_answer->setPointId($xase_point->getId());
         } else {
             $db_used_hints = json_decode($this->xase_answer->getUsedHints(), true);
 
@@ -406,6 +409,8 @@ EOT;
                 }
                 $xase_point->setMinusPoints($this->getNewTotalMinusPoints($db_used_hints));
                 $xase_point->store();
+                $this->xase_answer->setPointId($xase_point->getId());
+
             }
             //$difference_db_new_hints = array_diff_assoc($db_used_hints, $new_used_hints);
             //$difference_new_db_hints = array_diff_assoc($new_used_hints, $db_used_hints);
