@@ -77,10 +77,10 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
         $this->xase_item = $xase_item;
-        $this->xase_answer = $this->getAnswer();
+        $this->xase_answer = new xaseAnswer($_GET[xaseAnswerGUI::ANSWER_IDENTIFIER]);
+        //$this->xase_answer = $this->getAnswer();
         $this->xase_assessment = $this->getAssessment();
         $this->xase_point = $this->getAssessmentPoints();
-        $this->xase_assessment = $this->getAssessment();
         $this->parent_gui = $xase_assessment_gui;
         parent::__construct();
 
@@ -98,7 +98,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
     }
 
     protected function getAssessment() {
-        $xaseAssessment = xaseAssessment::where(array('answer_id' => $this->xase_answer->getId(), array('item_id' => '=')))->first();
+        $xaseAssessment = xaseAssessment::where(array('answer_id' => $this->xase_answer->getId()), array('answer_id' => '='))->first();
         if (empty($xaseAssessment)) {
             $xaseAssessment = new xaseAssessment();
         }
@@ -106,7 +106,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
     }
 
     protected function getAssessmentPoints() {
-        $xasePoints = xasePoint::where(array('id' => $this->xase_assessment->getPointId(), array('id' => '=')))->first();
+        $xasePoints = xasePoint::where(array('id' => $this->xase_assessment->getPointId()), array('id' => '='))->first();
         if (empty($xasePoints)) {
             $xasePoints = new xasePoint();
         }
@@ -119,14 +119,14 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         //TODO check if necessary
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        $this->setTitle($this->pl->txt('assessment_for_item') . " " . $this->xase_item->getTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
+        $this->setTitle($this->pl->txt('assessment_for_item') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
 
         $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_used_hints'), 'show_used_hints');
         $this->toogle_hint_checkbox->setChecked(true);
         $this->toogle_hint_checkbox->setValue(1);
         $this->addItem($this->toogle_hint_checkbox);
 
-        $item = new ilNonEditableValueGUI($this->pl->txt('item') . " " . $this->xase_item->getTitle(), 'item', true);
+        $item = new ilNonEditableValueGUI($this->pl->txt('item') . " " . $this->xase_item->getItemTitle(), 'item', true);
         $item->setValue($this->xase_item->getTask());
         $this->addItem($item);
 
@@ -152,15 +152,69 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
      * 4) entsprechende hints holen
      * 5) levels mit entsprechenden ids holen
      */
-    protected function getHints() {
+/*    protected function getHints() {
         $used_hints = json_decode($this->xase_answer->getUsedHints(), true);
+        $hint_ids = [];
         foreach($used_hints as $used_hint) {
 
         }
-    }
+    }*/
 
     protected function getLevels($hints) {
 
+    }
+
+    protected function checkLevel($hint_array) {
+        $is_level_1 = false;
+        $is_level_2 = false;
+        $array_keys = array_keys($hint_array);
+        foreach($array_keys as $array_key) {
+            if(is_array($array_key)) {
+                if(in_array('1', $array_key)) {
+                    $is_level_1 = true;
+                } elseif(in_array('2', $array_key)) {
+                    $is_level_2 = true;
+                }
+            } else {
+                if(strpos($array_key, '1') !== false) {
+                    $is_level_1 = true;
+                } elseif(strpos($array_key, '2') !== false) {
+                    $is_level_2  = true;
+                }
+            }
+        }
+        return array(
+            'is_level_1' => $is_level_1,
+            'is_level_2' => $is_level_2
+        );
+    }
+
+    protected function getListingArray($hint_object, $check_level_array, $listing_array) {
+        if($check_level_array['is_level_1']) {
+            $level_1_object = xaseLevel::where(array('hint_id' => $hint_object->getId(), 'hint_level' => 1))->first();
+            $level_1_hint_data = $level_1_object->getHint();
+            $level_1_minus_points = xasePoint::where(array('id'=> $level_1_object->getPointId()))->first();
+            $level_1_minus_points_data = $level_1_minus_points->getMinusPoints();
+        }
+        if($check_level_array['is_level_2']) {
+            $level_2_object = xaseLevel::where(array( 'hint_id' => $hint_object->getId(), 'hint_level' => 2))->first();
+            $level_2_hint_data = $level_2_object->getHint();
+            $level_2_minus_points = xasePoint::where(array('id' => $level_2_object->getPointId()))->first();
+            $level_2_minus_points_data = $level_2_minus_points->getMinusPoints();
+        }
+        if(!empty($level_1_hint_data) || !empty($level_2_hint_data)) {
+            if(!empty($level_1_hint_data) && !empty($level_2_hint_data)) {
+                $listing_array[$hint_object->getLabel()] = $level_1_hint_data . " Minus Points: " . $level_1_minus_points_data . " " . $level_2_hint_data . " Minus Points: " . $level_2_minus_points_data;
+                return $listing_array;
+            }
+            if(!empty($level_1_hint_data)) {
+                $listing_array[$hint_object->getLabel()] = $level_1_hint_data . " Minus Points: " . $level_1_minus_points_data;
+            }
+            if(!empty($level_2_hint_data)) {
+                $listing_array[$hint_object->getLabel()] = $level_2_hint_data . " Minus Points: " . $level_2_minus_points_data;
+            }
+        }
+        return $listing_array;
     }
 
     public function createListing()
@@ -168,32 +222,117 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $f = $this->dic->ui()->factory();
         $renderer = $this->dic->ui()->renderer();
 
-        /*
-         * 1) get all hints which the user used for this item
-         * 2) loop through the hints in the array of the unordered list
-         * 3) show the following things foreach hint
-         *       a) label von hint
-         *       b) hint von level 1 und 2
-         *
+        $used_hints = json_decode($this->xase_answer->getUsedHints(), true);
+        $hint_ids = array_keys($used_hints);
+        $hint_objects = [];
+        foreach($hint_ids as $hint_id) {
+            $hint_object = xaseHint::where(['id' => $hint_id])->first();
+            $hint_objects[] = $hint_object;
+        }
+        /*TODO save all data in a key value pair array. The value should contain all the necessary data, set the corresponding data
+         * 1) loop through hint objects
+         * 2) set the hint label as text for the listing
+         * 3) get the hint array in the used_hints array with the id of the hint object of the current iteration
+         * 4) check which data level the hint is
+         * 5) save in a variable if it is level 1 or level 2 hint
+         * 6) retrieve the corresponding level db record with the hint id and the level number
+         * 7) set the actual hint content as text for the listing
+         * 8) retrieve the corresponding points db entry
+         * 9) set the minus points, with a short text, next to the corresponding level hint
+         * TODO after this method: Points Input, noneditablevaluegui max points (without minus points), calculate max-points minus minus points and show the max possible points in a non editable value input gui
          */
 
-        $used_hints = $this->getHints();
+        $listing_array = [];
+        //TODO finish the case when hint_objects is an array
+        if(is_array($hint_objects)) {
+            foreach($hint_objects as $hint_object) {
+                $hint_array = $used_hints[$hint_object->getId()];
 
-        $unordered = $f->listing()->descriptive(
-            array
-            (
-                $this->pl->txt('hint') => strval(80),
-                $this->pl->txt('max_achieved_points') => strval(64),
-                $this->pl->txt('total_used_hints') => strval(4),
-                $this->pl->txt('disposal_date') => '05.09.2017',
-            )
-        );
+                $check_level_array = $this->checkLevel($hint_array);
+
+                $listing_array = $this->getListingArray($hint_object, $check_level_array, $listing_array);
+
+/*                $array_keys = array_keys($hint_array);
+                foreach($array_keys as $array_key) {
+                    if(in_array('1', $array_key)) {
+                        $is_level_1 = true;
+                    } elseif(in_array('2', $array_key)) {
+                        $is_level_2 = true;
+                    }
+                }*/
+ /*               if($check_level_array['is_level_1']) {
+                    $level_1_data = xaseLevel::where(array('hint_id' => $hint_object->getId(), 'hint_level' => 1))->first();
+                    $level_1_data_hint = "hint";
+                } elseif($check_level_array['is_level_2']) {
+                    $level_2_data = xaseLevel::where(array('hint_id' => $hint_object->getId(), 'hint_level' => 2))->first();
+                }*/
+            }
+        } else{
+            $hint_array = $used_hints[$hint_objects->getId()];
+            $check_level_array = $this->checkLevel($hint_array);
+            $listing_array = $this->getListingArray($hint_objects, $check_level_array, $listing_array);
+/*            if($check_level_array['is_level_1']) {
+                $level_1_object = xaseLevel::where(array('hint_id' => $hint_objects->getId(), 'hint_level' => 1))->first();
+                $level_1_hint_data = $level_1_object->getHint();
+                $level_1_minus_points = xasePoint::where(array('id', $level_1_object->getPointId()))->first();
+                $level_1_minus_points_data = $level_1_minus_points->getMinusPoints();
+            } elseif($check_level_array['is_level_2']) {
+                $level_2_object = xaseLevel::where(array( 'hint_id' => $hint_objects->getId(), 'hint_level' => 2))->first();
+                $level_2_hint_data = $level_2_object->getHint();
+                $level_2_minus_points = xasePoint::where(array('id' => $level_2_object->getPointId()))->first();
+                $level_2_minus_points_data = $level_2_minus_points->getMinusPoints();
+            }
+            if(!empty($level_1_hint_data) || !empty($level_2_hint_data)) {
+                if(!empty($level_1_hint_data) && !empty($level_2_hint_data)) {
+                    $listing_array[$hint_objects->getLabel()] = $level_1_hint_data . " Minus Points: " . $level_1_minus_points_data . $level_2_hint_data . " Minus Points: " . $level_2_minus_points_data;
+                }
+                elseif(!empty($level_1_hint_data)) {
+                    $listing_array[$hint_objects->getLabel()] = $level_1_hint_data . " Minus Points: " . $level_1_minus_points_data;
+                }
+                elseif(!empty($level_2_hint_data)) {
+                    $listing_array[$hint_objects->getLabel()] = $level_2_hint_data . " Minus Points: " . $level_2_minus_points_data;
+                }
+            }*/
+        }
+
+        $unordered = $f->listing()->descriptive($listing_array);
 
         return $renderer->render($unordered);
     }
 
     public function initUsedHintsForm() {
-        $list = $this->createListing();
+        /*
+         * 1) retrieve the hint data for the listing
+         * 2) loop through the data
+         *  a) call createListing for each hint_object
+         *      a) IN CREATELISTING retrieve level and point data
+         *      b) set the data
+         *      c) return the rendered list
+         *  b) save, in the loop through the hint data, the returned listing in a custom input gui
+         *  c) add the custominputgui, also in the loop, to the form
+         */
+
+/*        $used_hints = json_decode($this->xase_answer->getUsedHints(), true);
+        $hint_ids = array_keys($used_hints);
+        $hint_objects = [];
+        foreach($hint_ids as $hint_id) {
+            $hint_object = xaseHint::where(['id' => $hint_id])->first();
+            $hint_objects = $hint_object;
+        }
+        //TODO check if template is necessary for each hint object
+        foreach($hint_objects as $hint_object) {
+            $list = $this->createListing($hint_object);
+            $custom_input = new ilCustomInputGUI($list);
+            $this->addItem($custom_input);
+        }*/
+
+        $custom_input_gui = new ilCustomInputGUI($this->pl->txt('used_hints'));
+        $custom_input_gui->setHtml($this->createListing());
+        $this->addItem($custom_input_gui);
+    }
+    //TODO implement method
+    public function fillForm() {
+
     }
 
     /**

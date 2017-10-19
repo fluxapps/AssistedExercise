@@ -275,7 +275,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     public function fillForm()
     {
         $array = array (
-            'title' => $this->object->getTitle(),
+            'title' => $this->object->getItemTitle(),
             'task' => $this->object->getTask()
 
         );
@@ -357,7 +357,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             return false;
         }
         $this->object->setAssistedExerciseId($this->assisted_exercise->getId());
-        $this->object->setTitle($this->getInput('title'));
+        $this->object->setItemTitle($this->getInput('title'));
         $this->object->setTask($this->getInput('task'));
         $this->xase_sample_solution->setSolution($this->getInput('sample_solution'));
         $this->xase_sample_solution->store();

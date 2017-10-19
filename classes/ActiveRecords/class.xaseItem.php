@@ -75,7 +75,7 @@ class xaseItem extends ActiveRecord
      * @db_length           256
      * @db_is_notnull       true
      */
-    protected $title;
+    protected $item_title;
 
     /**
      * @var string
@@ -162,17 +162,17 @@ class xaseItem extends ActiveRecord
     /**
      * @return string
      */
-    public function getTitle()
+    public function getItemTitle()
     {
-        return $this->title;
+        return $this->item_title;
     }
 
     /**
-     * @param string $title
+     * @param string $item_title
      */
-    public function setTitle($title)
+    public function setItemTitle($item_title)
     {
-        $this->title = $title;
+        $this->item_title = $item_title;
     }
 
     /**

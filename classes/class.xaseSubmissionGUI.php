@@ -128,6 +128,10 @@ class xaseSubmissionGUI
         $this->tpl->show();
     }
 
+    protected function convertAnswersArrayToArrayOfObjects() {
+
+    }
+
     public function addSubmittedExercise() {
         //get only the answers from the items from the current exercise
 
@@ -137,18 +141,29 @@ class xaseSubmissionGUI
 
         $answers_from_current_user = xaseItemTableGUI::getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $this->dic, $this->dic->user());
 
-        //redirect auf item ansicht und Erfolgsmeldung ausgeben
         /*
          * @var xaseAnswer $answers_from_current_user
          */
         //TODO test it with multiple answers to see what the variables contains in this case
         foreach($answers_from_current_user as $answer_from_current_user) {
-            $answer_from_current_user->setAnswerStatus(xaseAnswer::ANSWER_STATUS_SUBMITTED);
-            $answers_from_current_user->setSubmissionDate(date('Y-m-d H:i:s'));
-            $answers_from_current_user->setIsAssessed(0);
+            if(is_array($answers_from_current_user)) {
+                $answer_from_current_user_object = xaseAnswer::where(array('id' => $answer_from_current_user['id']))->first();
+                $answer_from_current_user_object->setAnswerStatus(xaseAnswer::ANSWER_STATUS_SUBMITTED);
+                $answer_from_current_user_object->setSubmissionDate(date('Y-m-d H:i:s'));
+                $answer_from_current_user_object->setIsAssessed(0);
+                $answer_from_current_user_object->store();
+            } else {
+                $answer_from_current_user_object = xaseAnswer::where(array('id' => $answers_from_current_user['id']));
+                $answer_from_current_user_object->setAnswerStatus(xaseAnswer::ANSWER_STATUS_SUBMITTED);
+                $answer_from_current_user_object->setSubmissionDate(date('Y-m-d H:i:s'));
+                $answer_from_current_user_object->setIsAssessed(0);
+                $answer_from_current_user_object->store();
+                break;
+            }
         }
 
         ilUtil::sendSuccess($this->pl->txt('success_message_exercise_submitted'));
+        $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
     }
 
     public function showSubmissions()

@@ -106,7 +106,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->setFormAction($this->ctrl->getFormActionByClass('xaseitemgui'));
         $this->setExternalSorting(true);
 
-        $this->setDefaultOrderField("title");
+        $this->setDefaultOrderField("item_title");
         $this->setDefaultOrderDirection("asc");
         $this->setExternalSegmentation(true);
         $this->setEnableHeader(true);
@@ -121,13 +121,13 @@ class xaseItemTableGUI extends ilTable2GUI
 
     protected function addFilterItems()
     {
-        $title = new ilTextInputGUI($this->pl->txt('title'), 'title');
+        $title = new ilTextInputGUI($this->pl->txt('title'), 'item_title');
         $this->addAndReadFilterItem($title);
 
         include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
         $option[0] = $this->pl->txt('open');
         $option[1] = $this->pl->txt('answered');
-        $status = new ilSelectInputGUI($this->pl->txt("status"), "status");
+        $status = new ilSelectInputGUI($this->pl->txt("status"), "item_status");
         $status->setOptions($option);
         $this->addAndReadFilterItem($status);
     }
@@ -156,7 +156,7 @@ class xaseItemTableGUI extends ilTable2GUI
          */
         //$a_set contains the items
         $xaseItem = xaseItem::find($a_set['id']);
-        $this->tpl->setVariable('TITLE', $xaseItem->getTitle());
+        $this->tpl->setVariable('TITLE', $xaseItem->getItemTitle());
         $this->tpl->setVariable('STATUS', $xaseItem->getItemStatus());
         /**
          * @var $xasePoint xasePoint
@@ -244,7 +244,7 @@ class xaseItemTableGUI extends ilTable2GUI
 
         $collection->leftjoin(xaseAnswer::returnDbTableName(), 'id', 'item_id', array('number_of_used_hints'));
 
-        $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'title';
+        $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'item_title';
         $offset = $this->getOffset() ? $this->getOffset() : 0;
 
         $sorting_direction = $this->getOrderDirection();
@@ -257,8 +257,8 @@ class xaseItemTableGUI extends ilTable2GUI
 
         foreach ($this->filter as $filter_key => $filter_value) {
             switch ($filter_key) {
-                case 'title':
-                case 'status':
+                case 'item_title':
+                case 'item_status':
                     $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
                     break;
             }
@@ -268,10 +268,10 @@ class xaseItemTableGUI extends ilTable2GUI
 
     public function getSelectableColumns()
     {
-        $cols["title"] = array(
+        $cols["item_title"] = array(
             "txt" => $this->pl->txt("title"),
             "default" => true);
-        $cols["status"] = array(
+        $cols["item_status"] = array(
             "txt" => $this->pl->txt("status"),
             "default" => true);
         $cols["max_points"] = array(
@@ -312,8 +312,15 @@ class xaseItemTableGUI extends ilTable2GUI
         }
         $all_items_assisted_exercise_ids_string = implode(', ', $all_items_assisted_exercise_ids);
         $statement = $dic->database()->query("SELECT * FROM ilias.rep_robj_xase_answer where user_id = ".$user->getId() . " AND item_id IN ($all_items_assisted_exercise_ids_string)");
-        $result = $statement->fetchAssoc();
-        return $result;
+
+        $results = array();
+
+        while ($record = $dic->database()->fetchAssoc($statement))
+        {
+            $results[] = $record;
+        }
+
+        return $results;
     }
 
     protected function canExerciseBeSubmittedForAssessment() {
@@ -328,6 +335,11 @@ class xaseItemTableGUI extends ilTable2GUI
          *          return false
          */
         $all_items_assisted_exercise = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+
+        if(empty($all_items_assisted_exercise)) {
+            return false;
+        }
+
         //$answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->get();
         $answers_from_current_user = self::getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $this->dic, $this->dic->user());
 
@@ -348,11 +360,33 @@ class xaseItemTableGUI extends ilTable2GUI
             $not_answered_items = array_diff($all_item_ids, $item_ids_from_answers);
         }
 
-        if(empty($not_answered_items)) {
-            return true;
+        if(empty($not_answered_items) && is_array($item_ids_from_answers)) {
+            if(!$this->checkIfAnswersAlreadySubmitted($answers_from_current_user)) {
+                return true;
+            }
         } else {
             return false;
         }
+    }
+
+    /*
+     * 1) create answer objects inside of the foreach loop
+     * 2) check if the answer status is submitted
+     * 3) if the status of one of the answers is submitted
+     * 4)   return false, since the answers can only be submitted all together
+     */
+    protected function checkIfAnswersAlreadySubmitted($answers_from_current_user) {
+        foreach($answers_from_current_user as $answer) {
+            if(is_array($answer)) {
+                $answer_from_current_user_object = xaseAnswer::where(array('id' => $answer['id']))->first();
+            } else {
+                $answer_from_current_user_object = xaseAnswer::where(array('id' => $answers_from_current_user['id']))->first();
+            }
+            if($answer_from_current_user_object->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

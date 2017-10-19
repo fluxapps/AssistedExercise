@@ -115,13 +115,13 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $lastname = new ilTextInputGUI($this->pl->txt('lastname'), 'lastname');
         $this->addAndReadFilterItem($lastname);
 
-        $item = new ilTextInputGUI($this->pl->txt('item'), 'item');
+        $item = new ilTextInputGUI($this->pl->txt('item_title'), 'title');
         $this->addAndReadFilterItem($item);
 
         //TODO handle Status
         include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
-        $option[0] = $this->pl->txt('yes');
-        $option[1] = $this->pl->txt('no');
+        $option[0] = $this->pl->txt('no');
+        $option[1] = $this->pl->txt('yes');
         $assessed = new ilSelectInputGUI($this->pl->txt("assessed"), "assessed");
         $assessed->setOptions($option);
         $this->addAndReadFilterItem($assessed);
@@ -182,7 +182,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $item = xaseItem::where(array('id' => $xaseAnswer->getItemId()))->first();
         if ($this->isColumnSelected('item_title')) {
             $this->tpl->setCurrentBlock('itemtitle');
-            $this->tpl->setVariable('ITEMTITLE', $item->getTitle());
+            $this->tpl->setVariable('ITEMTITLE', $item->getItemTitle());
             $this->tpl->parseCurrentBlock();
         }
         if ($this->isColumnSelected('assessed')) {
@@ -292,6 +292,9 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseAnswer->getId());
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
         $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAssessmentGUI::ASSESSMENT_IDENTIFIER, $xaseAssessment->getId());
+        $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
+        //TODO xase_item setzen
+        $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
         }
@@ -300,9 +303,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI
                 $current_selection_list->addItem($this->pl->txt('show_upvotings'), xaseVotingGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xasevotinggui', xaseVotingGUI::CMD_STANDARD));
             }
         }
-        /*        if ($this->access->hasWriteAccess()) {
-                    $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
-                }*/
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
     }
 
@@ -320,6 +320,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
         $collection->leftjoin(arUser::returnDbTableName(), 'user_id', 'usr_id', array('firstname', 'lastname'));
 
+        $collection->leftjoin(xaseItem::returnDbTableName(), 'item_id', 'id', array('item_title'));
+
         if($this->xase_settings->getModus() == 3) {
             $collection->leftjoin(xaseVoting::returnDbTableName(), 'id', 'answer_id', array('number_of_upvotings'));
         }
@@ -333,18 +335,20 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $collection->orderBy($sorting_column, $sorting_direction);
         $collection->limit($offset, $num);
 
-        //$collection->debug();
-
         foreach ($this->filter as $filter_key => $filter_value) {
             switch ($filter_key) {
                 case 'firstname':
                 case 'lastname':
-                case 'item_title':
+                case 'item':
                 case 'assessed':
-                    $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
-                    break;
+                    if(!empty($filter_value)) {
+                        $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
+                        break;
+                    }
             }
         }
+
+        //$collection->debug();
 
         $this->setData($collection->getArray());
     }
@@ -413,15 +417,4 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
         return $renderer->render($unordered);
     }
-
-    /*
-     * 1) get all the answers where submission date is not empty
-     * (when the user clicks submission button, save the submission date for all answers of the user)
-     */
-
-/*    protected function getSubmittedAnswers() {
-        $statement = $this->dic->database()->query("SELECT submission_date FROM ilias.rep_robj_xase_answer where submission_date IS NOT NULL");
-        $result = $statement->fetchAssoc();
-        return $result;
-    }*/
 }

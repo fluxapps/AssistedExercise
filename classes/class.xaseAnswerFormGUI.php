@@ -103,7 +103,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
         $this->setTarget('_top');
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        $this->setTitle($this->pl->txt('answer_item') . " " . $this->xase_item->getTitle());
+        $this->setTitle($this->pl->txt('answer_item') . " " . $this->xase_item->getItemTitle());
 
         $this->initTaskInput();
 
