@@ -17,7 +17,6 @@ require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 
 class xaseSubmissionTableGUI extends ilTable2GUI
 {
-    const CMD_STANDARD = 'content';
     const TBL_ID = 'tbl_xase_submissions';
 
     /**
@@ -51,6 +50,11 @@ class xaseSubmissionTableGUI extends ilTable2GUI
     public $xase_settings;
 
     /**
+     * @var xaseItem
+     */
+    public $xase_item;
+
+    /**
      * @var ilAssistedExercisePlugin
      */
     protected $pl;
@@ -63,7 +67,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI
      * @var ilObjAssistedExercise
      */
     public $assisted_exercise;
-
 
     /**
      * ilLocationDataTableGUI constructor.
@@ -86,6 +89,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->assisted_exercise = $assisted_exercise;
         //$this->xase_answer = $this->getSubmittedAnswers();
         $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $assisted_exercise->getId()])->first();
+        //$this->xase_item = $xase_item;
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
@@ -291,10 +295,9 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseAnswer->getId());
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
-        $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAssessmentGUI::ASSESSMENT_IDENTIFIER, $xaseAssessment->getId());
         $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
         //TODO xase_item setzen
-        $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
+        //$this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
         }
@@ -312,7 +315,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->determineLimit();
 
         $collection = xaseAnswer::getCollection();
-        $collection->where(array('answer_status' => 'submitted'));
+        $collection->where(array('answer_status' => array('submitted', 'rated')), array('answer_status' => 'IN'));
 
         $collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array('assessment_comment'));
 

@@ -10,8 +10,8 @@ class xaseAssessmentGUI
 {
     const   CMD_STANDARD = 'edit';
     const   CMD_UPDATE = 'update';
-    const   CMD_CANCEL = 'update';
-    const   ASSESSMENT_IDENTIFIER = 'assessment_id';
+    const   CMD_CANCEL = 'cancel';
+    const   CMD_VIEW_ASSESSMENT = 'view_assessment';
 
     /**
      * @var ilObjAssistedExercise
@@ -86,10 +86,20 @@ class xaseAssessmentGUI
         }
     }
 
+    public function view_assessment() {
+        $this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+        $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, true);
+        $xaseAssessmentFormGUI->fillForm();
+        $this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
+        $this->tpl->show();
+    }
+
     public function edit()
     {
-        $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, $this->xase_item);
+        $this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+        $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise);
         $xaseAssessmentFormGUI->fillForm();
         $this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
         $this->tpl->show();
@@ -97,8 +107,9 @@ class xaseAssessmentGUI
 
     public function update()
     {
-        $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, $this->xase_item);
+        $this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+        $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+        $xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise);
         if ($xaseAssessmentFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
             $this->ctrl->redirect($this, self::CMD_STANDARD);
@@ -110,7 +121,7 @@ class xaseAssessmentGUI
     }
 
     public function cancel() {
-        $this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_CANCEL);
+        $this->ctrl->redirectByClass('xasesubmissiongui', xaseSubmissionGUI::CMD_STANDARD);
     }
 
 }

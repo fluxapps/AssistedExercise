@@ -70,7 +70,7 @@ sample_solution#:#Musterlösung
 minus_points#:#Punkteabzug
 specify_max_points#:#Maximalpunktzahl festlegen
 hints#:#Tipps
-info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert.
+info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert. Die maximale Punktzahl muss grösser sein als die Summe aller Minuspunkte der Tipps.
 msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.
 answer_item#:#Item beantworten
 show_hints#:#Tipps anzeigen
@@ -88,3 +88,9 @@ yes#:#Ja
 no#:#Nein
 success_message_exercise_submitted#:#Vielen Dank. Die Übung wurde zur Bewertung eingereicht.
 used_hints#:#Verwendete Tipps
+max_assignable_points#:#Maximal zuweisbare Punkte
+msg_input_minus_points_error#:#Die maximale Punktzahl muss grösser sein als die Summe aller Minuspunkte der Tipps.
+item#:#Item
+msg_input_max_assignable_points#:#Maximal zulässige Punkte sind
+submitted#:#Eingereicht
+rated#:#Bewertet

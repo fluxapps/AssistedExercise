@@ -114,6 +114,11 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
             $this->addItem($this->toogle_hint_checkbox);
         }
 
+        $item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
+        $item = new ilNonEditableValueGUI($this->pl->txt('max_points'));
+        $item->setValue($item_max_points['max_points']);
+        $this->addItem($item);
+
         $answer = new ilTextAreaInputGUI($this->pl->txt('answer'), 'answer');
         $answer->setRequired(true);
         $answer->setRows(10);
@@ -291,17 +296,16 @@ EOT;
         return xasePoint::where(array( 'item_id' => $item_id, 'user_id' => $user_id ), '=')->first();
     }
 
-    protected function getNumberOfUsedHints($hints_array) {
-        $hints_array = json_decode($hints_array, true);
+    protected function getNumberOfUsedHints($hint_data) {
         $number_of_used_hints = 0;
-        foreach($hints_array as $hint => $data) {
+
+        foreach($hint_data as $hint => $data) {
             $number_of_used_hints++;
         }
         return $number_of_used_hints;
     }
 
     protected function getNewTotalMinusPoints($hints_array) {
-        $hints_array = json_decode($hints_array, true);
         $total_minus_points = 0;
         foreach($hints_array as $hint => $data) {
             foreach($data as $k => $v) {
@@ -328,6 +332,7 @@ EOT;
         $this->xase_answer->setUserId($this->dic->user()->getId());
         $this->xase_answer->setItemId($this->xase_item->getId());
         $this->xase_answer->setShowHints($this->getInput('show_hints'));
+        $this->xase_answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
 
         if (empty($this->xase_answer->getUsedHints())) {
             $used_hints = $this->getInput('used_hints');
@@ -353,12 +358,6 @@ EOT;
         } else {
             $db_used_hints = json_decode($this->xase_answer->getUsedHints(), true);
 
-/*            should not be necessary as the array is sorted at the end of the function
-            ksort($db_used_hints);
-            foreach($db_used_hints as $db_hint => $data) {
-                ksort($db_hint);
-            }*/
-
             $new_used_hints = json_decode($this->getInput('used_hints'), true);
 
             if(!empty($new_used_hints)) {
@@ -379,14 +378,6 @@ EOT;
                 foreach($db_used_hints as $hint => $data) {
                     ksort($data);
                 }
-/*                $total_minus_points = 0;
-                $number_of_used_hints = 0;
-                foreach($db_used_hints as $hint => $data) {
-                    foreach($data as $k => $v) {
-                        $total_minus_points += $v;
-                    }
-                    $number_of_used_hints++;
-                }*/
 
                 $this->xase_answer->setNumberOfUsedHints($this->getNumberOfUsedHints($db_used_hints));
 
@@ -394,11 +385,6 @@ EOT;
                  * @var xasePoint $xase_point
                  */
                 $xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
-/*                if (empty($xase_point)) {
-                    $xase_point = new xasePoint();
-                    $xase_point->setUserId($this->dic->user()->getId());
-                    $xase_point->setItemId($this->xase_item->getId());
-                }*/
 
                 if(empty($xase_point)) {
                     $xase_point = new xasePoint();
@@ -412,32 +398,10 @@ EOT;
                 $this->xase_answer->setPointId($xase_point->getId());
 
             }
-            //$difference_db_new_hints = array_diff_assoc($db_used_hints, $new_used_hints);
-            //$difference_new_db_hints = array_diff_assoc($new_used_hints, $db_used_hints);
-
-/*            $difference_new_db_hints = array_map('unserialize',
-                array_diff(array_map('serialize', $db_used_hints), array_map('serialize', $new_used_hints)));*/
-
-/*            foreach($difference_new_db_hints as $key => $value) {
-                if(!array_key_exists($key, $db_used_hints)) {
-                    foreach($value as $k => $v) {
-                        $db_used_hints[$key][$v] = $v;
-                    }
-                } else {
-                    foreach($value as $k => $v) {
-                        if($db_used_hints[$key]
-                    }
-                }
-            }*/
         }
 
         $this->xase_answer->setBody($this->getInput('answer'));
         $this->xase_answer->store();
-/*        $xase_hint_answer = new xaseHintAnswer();
-        $xase_hint_answer->setAnswerId($this->xase_answer->getId());
-        //TODO change static hint id
-        $xase_hint_answer->setHintId(1);
-        $xase_hint_answer->store();*/
 
         return true;
     }

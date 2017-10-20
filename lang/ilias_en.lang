@@ -65,7 +65,7 @@ sample_solution#:#Sample Solution
 minus_points#:#Minus points
 specify_max_points#:#Specify maximum points
 hints#:#Hints
-info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved.
+info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
 msg_input_hints#:#Please fill out all required hint inputs. Required fields are marked with a *. The Input value for minus points has to be numeric. If you want to add a 2 level hint, you have to fill both inputs.
 answer_item#:#Answer Item
 show_hints#:#Show hints
@@ -83,3 +83,9 @@ yes#:#Yes
 no#:#No
 success_message_exercise_submitted#:#Thank you very much. The exercise was submitted for assessment.
 used_hints#:#Used hints
+max_assignable_points#:#Max assignable points
+msg_input_minus_points_error#:#Maximum points have to be bigger than the sum of all minus points of the hints.
+item#:#Item
+msg_input_max_assignable_points#:#Maximum allowable points are
+submitted#:#Submitted
+rated#:#Rated

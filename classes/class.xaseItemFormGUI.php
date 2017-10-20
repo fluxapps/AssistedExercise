@@ -17,8 +17,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     const M2 = 2;
     const M3 = 3;
 
-    const ITEM_STATUS_OPEN = 'open';
-
     const CMD_ADD_HINT = 'addHint';
     const CMD_REMOVE_HINT = 'removeHint';
 
@@ -367,7 +365,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->xase_point->setMaxPoints($this->getInput('max_points'));
         $this->xase_point->store();
         $this->object->setPointId($this->xase_point->getId());
-        $this->object->setItemStatus(self::ITEM_STATUS_OPEN);
         $this->object->store();
         $this->xase_point->setItemId($this->object->getId());
         $this->xase_point->store();

@@ -90,6 +90,7 @@ class xaseItemTableGUI extends ilTable2GUI
             $DIC->toolbar()->addButtonInstance($ilLinkButton);
 
             if ($this->canExerciseBeSubmittedForAssessment()) {
+                $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item);
                 $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
                 $submissionLinkButton = ilLinkButton::getInstance();
                 $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
@@ -146,6 +147,14 @@ class xaseItemTableGUI extends ilTable2GUI
         }
     }
 
+    protected function getAnswer($item_id) {
+        $xaseAnswer = xaseAnswer::where(array( 'item_id' => $item_id, 'user_id' => $this->dic->user()->getId() ), array( 'item_id' => '=', 'user_id' => '=' ))->first();
+        if (empty($xaseAnswer)) {
+            $xaseAnswer = new xaseAnswer();
+        }
+        return $xaseAnswer;
+    }
+
     /**
      * @param array $a_set
      */
@@ -157,7 +166,17 @@ class xaseItemTableGUI extends ilTable2GUI
         //$a_set contains the items
         $xaseItem = xaseItem::find($a_set['id']);
         $this->tpl->setVariable('TITLE', $xaseItem->getItemTitle());
-        $this->tpl->setVariable('STATUS', $xaseItem->getItemStatus());
+
+        $xaseAnswer = $this->getAnswer($xaseItem->getId());
+        if(empty($xaseAnswer)) {
+            $this->tpl->setVariable('STATUS', $this->pl->txt('open'));
+        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_ANSWERED) {
+            $this->tpl->setVariable('STATUS', $this->pl->txt('answered'));
+        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED) {
+            $this->tpl->setVariable('STATUS', $this->pl->txt('submitted'));
+        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
+            $this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
+        }
         /**
          * @var $xasePoint xasePoint
          */
@@ -207,6 +226,11 @@ class xaseItemTableGUI extends ilTable2GUI
                 $this->addColumn($this->pl->txt('common_actions'), '', '150px');*/
     }
 
+    protected function getUserAnswerByItemId($item_id) {
+        $xase_answer = xaseAnswer::where(array('item_id' => $item_id, 'user_id' => $this->dic->user()->getId()))->first();
+        return $xase_answer;
+    }
+
 
     /**
      * @param xaseItem $xaseItem
@@ -222,9 +246,13 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_item'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
-        }
-        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
+
+            $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
+            $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xase_answer->getId());
+            if(!empty($xase_answer) &&  $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
+                $current_selection_list->addItem($this->pl->txt('view_assessment'), xaseAssessmentGUI::CMD_VIEW_ASSESSMENT, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_VIEW_ASSESSMENT));
+            }
         }
 /*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));

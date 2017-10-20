@@ -6,6 +6,8 @@
 
 class xaseAnswer extends ActiveRecord {
 
+    const ANSWER_STATUS_OPEN = 'open';
+    const ANSWER_STATUS_ANSWERED = 'answered';
     const ANSWER_STATUS_SUBMITTED = 'submitted';
     const ANSWER_STATUS_RATED = 'rated';
 

@@ -21,7 +21,7 @@ class xaseSubmissionGUI
     public $assisted_exercise;
 
     /**
-     * @var xaseItem
+     * @var xaseAssessment
      */
     public $xase_assessment;
 
@@ -104,6 +104,7 @@ class xaseSubmissionGUI
         }
     }
 
+    //TODO comment / remove edit and update command
     public function edit()
     {
         $this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);

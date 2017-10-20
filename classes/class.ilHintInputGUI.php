@@ -47,7 +47,10 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     protected $values = [];
     protected $existing_hint_data = [];
     protected $existing_level_data = [];
+    //TODO rename to toal_minus_points and with local history add minus points and getters & setters again
+    protected $total_minus_points;
     protected $minus_points = [];
+
 
     /**
      * Constructor
@@ -117,6 +120,11 @@ class ilHintInputGUI extends ilFormPropertyGUI {
                     return false;
                 }
             }
+            $this->total_minus_points += $data["lvl_1_minus_points"] +  $data["lvl_2_minus_points"];
+        }
+        if ($_POST["max_points"] <= $this->total_minus_points) {
+            ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+            return false;
         }
         return true;
     }
@@ -264,6 +272,8 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     {
         $this->minus_points = $minus_points;
     }
+
+
 
     /**
      * Set value by array

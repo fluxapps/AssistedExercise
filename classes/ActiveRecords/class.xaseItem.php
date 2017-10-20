@@ -61,17 +61,6 @@ class xaseItem extends ActiveRecord
      *
      * @db_has_field        true
      * @db_fieldtype        text
-     * @db_length           32
-     * @db_is_notnull       true
-     */
-    protected $item_status;
-
-
-    /**
-     * @var string
-     *
-     * @db_has_field        true
-     * @db_fieldtype        text
      * @db_length           256
      * @db_is_notnull       true
      */
@@ -141,22 +130,6 @@ class xaseItem extends ActiveRecord
     public function setPointId($point_id)
     {
         $this->point_id = $point_id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getItemStatus()
-    {
-        return $this->item_status;
-    }
-
-    /**
-     * @param string $item_status
-     */
-    public function setItemStatus($item_status)
-    {
-        $this->item_status = $item_status;
     }
 
     /**

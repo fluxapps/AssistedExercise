@@ -43,6 +43,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAssessmentGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionTableGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
@@ -140,7 +141,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
             case 'xaseassessmentgui':
                 $this->setTabs();
                 $this->setLocator();
-                $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+                $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
                 $this->tpl->getStandardTemplate();
                 $xaseAssessmentGUI = new xaseAssessmentGUI($this->object);
                 $this->ctrl->forwardCommand($xaseAssessmentGUI);
