@@ -129,10 +129,6 @@ class xaseSubmissionGUI
         $this->tpl->show();
     }
 
-    protected function convertAnswersArrayToArrayOfObjects() {
-
-    }
-
     public function addSubmittedExercise() {
         //get only the answers from the items from the current exercise
 

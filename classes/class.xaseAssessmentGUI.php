@@ -45,6 +45,10 @@ class xaseAssessmentGUI
      * @var xaseItem
      */
     protected $xase_item;
+    /**
+     * @var int
+     */
+    protected $is_student;
 
     public function __construct(ilObjAssistedExercise $assisted_exercise)
     {
@@ -86,6 +90,14 @@ class xaseAssessmentGUI
         }
     }
 
+    protected function isStudent() {
+        if ($this->access->hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId())) {
+           $this->is_student = false;
+        } else {
+            $this->is_student = true;
+        }
+    }
+
     public function view_assessment() {
         $this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
         $this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
@@ -121,7 +133,11 @@ class xaseAssessmentGUI
     }
 
     public function cancel() {
-        $this->ctrl->redirectByClass('xasesubmissiongui', xaseSubmissionGUI::CMD_STANDARD);
+        if ($this->is_student) {
+            $this->ctrl->redirectByClass('xaseitemgui', xaseItemGUI::CMD_STANDARD);
+        } else {
+            $this->ctrl->redirectByClass('xasesubmissiongui', xaseSubmissionGUI::CMD_STANDARD);
+        }
     }
 
 }

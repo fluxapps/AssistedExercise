@@ -137,10 +137,10 @@ class xaseItemGUI
 
     public function content()
     {
+        $this->ctrl->saveParameterByClass(xaseItemTableGUI::class, self::ITEM_IDENTIFIER);
         if (!$this->access->hasReadAccess()) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
-
         $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD, $this->object);
         $this->tpl->setContent($xaseItemTableGUI->getHTML());
         $this->tpl->show();

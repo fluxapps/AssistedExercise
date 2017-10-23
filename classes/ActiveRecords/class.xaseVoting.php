@@ -34,6 +34,16 @@ class xaseVoting extends ActiveRecord
      * @db_length     4
      * @db_is_notnull true
      */
+    protected $user_id;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull true
+     */
     protected $answer_id;
 
     /**

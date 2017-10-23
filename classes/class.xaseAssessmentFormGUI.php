@@ -12,6 +12,10 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 class xaseAssessmentFormGUI extends ilPropertyFormGUI
 {
 
+    const M1 = "1";
+    const M2 = "2";
+    const M3 = "3";
+
     /**
      * @var ilObjAssistedExercise
      */
@@ -41,6 +45,11 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
      * @var xaseComment
      */
     public $xase_comment;
+
+    /**
+     * @var xaseSettings
+     */
+    public $xase_settings;
 
     /**
      * @var xaseAssessmentGUI
@@ -105,6 +114,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $this->xase_comment = $this->getComment();
         $this->parent_gui = $xase_assessment_gui;
         $this->is_student = $is_student;
+        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
         parent::__construct();
 
         $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/assessment.js');
@@ -187,10 +197,8 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
 
         if(!$this->is_student) {
             $this->addCommandButton(xaseAssessmentGUI::CMD_UPDATE, $this->pl->txt('save'));
-            $this->addCommandButton(xaseAssessmentGUI::CMD_CANCEL, $this->pl->txt("cancel"));
-        } else {
-            $this->addCommandButton(xaseItemGUI::CMD_STANDARD, $this->pl->txt("cancel"));
         }
+        $this->addCommandButton(xaseAssessmentGUI::CMD_CANCEL, $this->pl->txt("cancel"));
     }
 
     public function initPointsForm() {
