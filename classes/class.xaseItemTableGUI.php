@@ -97,7 +97,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
         $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
-        if (ilObjAssistedExerciseAccess::hasWriteAccess()) {
+        if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
             $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
             $ilLinkButton = ilLinkButton::getInstance();
             $ilLinkButton->setCaption($this->pl->txt("add_item"), false);
@@ -150,7 +150,9 @@ class xaseItemTableGUI extends ilTable2GUI
         include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
         $option[0] = $this->pl->txt('open');
         $option[1] = $this->pl->txt('answered');
-        $status = new ilSelectInputGUI($this->pl->txt("status"), "item_status");
+        $option[2] = $this->pl->txt('submitted');
+        $option[3] = $this->pl->txt('rated');
+        $status = new ilSelectInputGUI($this->pl->txt("status"), "answer_status");
         $status->setOptions($option);
         $this->addAndReadFilterItem($status);
     }
@@ -187,70 +189,129 @@ class xaseItemTableGUI extends ilTable2GUI
          */
         //$a_set contains the items
         $xaseItem = xaseItem::find($a_set['id']);
-        $this->tpl->setCurrentBlock("TITLE");
-        $this->tpl->setVariable('TITLE', $xaseItem->getItemTitle());
-        $this->tpl->parseCurrentBlock();
-
-        $xaseAnswer = $this->getAnswer($xaseItem->getId());
-        $this->tpl->setCurrentBlock("STATUS");
-        if(empty($xaseAnswer)) {
-            $this->tpl->setVariable('STATUS', $this->pl->txt('open'));
-        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_ANSWERED) {
-            $this->tpl->setVariable('STATUS', $this->pl->txt('answered'));
-        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED) {
-            $this->tpl->setVariable('STATUS', $this->pl->txt('submitted'));
-        } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
-            $this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
-        }
-        $this->tpl->parseCurrentBlock();
-
-        if($this->xase_settings->getModus() != self::M2) {
-
-        /**
-         * @var $xasePointItem xasePoint
-         */
-        $xasePointItem = xasePoint::find($xaseItem->getPointId());
-
-        if (!empty($xasePointItem)) {
-            $this->tpl->setCurrentBlock("MAXPOINTS");
-            $this->tpl->setVariable('MAXPOINTS', $xasePointItem->getMaxPoints());
+        if ($this->isColumnSelected('item_title')) {
+            $this->tpl->setCurrentBlock("TITLE");
+            $this->tpl->setVariable('TITLE', $xaseItem->getItemTitle());
             $this->tpl->parseCurrentBlock();
         }
 
-        /**
-         * @var $xasePointAnswer xasePoint
-         */
-
-        $xasePointAnswer = xasePoint::find($xaseAnswer->getPointId());
-
-        $this->tpl->setCurrentBlock("POINTS");
-        if(!empty($xasePointAnswer->getPointsTeacher())) {
-            $this->tpl->setVariable('POINTS', $xasePointAnswer->getPointsTeacher());
-        } else {
-            $this->tpl->setVariable('POINTS', 0);
+        $xaseAnswer = $this->getAnswer($xaseItem->getId());
+        if ($this->isColumnSelected('answer_status')) {
+            $this->tpl->setCurrentBlock("STATUS");
+            if (empty($xaseAnswer->getBody())) {
+                $this->tpl->setVariable('STATUS', $this->pl->txt('open'));
+            } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_ANSWERED) {
+                $this->tpl->setVariable('STATUS', $this->pl->txt('answered'));
+            } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED) {
+                $this->tpl->setVariable('STATUS', $this->pl->txt('submitted'));
+            } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
+                $this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
+            }
+            $this->tpl->parseCurrentBlock();
         }
-        $this->tpl->parseCurrentBlock();
 
-        /**
-         * @var $xaseHint xaseHint
-         */
-        $xaseHint = xaseHint::where(array('item_id' => $xaseItem->getId()))->get();
+        if($this->xase_settings->getModus() != self::M2) {
 
-        /**
-         * @var $xaseAnswer xaseAnswer
-         */
-        if (!empty($xaseHint)) {
-            $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->first();
-        }
-        $this->tpl->setCurrentBlock("NUMBEROFUSEDHINTS");
-        if (!empty($xaseAnswer)) {
-            $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
-        } else {
-            $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
-        }
-        $this->tpl->parseCurrentBlock();
+            /**
+             * @var $xasePointItem xasePoint
+             */
+            $xasePointItem = xasePoint::find($xaseItem->getPointId());
 
+            if ($this->isColumnSelected('max_points')) {
+                $this->tpl->setCurrentBlock("MAXPOINTS");
+                if (!empty($xasePointItem->getMaxPoints())) {
+                        $this->tpl->setVariable('MAXPOINTS', $xasePointItem->getMaxPoints());
+
+                }   else {
+                        $this->tpl->setVariable('MAXPOINTS', 0);
+                }
+                $this->tpl->parseCurrentBlock();
+            }
+
+            /**
+             * @var $xasePointAnswer xasePoint
+             */
+
+            $xasePointAnswer = xasePoint::find($xaseAnswer->getPointId());
+
+            if($this->xase_settings->getModus() == self::M1) {
+                if ($this->isColumnSelected('points_teacher')) {
+                    $this->tpl->setCurrentBlock("POINTS");
+                    if (!empty($xasePointAnswer->getPointsTeacher())) {
+                        $this->tpl->setVariable('POINTS', $xasePointAnswer->getPointsTeacher());
+                    } else {
+                        $this->tpl->setVariable('POINTS', 0);
+                    }
+                }
+                $this->tpl->parseCurrentBlock();
+            } elseif($this->xase_settings->getModus() == self::M3) {
+                if ($this->isColumnSelected('points_teacher')) {
+                    $this->tpl->setCurrentBlock("POINTSTEACHER");
+                    if (!empty($xasePointAnswer->getPointsTeacher())) {
+                        $this->tpl->setVariable('POINTSTEACHER', $xasePointAnswer->getPointsTeacher());
+                    } else {
+                        $this->tpl->setVariable('POINTSTEACHER', 0);
+                    }
+                    $this->tpl->parseCurrentBlock();
+                }
+
+                if ($this->isColumnSelected('additional_points_voting')) {
+                    $this->tpl->setCurrentBlock("ADDITIONALPOINTSVOTING");
+                    if (!empty($xasePointAnswer->getAdditionalPoints())) {
+                        $this->tpl->setVariable('ADDITIONALPOINTSVOTING', $xasePointAnswer->getAdditionalPoints());
+                    } else {
+                        $this->tpl->setVariable('ADDITIONALPOINTSVOTING', 0);
+                    }
+                    $this->tpl->parseCurrentBlock();
+                }
+
+                if ($this->isColumnSelected('total_points')) {
+                    $this->tpl->setCurrentBlock("TOTALPOINTS");
+                    if (!empty($xasePointAnswer->getTotalPoints())) {
+                        $this->tpl->setVariable('TOTALPOINTS', $xasePointAnswer->getTotalPoints());
+                    } else {
+                        $this->tpl->setVariable('TOTALPOINTS', 0);
+                    }
+                    $this->tpl->parseCurrentBlock();
+                }
+            }
+
+            /**
+             * @var $xaseHint xaseHint
+             */
+            $xaseHint = xaseHint::where(array('item_id' => $xaseItem->getId()))->get();
+
+            /**
+             * @var $xaseAnswer xaseAnswer
+             */
+            if (!empty($xaseHint)) {
+                $xaseAnswer = xaseAnswer::where(array('item_id' => $xaseItem->getId()))->first();
+            }
+
+            if ($this->isColumnSelected('number_of_used_hints')) {
+                $this->tpl->setCurrentBlock("NUMBEROFUSEDHINTS");
+                if (!empty($xaseAnswer->getBody())) {
+                    $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
+                } else {
+                    $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
+                }
+                $this->tpl->parseCurrentBlock();
+            }
         }
+
+        if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
+            if ($this->isColumnSelected('number_of_upvotings')) {
+                $this->tpl->setCurrentBlock("NUMBEROFUPVOTINGS");
+                if (!empty($xaseAnswer->getNumberOfUpvotings())) {
+                    $this->tpl->setVariable('NUMBEROFUPVOTINGS', $xaseAnswer->getNumberOfUpvotings());
+                } else {
+                    $this->tpl->setVariable('NUMBEROFUPVOTINGS', 0);
+                }
+                $this->tpl->parseCurrentBlock();
+            }
+        }
+
+
 
         $this->addActionMenu($xaseItem);
     }
@@ -295,8 +356,9 @@ class xaseItemTableGUI extends ilTable2GUI
             $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
 
             $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
-            $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xase_answer->getId());
-            if(!empty($xase_answer) &&  $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
+
+            if(!empty($xase_answer) &&  $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED && $this->xase_settings->getModus() != self::M2) {
+                $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xase_answer->getId());
                 $current_selection_list->addItem($this->pl->txt('view_assessment'), xaseAssessmentGUI::CMD_VIEW_ASSESSMENT, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_VIEW_ASSESSMENT));
             }
             if($this->isSampleSolutionAvailable($this->xase_settings->getModus(), $xaseItem)) {
@@ -317,9 +379,9 @@ class xaseItemTableGUI extends ilTable2GUI
         $collection = xaseItem::getCollection();
         $collection->where(array('assisted_exercise_id' => $this->parent_obj->object->getId()));
 
-        $collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id', array('max_points', 'total_points'));
+        $collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id', array('max_points', 'points_teacher'));
 
-        $collection->leftjoin(xaseAnswer::returnDbTableName(), 'id', 'item_id', array('number_of_used_hints'));
+        $collection->leftjoin(xaseAnswer::returnDbTableName(), 'id', 'item_id', array('number_of_used_hints', 'answer_status'));
 
         $sorting_column = $this->getOrderField() ? $this->getOrderField() : 'item_title';
         $offset = $this->getOffset() ? $this->getOffset() : 0;
@@ -335,9 +397,13 @@ class xaseItemTableGUI extends ilTable2GUI
         foreach ($this->filter as $filter_key => $filter_value) {
             switch ($filter_key) {
                 case 'item_title':
-                case 'item_status':
                     $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
                     break;
+                case 'answer_status':
+                    if(!empty($filter_value)) {
+                        $collection->where(array(xaseAnswer::returnDbTableName().'.'.$filter_key => '%' . $filter_value . '%'), 'LIKE');
+                        break;
+                    }
             }
         }
         $this->setData($collection->getArray());
@@ -348,18 +414,37 @@ class xaseItemTableGUI extends ilTable2GUI
         $cols["item_title"] = array(
             "txt" => $this->pl->txt("title"),
             "default" => true);
-        $cols["item_status"] = array(
+        $cols["answer_status"] = array(
             "txt" => $this->pl->txt("status"),
             "default" => true);
-        $cols["max_points"] = array(
-            "txt" => $this->pl->txt("max_points"),
-            "default" => true);
-        $cols["number_of_used_hints"] = array(
-            "txt" => $this->pl->txt("number_of_used_hints"),
-            "default" => true);
-        $cols["total_points"] = array(
-            "txt" => $this->pl->txt("points"),
-            "default" => true);
+        if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
+            $cols["max_points"] = array(
+                "txt" => $this->pl->txt("max_points"),
+                "default" => true);
+            $cols["number_of_used_hints"] = array(
+                "txt" => $this->pl->txt("number_of_used_hints"),
+                "default" => true);
+        }
+        if($this->xase_settings->getModus() == self::M1) {
+            $cols["points_teacher"] = array(
+                "txt" => $this->pl->txt("points"),
+                "default" => true);
+        } elseif ($this->xase_settings->getModus() == self::M3) {
+            $cols["points_teacher"] = array(
+                "txt" => $this->pl->txt("points_teacher"),
+                "default" => true);
+            $cols["additional_points_voting"] = array(
+                "txt" => $this->pl->txt("additional_points_voting"),
+                "default" => true);
+            $cols["total_points"] = array(
+                "txt" => $this->pl->txt("total_points"),
+                "default" => true);
+        }
+        if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
+            $cols["number_of_upvotings"] = array(
+                "txt" => $this->pl->txt("number_of_upvotings"),
+                "default" => true);
+        }
         return $cols;
     }
 

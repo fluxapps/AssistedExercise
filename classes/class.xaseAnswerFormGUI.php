@@ -112,21 +112,24 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
             $this->toogle_hint_checkbox->setChecked(true);
             $this->toogle_hint_checkbox->setValue(1);
             $this->addItem($this->toogle_hint_checkbox);
-        }
 
-        $item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
-        $item = new ilNonEditableValueGUI($this->pl->txt('max_points'));
-        $item->setValue($item_max_points['max_points']);
-        $this->addItem($item);
+            $item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
+            $item = new ilNonEditableValueGUI($this->pl->txt('max_points'));
+            $item->setValue($item_max_points['max_points']);
+            $this->addItem($item);
+        }
 
         $answer = new ilTextAreaInputGUI($this->pl->txt('answer'), 'answer');
         $answer->setRequired(true);
         $answer->setRows(10);
         $this->addItem($answer);
 
-        $this->initHintData();
+        if ($this->mode == 1 || $this->mode == 3) {
 
-        $this->initHiddenUsedHintsInput();
+            $this->initHintData();
+
+            $this->initHiddenUsedHintsInput();
+        }
 
         if($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED || $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
             $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
@@ -185,9 +188,13 @@ EOT;
     protected function initTaskInput() {
         $ta = new ilNonEditableValueGUI($this->pl->txt('task'), 'task', true);
 
-        $test_text_and_html = $this->replace_hint_identifiers_with_glyphs();
+        if ($this->mode == 1 || $this->mode == 3) {
 
-        $ta->setValue($test_text_and_html);
+            $test_text_and_html = $this->replace_hint_identifiers_with_glyphs();
+            $ta->setValue($test_text_and_html);
+        } else {
+            $ta->setValue($this->xase_item->getTask());
+        }
         $this->addItem($ta);
     }
 
@@ -273,11 +280,18 @@ EOT;
 
     public function fillForm()
     {
-        $array = array(
-            'task' => $this->replace_hint_identifiers_with_glyphs(),
-            'show_hints' => $this->xase_answer->getShowHints(),
-            'answer' => $this->xase_answer->getBody(),
-        );
+        if ($this->mode == 1 || $this->mode == 3) {
+            $array = array(
+                'task' => $this->replace_hint_identifiers_with_glyphs(),
+                'show_hints' => $this->xase_answer->getShowHints(),
+                'answer' => $this->xase_answer->getBody(),
+            );
+        } else {
+            $array = array(
+                'task' => $this->xase_item->getTask(),
+                'answer' => $this->xase_answer->getBody(),
+            );
+        }
         $this->setValuesByArray($array);
     }
 
@@ -286,9 +300,15 @@ EOT;
      */
     public function fillTaskInput()
     {
-        $array = array(
-            'task' => $this->replace_hint_identifiers_with_glyphs(),
-        );
+        if ($this->mode == 1 || $this->mode == 3) {
+            $array = array(
+                'task' => $this->replace_hint_identifiers_with_glyphs(),
+            );
+        } else {
+            $array = array(
+                'task' => $this->xase_item->getTask(),
+            );
+        }
         $this->setValuesByArray($array);
     }
 

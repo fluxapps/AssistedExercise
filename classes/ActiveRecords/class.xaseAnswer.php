@@ -6,10 +6,10 @@
 
 class xaseAnswer extends ActiveRecord {
 
-    const ANSWER_STATUS_OPEN = 'open';
-    const ANSWER_STATUS_ANSWERED = 'answered';
-    const ANSWER_STATUS_SUBMITTED = 'submitted';
-    const ANSWER_STATUS_RATED = 'rated';
+    const ANSWER_STATUS_OPEN = 0;
+    const ANSWER_STATUS_ANSWERED = 1;
+    const ANSWER_STATUS_SUBMITTED = 2;
+    const ANSWER_STATUS_RATED = 3;
 
 
     /**
@@ -109,12 +109,12 @@ class xaseAnswer extends ActiveRecord {
     protected $submission_date;
 
     /**
-     * @var string
+     * @var int
      *
-     * @db_has_field        true
-     * @db_fieldtype        text
-     * @db_length           32
-     * @db_is_notnull       false
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     1
+     * @db_is_notnull false
      */
     protected $answer_status;
 
@@ -127,6 +127,16 @@ class xaseAnswer extends ActiveRecord {
      * @db_is_notnull false
      */
     protected $is_assessed;
+
+    /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull false
+     */
+    protected $number_of_upvotings;
 
     /**
      * @return int
@@ -294,5 +304,21 @@ class xaseAnswer extends ActiveRecord {
     public function setIsAssessed($is_assessed)
     {
         $this->is_assessed = $is_assessed;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumberOfUpvotings()
+    {
+        return $this->number_of_upvotings;
+    }
+
+    /**
+     * @param int $number_of_upvotings
+     */
+    public function setNumberOfUpvotings($number_of_upvotings)
+    {
+        $this->number_of_upvotings = $number_of_upvotings;
     }
 }

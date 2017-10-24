@@ -47,16 +47,6 @@ class xaseVoting extends ActiveRecord
     protected $answer_id;
 
     /**
-     * @var int
-     *
-     * @db_has_field  true
-     * @db_fieldtype  integer
-     * @db_length     4
-     * @db_is_notnull false
-     */
-    protected $number_of_upvotings;
-
-    /**
      * @return int
      */
     public function getId()
@@ -78,22 +68,6 @@ class xaseVoting extends ActiveRecord
     public function setAnswerId($answer_id)
     {
         $this->answer_id = $answer_id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNumberOfUpvotings()
-    {
-        return $this->number_of_upvotings;
-    }
-
-    /**
-     * @param int $number_of_upvotings
-     */
-    public function setNumberOfUpvotings($number_of_upvotings)
-    {
-        $this->number_of_upvotings = $number_of_upvotings;
     }
 
 }

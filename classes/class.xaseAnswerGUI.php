@@ -48,6 +48,10 @@ class xaseAnswerGUI
      * @var xaseItem
      */
     protected $xase_item;
+    /**
+     * @var xaseSettings
+     */
+    public $xase_settings;
 
     public function __construct(ilObjAssistedExercise $assisted_exericse)
     {
@@ -59,6 +63,7 @@ class xaseAnswerGUI
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
+        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
         $this->xase_item = new xaseItem($_GET['item_id']);
         $this->xase_answer = $this->getAnswer();
         //parent::__construct();
@@ -114,9 +119,13 @@ class xaseAnswerGUI
         $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
         if ($xaseAnswerFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-            $this->ctrl->redirect($this, self::CMD_STANDARD);
+            if($this->xase_settings->getModus() == 2) {
+                $this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
+                $this->ctrl->redirectByClass(xaseAnswerFormListGUI::class, xaseAnswerFormListGUI::CMD_STANDARD);
+            } else {
+                $this->ctrl->redirect($this, self::CMD_STANDARD);
+            }
         }
-
         $xaseAnswerFormGUI->setValuesByPost();
         $xaseAnswerFormGUI->fillTaskInput();
         $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
