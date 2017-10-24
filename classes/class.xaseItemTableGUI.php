@@ -203,6 +203,9 @@ class xaseItemTableGUI extends ilTable2GUI
             $this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
         }
         $this->tpl->parseCurrentBlock();
+
+        if($this->xase_settings->getModus() != self::M2) {
+
         /**
          * @var $xasePointItem xasePoint
          */
@@ -246,6 +249,8 @@ class xaseItemTableGUI extends ilTable2GUI
             $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
         }
         $this->tpl->parseCurrentBlock();
+
+        }
 
         $this->addActionMenu($xaseItem);
     }
