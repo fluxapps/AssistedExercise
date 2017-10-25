@@ -1,0 +1,66 @@
+.col-sm-9 .item {
+    font-weight: bold;
+    margin-bottom: 20px;
+    /*padding: 0px;*/
+}
+
+.item-wrapper {
+    margin-bottom: 10px;
+}
+
+.comment-wrapper {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    border: 1px solid lightgrey;
+}
+
+.bg-grey {
+    background-color: #eff0f1;
+}
+
+.vote {
+    text-align: center;
+}
+
+.vote a {
+    text-decoration: none;
+}
+
+.vote span {
+    display: block;
+    vertical-align: baseline;
+}
+
+.vote-count-post {
+    margin: 8px 0;
+}
+
+.vote-up-off {
+    display: block;
+    margin: 0 auto;
+    height: 30px;
+    width: 40px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    background-position: -2px 12px;
+    background-image: url(../../images/uparrow.png);
+    background-size: initial;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    vertical-align: baseline;
+}
+
+.vote-down-off {
+    display: block;
+    margin: 0 auto;
+    height: 30px;
+    width: 40px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background-position: -5px -8px;
+    background-image: url(../../images/downarrow.png);
+    background-size: initial;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    vertical-align: baseline;
+}

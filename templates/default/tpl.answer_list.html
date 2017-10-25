@@ -1,0 +1,60 @@
+<div class="answer_form" id="{ANSWER_FORM_ID}">
+    <input type="hidden" name="answer[][is_voted_by_current_user]" value="{IS_VOTED}">
+    <input type="hidden" name="answer[][answer_id]" value="{ANSWER_ID}">
+
+    <!-- BEGIN item -->
+    <div class="item-wrapper">
+        <label class="col-sm-3 control-label item-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span></label>
+        <div class="col-sm-9 item">
+            {ITEM}
+        </div>
+    </div>
+    <!-- END item -->
+
+        <div class="col-sm-3 vote">
+            <!--<input type="hidden" name="_id_" value="27094913">-->
+            <a class="vote-up-off" title="This answer is useful"></a>
+            <!-- BEGIN number_of_up_votings -->
+            <span itemprop="upvoteCount" class="vote-count-post ">{NUMBEROFUPVOTINGS}</span>
+            <!-- END number_of_up_votings -->
+            <a class="vote-down-off" title="This answer is not useful"></a>
+        </div>
+
+        <!-- BEGIN answer -->
+        <div class="col-sm-9 bg-grey">
+            {ANSWER}
+        </div>
+        <!-- END answer -->
+
+        <!-- BEGIN comment_counter -->
+        <div class="col-sm-9 comment-counter">
+            <label class="control-label comment-counter-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span>{NUMBER_OF_COMMENTS} {COMMENT_TEXT}</label><a class="show-hide-comments" title="Show or hide comments"></a>
+        </div>
+        <!-- END comment_counter -->
+        
+        <!-- BEGIN comment -->
+        <div class="col-sm-9 comment-wrapper" id="{COMMENT_ID}">
+            {COMMENT}
+            <a href="#" style="float: left; display: none">{COMMENT_SAVE_TEXT}</a><a href="#" style="float: right; display: none">{COMMENT_DISCARD_TEXT}</a>
+        </div>
+        <!-- END comment -->
+        <!-- BEGIN create_comment_link -->
+        <div class="col-sm-9 create-comment-link">
+            <a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
+        </div>
+        <!-- END create_comment_link -->
+
+    <!-- BEGIN existing_answer_data -->
+    <span class="existing-answer-data" data-answers="{CONTENT_ANSWER}"></span>
+    <!-- END existing_answer_data -->
+
+    <!-- BEGIN existing_voting_data -->
+    <span class="existing-voting-data" data-voting="{VOTING_DATA}"></span>
+    <!-- END existing_voting_data -->
+
+    <!-- BEGIN existing_comment_data -->
+    <span class="existing-comment-data" data-comments="{CONTENT_COMMENT}"></span>
+    <!-- END existing_comment_data -->
+
+</div>
+

@@ -1,18 +1,11 @@
 <?php
-
 /**
- * Class xaseAnswerGUI
- * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ * Class xaseAnswerListGUI
+ * @author: Benjamin Seglias   <bs@studer-raimann.ch>
  */
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormListGUI.php');
-
-
-
-class xaseAnswerGUI
+class xaseAnswerListGUI
 {
-    const ANSWER_IDENTIFIER = 'answer_id';
     const CMD_STANDARD = 'edit';
     const CMD_UPDATE = 'update';
     const CMD_CANCEL = 'cancel';
@@ -49,10 +42,6 @@ class xaseAnswerGUI
      * @var xaseItem
      */
     protected $xase_item;
-    /**
-     * @var xaseSettings
-     */
-    public $xase_settings;
 
     public function __construct(ilObjAssistedExercise $assisted_exericse)
     {
@@ -64,9 +53,11 @@ class xaseAnswerGUI
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
-        $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
         $this->xase_item = new xaseItem($_GET['item_id']);
-        $this->xase_answer = $this->getAnswer();
+
+        $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
+        //$this->initAnswerList();
+
         //parent::__construct();
     }
 
@@ -87,6 +78,7 @@ class xaseAnswerGUI
         switch ($cmd) {
             case self::CMD_STANDARD:
             case self::CMD_UPDATE:
+            case self::CMD_CANCEL:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;
@@ -97,43 +89,31 @@ class xaseAnswerGUI
         }
     }
 
-    protected function getAnswer() {
-        $xaseAnswer = xaseAnswer::where(array( 'item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId() ), array( 'item_id' => '=', 'user_id' => '=' ))->first();
-        if (empty($xaseAnswer)) {
-            $xaseAnswer = new xaseAnswer();
-        }
-        return $xaseAnswer;
-    }
-
     public function edit()
     {
+        $this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
-        $xaseAnswerFormGUI->fillForm();
-        $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
+        $xaseAnswerFormListGUI->fillForm();
+        $this->tpl->setContent($xaseAnswerFormListGUI->getHTML());
         $this->tpl->show();
     }
 
     public function update()
     {
+        $this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
-        if ($xaseAnswerFormGUI->updateObject()) {
+        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
+        if ($xaseAnswerFormListGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-            if($this->xase_settings->getModus() == 2) {
-                $this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
-                $this->ctrl->redirectByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD);
-            } else {
-                $this->ctrl->redirect($this, self::CMD_STANDARD);
-            }
+            $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
         }
-        $xaseAnswerFormGUI->setValuesByPost();
-        $xaseAnswerFormGUI->fillTaskInput();
-        $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+        $xaseAnswerFormListGUI->setValuesByPost();
+        $this->tpl->setContent($xaseAnswerFormListGUI->getHTML());
         $this->tpl->show();
     }
 
-    public function cancel() {
-        $this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_CANCEL);
+    protected function cancel() {
+        $this->ctrl->redirectByClass('xaseitemgui', xaseItemGUI::CMD_STANDARD);
     }
 }

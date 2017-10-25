@@ -1,4 +1,6 @@
 <?php
+
+require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilAnswerListInputGUI.php");
 /**
  * Class xaseAnswerFormListGUI
  * @author: Benjamin Seglias   <bs@studer-raimann.ch>
@@ -6,12 +8,15 @@
 
 class xaseAnswerFormListGUI extends ilPropertyFormGUI
 {
-    const CMD_STANDARD = 'show_answers';
-
     /**
      * @var ilObjAssistedExercise
      */
     public $assisted_exercise;
+    /**
+     * @var xaseAnswerListGUI
+     */
+    protected $parent_gui;
+
     /**
      * @var \ILIAS\DI\Container
      */
@@ -41,7 +46,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
      */
     protected $xase_item;
 
-    public function __construct(ilObjAssistedExercise $assisted_exericse)
+    public function __construct(ilObjAssistedExercise $assisted_exericse, xaseAnswerListGUI $parent_gui)
     {
         global $DIC;
         $this->dic = $DIC;
@@ -51,6 +56,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         $this->access = new ilObjAssistedExerciseAccess();
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
+        $this->parent_gui = $parent_gui;
         $this->xase_item = new xaseItem($_GET['item_id']);
 
         $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
@@ -59,60 +65,64 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         parent::__construct();
     }
 
-    public function executeCommand()
-    {
-        $nextClass = $this->ctrl->getNextClass();
-        switch ($nextClass) {
-            default:
-                $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
-                $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-                $this->{$cmd}();
-        }
+    protected function getAnswers() {
+        $answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
+        return $answers;
     }
 
-    protected function performCommand()
-    {
-        $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
-        switch ($cmd) {
-            case self::CMD_STANDARD:
-                if ($this->access->hasWriteAccess()) {
-                    $this->{$cmd}();
-                    break;
-                } else {
-                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-                    break;
+    protected function getCommentsForAnswer($xase_answer) {
+        $comments = xaseComment::where(array('answer_id' => $xase_answer->getId()))->get();
+        return $comments;
+    }
+
+    protected function hasUserVoted() {
+        $answers_for_current_item = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
+        $votings_from_current_user = xaseVoting::where(array('user_id' => $this->dic->user()->getId()))->get();
+        $answers_ids = [];
+        foreach($answers_for_current_item as $answer) {
+            $answers_ids[] = $answer->getId();
+        }
+        if(!empty($votings_from_current_user)) {
+            foreach($votings_from_current_user as $voting) {
+                if(in_array($voting->getAnswerId(), $answers_for_current_item)) {
+                    return true;
                 }
+            }
         }
+        return false;
     }
 
-    public function initAddHintBtn() {
-        $tpl = new ilTemplate('tpl.add_hint_button_code.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
-        $btn_add_hint = ilJsLinkButton::getInstance();
-        $btn_add_hint->setCaption('text_hint_btn');
-        $btn_add_hint->setName('hint_btn');
-        $btn_add_hint->setId('hint_trigger_text');
-        $tpl->setCurrentBlock('CODE');
-        $tpl->setVariable('BUTTON', $btn_add_hint->render());
-        $tpl->parseCurrentBlock();
-        $custom_input_gui = new ilCustomInputGUI();
-        $custom_input_gui->setHtml($tpl->get());
-        $this->addItem($custom_input_gui);
+    public function fillForm() {
+        $array = array (
+
+
+        );
+        $this->setValuesByArray($array);
     }
 
-    /*
-     *      Template
-     *          Block für jede Antwort mit
-     *              non editable value gui html code
-     *              upvoting code
-     *              Link Kommentar hinzufügen
-     *              Hidden Input für Kommentar
-     *                  wenn erneut geklickt wird analog vorgehen zu hints
-     *              Speichern Button
-     *                  bei einem Klick entsprechende Aktion auswählen
-     *                      analog zu remove hint btn
-     *
-     */
     protected function initAnswerList() {
+        $answers = $this->getAnswers();
+        if(!empty($answers)) {
+            $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
+            $this->setTarget('_top');
+            $header = new ilFormSectionHeaderGUI();
+            $header->setTitle( $this->pl->txt( $this->pl->txt('view_answers')));
+            $this->addItem( $header );
 
+            ilUtil::sendInfo($this->pl->txt("pleas_vote_for_the_best_answer"));
+
+            foreach($answers as $answer) {
+                $answer_list_input_gui = new ilAnswerListInputGUI();
+                $answer_list_input_gui->setXaseItem($this->xase_item);
+                $answer_list_input_gui->setXaseAnswer($answer);
+                $comments_for_answer = $this->getCommentsForAnswer($answer);
+                $answer_list_input_gui->setComments($comments_for_answer);
+                $this->addItem($answer_list_input_gui);
+            }
+            $this->addCommandButton(xaseAnswerListGUI::CMD_UPDATE, $this->pl->txt('save'));
+            if($this->hasUserVoted()) {
+                $this->addCommandButton(xaseAnswerListGUI::CMD_CANCEL, $this->pl->txt("cancel"));
+            }
+        }
     }
 }

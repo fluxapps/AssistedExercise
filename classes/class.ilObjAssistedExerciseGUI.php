@@ -14,6 +14,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSampleSolutionFormGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerListGUI.php');
 require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 
@@ -46,6 +47,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionTableGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSampleSolutionGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerListGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 {
@@ -165,6 +167,15 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
                 $this->tpl->getStandardTemplate();
                 $xaseSampleSolution = new xaseSampleSolutionGUI();
                 $this->ctrl->forwardCommand($xaseSampleSolution);
+                break;
+
+            case 'xaseanswerlistgui':
+                $this->setTabs();
+                $this->setLocator();
+                $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+                $this->tpl->getStandardTemplate();
+                $xaseAnswerListGUI = new xaseAnswerListGUI($this->object);
+                $this->ctrl->forwardCommand($xaseAnswerListGUI);
                 break;
 
             default:
