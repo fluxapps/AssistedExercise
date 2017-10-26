@@ -234,9 +234,13 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     }
 
     protected function getModusSettings($modus_settings) {
-        $xaseModus = $modus_settings::where(array('settings_id' => $this->xase_settings->getId()))->get();
+        $xaseModus = $modus_settings::where(array('settings_id' => $this->xase_settings->getId()))->first();
         if (empty($xaseModus)) {
-            $xaseModus = new $modus_settings();
+            if($this->xase_settings->getModus() == self::M1) {
+                $xaseModus = new xaseSettingsM1();
+            } else {
+                $xaseModus = new xaseSettingsM3();
+            }
         }
         return $xaseModus;
     }
