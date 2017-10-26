@@ -109,7 +109,7 @@ class xaseItemTableGUI extends ilTable2GUI
         if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
             if ($this->hasUserFinishedExercise()) {
                 if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
-                    if(!$this->isDisposalDateExpired()) {
+                    //if(!$this->isDisposalDateExpired()) {
                         if($this->mode_settings->getRateAnswers()) {
                             $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
                             $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
@@ -119,7 +119,7 @@ class xaseItemTableGUI extends ilTable2GUI
                             /** @var $ilToolbar ilToolbarGUI */
                             $DIC->toolbar()->addButtonInstance($submissionLinkButton);
                         }
-                    }
+                    //}
                 }
             }
         }
