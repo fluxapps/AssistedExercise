@@ -100,15 +100,17 @@ class xaseItemTableGUI extends ilTable2GUI
         if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
             $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
             $ilLinkButton = ilLinkButton::getInstance();
-            $ilLinkButton->setCaption($this->pl->txt("add_item"), false);
+            $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
             $ilLinkButton->setUrl($new_item_link);
             /** @var $ilToolbar ilToolbarGUI */
             $DIC->toolbar()->addButtonInstance($ilLinkButton);
+        }
 
-            if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
-                if ($this->hasUserFinishedExercise()) {
-                    if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
-                        if(!$this->isDisposalDateExpired()) {
+        if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
+            if ($this->hasUserFinishedExercise()) {
+                if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
+                    if(!$this->isDisposalDateExpired()) {
+                        if($this->mode_settings->getRateAnswers()) {
                             $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
                             $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
                             $submissionLinkButton = ilLinkButton::getInstance();
@@ -121,6 +123,7 @@ class xaseItemTableGUI extends ilTable2GUI
                 }
             }
         }
+
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
@@ -351,9 +354,10 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
-        if ($this->access->hasWriteAccess()) {
-            $current_selection_list->addItem($this->pl->txt('edit_item'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
-            $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
+
+        $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
+        if ($this->access->hasWriteAccess() || $this->xase_settings->getModus() == self::M2) {
+            $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
 
             $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
 
@@ -550,8 +554,10 @@ class xaseItemTableGUI extends ilTable2GUI
     }
 
     protected function isDisposalDateExpired() {
-        $current_date = date('Y-m-d h:i:s a', time());
-        if($this->mode_settings->getDisposalDate() < $current_date) {
+        $current_date = date('Y-m-d h:i:s', time());
+        $current_date_datetime = DateTime::createFromFormat('Y-m-d h:i:s', $current_date);
+        $disposal_date_datetime = DateTime::createFromFormat('Y-m-d h:i:s', $this->mode_settings->getDisposalDate());
+        if($disposal_date_datetime < $current_date_datetime) {
             return true;
         } else {
             return false;

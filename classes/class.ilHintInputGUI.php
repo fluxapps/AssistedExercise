@@ -50,6 +50,10 @@ class ilHintInputGUI extends ilFormPropertyGUI {
     //TODO rename to toal_minus_points and with local history add minus points and getters & setters again
     protected $total_minus_points;
     protected $minus_points = [];
+    /**
+     * @var ilAssistedExercisePlugin
+     */
+    protected $pl;
 
 
     /**
@@ -70,8 +74,9 @@ class ilHintInputGUI extends ilFormPropertyGUI {
         $this->lvl_2_hint = new ilTextInputGUI("Ebene 2 Tipp", "hint[][lvl_2_hint]");
         $this->lvl_2_minus_points = new ilNumberInputGUI("Punkteabzug", "hint[][lvl_2_minus_points]");
         $this->lvl_2_minus_points->setSize(4);
+        $this->pl = ilAssistedExercisePlugin::getInstance();
         $btn_remove_hint = ilJsLinkButton::getInstance();
-        $btn_remove_hint->setCaption('text_remove_hint_btn');
+        $btn_remove_hint->setCaption($this->pl->txt("text_remove_hint_btn"), false);
         $btn_remove_hint->setName('text_remove_hint_btn');
         $btn_remove_hint->setId('remove_hint_');
         $btn_remove_hint->addCSSClass('remove_hint_btn');

@@ -93,6 +93,14 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
                     $this->mode_settings = new xaseSettingsM3();
                 }*/
         $this->mode_settings = $this->getModeSettings($this->mode);
+        //stores the default mode settings if the user previously created the object in the repository
+        if($this->is_creation_mode) {
+            $this->mode_settings->setSettingsId($this->object->getId());
+            $this->mode_settings->setRateAnswers(1);
+            $this->mode_settings->setSampleSolutionVisible(1);
+            $this->mode_settings->setVisibleIfExerciseFinished(1);
+            $this->mode_settings->store();
+        }
         parent::__construct();
 
         $this->initForm();
@@ -498,6 +506,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
                 $this->is_creation_mode = false;
                 return xaseSettingsM3::where(['settings_id' => $this->object->getId()])->first();
             } elseif (!xaseSettingsM3::where(['settings_id' => $this->object->getId()])->hasSets()) {
+                $this->is_creation_mode = true;
                 return new xaseSettingsM3();
             }
         }

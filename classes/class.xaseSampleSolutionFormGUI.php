@@ -80,7 +80,7 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI
 
         $this->setTitle($this->pl->txt('sample_solution'));
 
-        $item = new ilNonEditableValueGUI($this->pl->txt('item_title'));
+        $item = new ilNonEditableValueGUI($this->pl->txt('task_title'));
         $item->setValue($this->xase_item->getItemTitle());
         $this->addItem($item);
 

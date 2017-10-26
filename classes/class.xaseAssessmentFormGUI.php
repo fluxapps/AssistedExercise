@@ -165,7 +165,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         //TODO check if necessary
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        $this->setTitle($this->pl->txt('assessment_for_item') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
+        $this->setTitle($this->pl->txt('assessment_for_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
 
         if(!$this->is_student) {
             $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_used_hints'), 'show_used_hints');

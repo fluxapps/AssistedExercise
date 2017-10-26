@@ -64,7 +64,6 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
      * @var xaseSettings
      */
     protected $xase_settings;
-
     /**
      * @var ilCtrl
      */
@@ -115,6 +114,12 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
     {
 
         $this->setTitleAndDescription();
+        if (! $this->getCreationMode()) {
+            $this->tpl->setTitleIcon(ilObject::_getIcon($this->object->getId()));
+        } else {
+            $this->tpl->setTitleIcon(ilObject::_getIcon(ilObject::_lookupObjId($_GET['ref_id']), 'big'), $this->pl->txt('obj_'
+                . ilObject::_lookupType($_GET['ref_id'], true)));
+        }
 
         $next_class = $this->dic->ctrl()->getNextClass($this);
         //die(var_dump($next_class));
@@ -209,7 +214,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
 
     function getAfterCreationCmd()
     {
-        return self::CMD_STANDARD;
+        return self::CMD_EDIT;
     }
 
     function getStandardCmd()
@@ -220,7 +225,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
     protected function setTabs()
     {
         if (strtolower($_GET['baseClass']) != 'iladministrationgui') {
-            $this->tabs->addTab('content', $this->pl->txt('content'), $this->ctrl->getLinkTarget(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD));
+            $this->tabs->addTab('content', $this->pl->txt('tasks'), $this->ctrl->getLinkTarget(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD));
             $this->addInfoTab();
             if ($this->access->hasWriteAccess()) {
                 $this->tabs->addTab(xaseSubmissionGUI::CMD_STANDARD, $this->pl->txt('submissions'), $this->ctrl->getLinkTarget(new xaseSubmissionGUI(), xaseSubmissionGUI::CMD_STANDARD));

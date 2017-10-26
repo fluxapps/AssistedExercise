@@ -76,8 +76,6 @@ $(document).ready(function(){
             return;
         }*/
 
-        debugger;
-
         var data_level_key = "data_level_" + data_level;
 
         if( !(db_hint_id in hint_minus_points) ) {
@@ -179,8 +177,7 @@ $(document).ready(function(){
 
             console.log('clicked link inside popover content');
 
-/*            debugger;
-
+/*
             var link_element = event.target;
 
             var popover_link = $('*[data-toggle="popover"]').first();
@@ -311,6 +308,14 @@ $(document).ready(function(){
             });*/
         }, 10);
     });
+
+    if($('input[name=\'show_hints\']').is(":checked")) {
+        toggleHints(true);
+    } else {
+        toggleHints(false);
+    }
+
+
      $('[data-toggle="popover"]').popover();
 
     function toggleHints(show_hints) {
@@ -325,8 +330,10 @@ $(document).ready(function(){
         function(){
             if (this.checked) {
                 toggleHints(true);
+                $(this[0]).checked = false;
             } else {
                 toggleHints(false);
+                $(this[0]).checked = true;
             }
         });
 });

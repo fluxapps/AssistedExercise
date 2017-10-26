@@ -1,4 +1,4 @@
-add_item#:#Item hinzufügen
+add_task#:#Aufgabe hinzufügen
 always_visible#:#Immer sichtbar
 always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
 assisted_exercise_activation_online_info#:#Wenn Online, können Teilnehmer die unterstüzte Übung absolvieren.
@@ -12,8 +12,8 @@ finish_time#:#Endzeit
 first_name#:#Vorname
 general_settings#:#Allgemeine Einstellungen
 item#:#Item
-item_create#:#Item anlegen
-item_title#:#Item Titel
+task_create#:#Aufgabe anlegen
+task_title#:#Aufgabe Titel
 last_name#:#Nachname
 max_points#:#Maximale Punktzahl
 max_achievable_points#:#Maximal erreichbare Punkte
@@ -72,11 +72,11 @@ specify_max_points#:#Maximalpunktzahl festlegen
 hints#:#Tipps
 info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert. Die maximale Punktzahl muss grösser sein als die Summe aller Minuspunkte der Tipps.
 msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.
-answer_item#:#Item beantworten
+answer_task#:#Aufgabe beantworten
 show_hints#:#Tipps anzeigen
 answer#:#Antwort
 submit_for_assessment#:#Übung zur Bewertung einreichen
-assessment_for_item#:#Bewertung für Item
+assessment_for_task#:#Bewertung für die Aufgabe
 submitted_by#:#eingereicht von
 show_used_hints#:#Verwendete Tipps anzeigen
 comment#:#Kommentar
@@ -100,5 +100,10 @@ points_teacher#:#Punkte Lehrer
 add_comment#:#Kommentar hinzufügen
 discard_comment#:#Verwerfen
 view_answers#:#Antworten ansehen
-item_label#:#Aufgabe:
+task_label#:#Aufgabe:
 pleas_vote_for_the_best_answer#:#Bitte voten Sie für die beste Antwort
+edit_task#:#Aufgabe bearbeiten
+add_hint_btn_caption#:#Tipp hinzufügen
+submission_date#:#Abgabedatum
+tasks#:#Aufgaben
+number_of_upvotings#:#Anzahl Upvotings

@@ -113,13 +113,13 @@ class xaseSubmissionTableGUI extends ilTable2GUI
 
     protected function addFilterItems()
     {
-        $firstname = new ilTextInputGUI($this->pl->txt('firstname'), 'firstname');
+        $firstname = new ilTextInputGUI($this->pl->txt('first_name'), 'firstname');
         $this->addAndReadFilterItem($firstname);
 
-        $lastname = new ilTextInputGUI($this->pl->txt('lastname'), 'lastname');
+        $lastname = new ilTextInputGUI($this->pl->txt('last_name'), 'lastname');
         $this->addAndReadFilterItem($lastname);
 
-        $item = new ilTextInputGUI($this->pl->txt('item_title'), 'title');
+        $item = new ilTextInputGUI($this->pl->txt('task_title'), 'title');
         $this->addAndReadFilterItem($item);
 
         //TODO handle Status
@@ -359,16 +359,16 @@ class xaseSubmissionTableGUI extends ilTable2GUI
     public function getSelectableColumns()
     {
         $cols["firstname"] = array(
-            "txt" => $this->pl->txt("firstname"),
+            "txt" => $this->pl->txt("first_name"),
             "default" => true);
         $cols["lastname"] = array(
-            "txt" => $this->pl->txt("lastname"),
+            "txt" => $this->pl->txt("last_name"),
             "default" => true);
         $cols["submission_date"] = array(
             "txt" => $this->pl->txt("submission_date"),
             "default" => true);
         $cols["item_title"] = array(
-            "txt" => $this->pl->txt("item_title"),
+            "txt" => $this->pl->txt("task_title"),
             "default" => true);
         $cols["is_assessed"] = array(
             "txt" => $this->pl->txt("assessed"),

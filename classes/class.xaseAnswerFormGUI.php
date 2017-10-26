@@ -103,7 +103,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
         $this->setTarget('_top');
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        $this->setTitle($this->pl->txt('answer_item') . " " . $this->xase_item->getItemTitle());
+        $this->setTitle($this->pl->txt('answer_task') . " " . $this->xase_item->getItemTitle());
 
         $this->initTaskInput();
 
@@ -318,6 +318,7 @@ EOT;
 
     protected function getNumberOfUsedHints($hint_data) {
         $number_of_used_hints = 0;
+        $hint_data = json_decode($hint_data, true);
 
         foreach($hint_data as $hint => $data) {
             $number_of_used_hints++;
@@ -327,6 +328,7 @@ EOT;
 
     protected function getNewTotalMinusPoints($hints_array) {
         $total_minus_points = 0;
+        $hints_array = json_decode($hints_array, true);
         foreach($hints_array as $hint => $data) {
             foreach($data as $k => $v) {
                 $total_minus_points += $v;

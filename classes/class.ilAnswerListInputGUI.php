@@ -129,7 +129,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
         $tpl->setCurrentBlock("item");
-        //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("item_label"));
+        //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("task_label"));
         $tpl->setVariable("ITEM", $this->xase_item->getTask());
         $tpl->parseCurrentBlock();
 
@@ -216,7 +216,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
                 $tpl->setCurrentBlock("item");
-                //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("item_label"));
+                //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("task_label"));
                 $tpl->setVariable("ITEM", $this->xase_item->getTask());
                 $tpl->parseCurrentBlock();
 

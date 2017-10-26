@@ -1,4 +1,4 @@
-add_item#:#Add Item
+add_task#:#Add task
 always_visible#:#Always visible
 always_visibility_info#:#Before and after the indicated period it is only the assisted exercise's title that will be displayed. The participants cannot take the assisted exercise.
 assisted_exercise_activation_online_info#:#If online, participants can take the assisted exercise
@@ -20,8 +20,8 @@ open#:#Open
 answered#:#Answered
 points#:#Points
 status#:#Status
-item_create#:#Create Item
-item_title#:#Item title
+task_create#:#Create task
+task_title#:#Task title
 xase_add#:#Add
 content#:#Content
 edit_properties#:#Properties
@@ -67,11 +67,11 @@ specify_max_points#:#Specify maximum points
 hints#:#Hints
 info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
 msg_input_hints#:#Please fill out all required hint inputs. Required fields are marked with a *. The Input value for minus points has to be numeric. If you want to add a 2 level hint, you have to fill both inputs.
-answer_item#:#Answer Item
+answer_task#:#Answer Task
 show_hints#:#Show hints
 answer#:#Answer
 submit_for_assessment#:#Submit for assessment
-assessment_for_item#:#Assessment for item
+assessment_for_task#:#Assessment for task
 submitted_by#:#Submitted by
 show_used_hints#:#Show used hints
 comment#:#Comment
@@ -95,5 +95,11 @@ points_teacher#:#Points teacher
 add_comment#:#Add comment
 discard_comment#:#Discard
 view_answers#:#View answers
-item_label#:#Task:
+task_label#:#Task:
 pleas_vote_for_the_best_answer#:#Please vote for the best answer
+edit_task#:#Edit task
+add_hint_btn_caption#:#Add hint
+last_name#:#Last name
+submission_date#:#Submission date
+tasks#:#Aufgaben
+number_of_upvotings#:#Number of upvotings

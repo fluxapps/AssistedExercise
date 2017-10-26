@@ -126,7 +126,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     public function initForm()
     {
         $this->setTarget('_top');
-        $this->setTitle($this->pl->txt('item_create'));
+        $this->setTitle($this->pl->txt('task_create'));
 
         $ti = new ilTextInputGUI($this->pl->txt('title'), 'title');
         $ti->setRequired(true);
@@ -186,7 +186,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     public function initAddHintBtn() {
         $tpl = new ilTemplate('tpl.add_hint_button_code.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
         $btn_add_hint = ilJsLinkButton::getInstance();
-        $btn_add_hint->setCaption('text_hint_btn');
+        $btn_add_hint->setCaption($this->pl->txt("add_hint_btn_caption"), false);
         $btn_add_hint->setName('hint_btn');
         $btn_add_hint->setId('hint_trigger_text');
         $tpl->setCurrentBlock('CODE');
@@ -200,7 +200,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     public function initRemoveHintBtn() {
         $tpl = new ilTemplate('tpl.remove_hint_button_code.html', true, true, 'Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise');
         $btn_remove_hint = ilJsLinkButton::getInstance();
-        $btn_remove_hint->setCaption('text_remove_hint_btn');
+        $btn_remove_hint->setCaption($this->pl->txt('text_remove_hint_btn'));
         $btn_remove_hint->setName('text_remove_hint_btn');
 
         $tpl->setCurrentBlock('CODE');

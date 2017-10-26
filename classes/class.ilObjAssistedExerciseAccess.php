@@ -41,7 +41,7 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess
 
         switch ($a_permission) {
             case 'read':
-                if (!self::checkOnline($a_ref_id) && !$DIC->access()->checkAccessOfUser($a_user_id, 'write', '', $a_ref_id)) {
+                if (!self::checkOnline($a_ref_id) && !$DIC->access()->checkAccessOfUser($a_user_id, 'read', '', $a_ref_id)) {
                     return false;
                 }
                 break;
