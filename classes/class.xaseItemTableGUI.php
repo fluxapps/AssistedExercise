@@ -290,7 +290,7 @@ class xaseItemTableGUI extends ilTable2GUI
 
             if ($this->isColumnSelected('number_of_used_hints')) {
                 $this->tpl->setCurrentBlock("NUMBEROFUSEDHINTS");
-                if (!empty($xaseAnswer->getBody())) {
+                if (is_object($xaseAnswer) && !empty($xaseAnswer->getBody())) {
                     $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
                 } else {
                     $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
