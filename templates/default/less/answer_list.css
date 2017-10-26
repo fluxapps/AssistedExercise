@@ -1,7 +1,11 @@
+.col-sm-9 .answer-wrapper {
+    padding-left: 0px;
+}
+
 .col-sm-9 .item {
     font-weight: bold;
     margin-bottom: 20px;
-    /*padding: 0px;*/
+    padding-left: 0px;
 }
 
 .item-wrapper {
@@ -9,9 +13,18 @@
 }
 
 .comment-wrapper {
+    display: none;
     margin-top: 5px;
     margin-bottom: 2px;
     border: 1px solid lightgrey;
+}
+
+.comment-counter {
+    padding-left: 0px !important;
+}
+
+.comment-wrapper + .create-comment-link {
+    padding-left: 0px;
 }
 
 .bg-grey {
@@ -63,4 +76,18 @@
     background-repeat: no-repeat;
     overflow: hidden;
     vertical-align: baseline;
+}
+
+.show-hide-comments {
+    display: inline-block;
+    margin: 0 auto;
+    height: 24px;
+    width: 40px;
+    cursor: pointer;
+    background-position: -4px -2px;
+    background-image: url(../../images/downarrow.png);
+    background-repeat: no-repeat;
+    overflow: hidden;
+    vertical-align: text-top;
+    background-size: 100%;
 }

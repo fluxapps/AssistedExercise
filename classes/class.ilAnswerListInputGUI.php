@@ -50,6 +50,8 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     protected $total_upvotings;
     protected $votings = [];
     protected $upvotings = [];
+    //TODO check if necessary
+    protected $number_of_comments;
 
     /**
      * Constructor
@@ -154,6 +156,15 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         $tpl->setVariable("ANSWER", $this->answer->render());
         $tpl->parseCurrentBlock();
 
+        $tpl->setCurrentBlock("comment_counter");
+        $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+        if(count($this->comments) >= 2) {
+            $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comments'));
+        } else {
+            $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comment'));
+        }
+        $tpl->parseCurrentBlock();
+
         foreach($this->comments as $comment) {
 
             $this->comment->setValue($comment->getBody());
@@ -221,6 +232,15 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl->setCurrentBlock("answer");
                 $this->answer->setValue($this->xase_answer->getBody());
                 $tpl->setVariable("ANSWER", $this->answer->render());
+                $tpl->parseCurrentBlock();
+
+                $tpl->setCurrentBlock("comment_counter");
+                $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+                if(count($this->comments) >= 2) {
+                    $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comments'));
+                } else {
+                    $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comment'));
+                }
                 $tpl->parseCurrentBlock();
 
                 foreach($this->comments as $comment) {
@@ -473,6 +493,22 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     public function setVotings($votings)
     {
         $this->votings = $votings;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNumberOfComments()
+    {
+        return $this->number_of_comments;
+    }
+
+    /**
+     * @param mixed $number_of_comments
+     */
+    public function setNumberOfComments($number_of_comments)
+    {
+        $this->number_of_comments = $number_of_comments;
     }
 
 }
