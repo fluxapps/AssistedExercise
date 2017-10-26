@@ -126,7 +126,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
         $option[0] = $this->pl->txt('no');
         $option[1] = $this->pl->txt('yes');
-        $assessed = new ilSelectInputGUI($this->pl->txt("assessed"), "assessed");
+        $assessed = new ilSelectInputGUI($this->pl->txt("assessed"), "is_assessed");
         $assessed->setOptions($option);
         $this->addAndReadFilterItem($assessed);
     }
@@ -189,7 +189,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
             $this->tpl->setVariable('ITEMTITLE', $item->getItemTitle());
             $this->tpl->parseCurrentBlock();
         }
-        if ($this->isColumnSelected('assessed')) {
+        if ($this->isColumnSelected('is_assessed')) {
             $this->tpl->setCurrentBlock('assessed');
             $this->tpl->setVariable('ASSESSED', $xaseAnswer->getisAssessed() ? $this->pl->txt('yes') : $this->pl->txt('no'));
             $this->tpl->parseCurrentBlock();
@@ -343,7 +343,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
                 case 'firstname':
                 case 'lastname':
                 case 'item':
-                case 'assessed':
+                case 'is_assessed':
                     if(!empty($filter_value)) {
                         $collection->where(array($filter_key => '%' . $filter_value . '%'), 'LIKE');
                         break;
@@ -370,7 +370,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $cols["item_title"] = array(
             "txt" => $this->pl->txt("item_title"),
             "default" => true);
-        $cols["assessed"] = array(
+        $cols["is_assessed"] = array(
             "txt" => $this->pl->txt("assessed"),
             "default" => true);
         $cols["max_points"] = array(
