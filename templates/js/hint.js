@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-    //TODO: remove console.logs and unecessary comments. Handle document.selection and else hint_trigger_text click cases
+    //TODO: Handle document.selection and else hint_trigger_text click cases
 
     var task = $('#task')[0];
     var counter = 0;
@@ -19,13 +19,15 @@ $(document).ready(function() {
         return counter--;
     }
 
+    var hint_form_group_selector = $('.hint_form:first-child');
+
     function toggle_form_header_gui_and_label() {
         if($('.hint_form').filter(function() {return $(this).css('display') == 'inline-block'}).length) {
-            $('h3.ilHeader:contains("Hints")').parent().css('display', '');
-            $('label.control-label:contains("Hints")').parent().css('display','');
+            hint_form_group_selector.parents('.form-group').prev().css('display', '');
+            hint_form_group_selector.parents('.form-group').children('.control-label').css('display','');
         } else {
-            $('h3.ilHeader:contains("Hints")').parent().css('display', 'none');
-            $('label.control-label:contains("Hints")').parent().css('display','none');
+            hint_form_group_selector.parents('.form-group').prev().css('display', 'none');
+            hint_form_group_selector.parents('.form-group').children('.control-label').css('display','none');
         }
     }
 
@@ -204,17 +206,9 @@ $(document).ready(function() {
 
         var prepend_target = hidden_form.closest('.col-sm-9');
 
-        /*        for(i = 0; i < visible_hint_form.length; i++) {
-                    console.log(visible_hint_form[i]);
-                    prepend_target.prepend(visible_hint_form[i]);
-                }  */
-
-        console.log(visible_hint_form.length);
         for(i = visible_hint_form.length -1; i >= 0; i--) {
             prepend_target.prepend(visible_hint_form[i]);
         }
-
-        //adoptIncreaseCounter()
     }
 
     function loadExistingHintData() {
@@ -232,22 +226,6 @@ $(document).ready(function() {
                 $(hint_data_form).css({ display: 'inline-block' });
 
                 $(hint_data_form).appendTo(hidden_form.closest('.col-sm-9'));
-
-                /**
-                 * in the first iteration prepend the hint form to the hidden hint form
-                 * after the first iteration append the hint form to the last child of displayed hint forms
-                 */
-/*                if (index === 0) {
-                    var prepend_target = hidden_form.closest('.col-sm-9');
-
-                    prepend_target.prepend(hint_data_form);
-                } else {
-                    var not_hidden_forms = hint_form.filter(function() {
-                        return $(this).css('display') == 'inline-block';
-                    });
-
-                    not_hidden_forms.last().after(hint_data_form);
-                }*/
 
                 jquery_element = $(element);
 
@@ -297,9 +275,6 @@ $(document).ready(function() {
 
     toggle_form_header_gui_and_label();
 
-    //prependToHintFormWrapper();
-
-    //TODO check if this is necessary
     adoptHintToLabel();
 
     setHintToLabelByHiddenInput();
@@ -315,7 +290,6 @@ $(document).ready(function() {
     $('#hint_trigger_text').click(function() {
         var sel;
         var code_start = "[hint " + increase_counter() + "]";
-        console.log("CHECK INCREASE COUNTER" + code_start);
         var code_end = "[/hint]";
 
         if (document.selection) {
@@ -356,18 +330,11 @@ $(document).ready(function() {
 
             new_hint_form.find("div.hint_to").children('.col-sm-9').children("label").text(task.value.substring(startPos, endPos) + task.value.substring(endPos, task.value.length));
 
-            //TODO change is_template 1 and 0 logic
             new_hint_form.find('input[name*="[is_template]"]').val("1");
 
             setRemoveBtnId(new_hint_form);
 
             setNameAttribute(new_hint_form);
-
-            //hidden_form = copy_hidden_form;
-
-/*            setRemoveBtnId(hidden_form);
-
-            setNameAttribute(hidden_form);*/
 
             // set value of is_template to 0. This makes sure that this input will not be considered in check input
             hidden_form.find('input[name*="[is_template]"]').val("0");
@@ -407,7 +374,6 @@ $(document).ready(function() {
     }, 2000);
 
     $("input[name='cmd\[update\]']").on("click", function (e) {
-        console.log("hint to label test");
         var hint_tos = $('.hint_to');
 
         for(i = 0; i < hint_tos.length; i++) {
@@ -422,12 +388,10 @@ $(document).ready(function() {
 
             hidden_hint_to_label_input.val(hint_to_label_text);
         }
-        //TEST
         hidden_form = $('.hint_form').filter(function() {
             return $(this).css('display') == 'none';
         });
 
         hidden_form.find('input[name*="[is_template]"]').val("0");
-        //TEST END
     })
 });

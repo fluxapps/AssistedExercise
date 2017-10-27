@@ -103,3 +103,10 @@ last_name#:#Last name
 submission_date#:#Submission date
 tasks#:#Tasks
 number_of_upvotings#:#Number of upvotings
+msg.success.exercise.submitted.for.assessment#:#The exercise was successfully submitted for assessment.
+no_disposal_date#:#No disposal date
+average_achieved_points#:#Average achieved points
+average_used_hints_per_item#:#Average number of used hints per item
+your_answer_of_the_task#:#Your answer of the task
+was_assessed#:#was assessed
+pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:

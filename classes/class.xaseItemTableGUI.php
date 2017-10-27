@@ -109,7 +109,7 @@ class xaseItemTableGUI extends ilTable2GUI
         if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
             if ($this->hasUserFinishedExercise()) {
                 if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
-                    //if(!$this->isDisposalDateExpired()) {
+                    if(!$this->isDisposalDateExpired()) {
                         if($this->mode_settings->getRateAnswers()) {
                             $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
                             $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
@@ -119,7 +119,7 @@ class xaseItemTableGUI extends ilTable2GUI
                             /** @var $ilToolbar ilToolbarGUI */
                             $DIC->toolbar()->addButtonInstance($submissionLinkButton);
                         }
-                    //}
+                    }
                 }
             }
         }
@@ -137,8 +137,10 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->setExternalSegmentation(true);
         $this->setEnableHeader(true);
 
-        $list = $this->createListing();
-        $this->tpl->setVariable('LIST', $list);
+        if($this->xase_settings->getModus() != self::M2) {
+            $list = $this->createListing();
+            $this->tpl->setVariable('LIST', $list);
+        }
 
         $this->initColums();
         $this->addFilterItems();
@@ -293,7 +295,7 @@ class xaseItemTableGUI extends ilTable2GUI
 
             if ($this->isColumnSelected('number_of_used_hints')) {
                 $this->tpl->setCurrentBlock("NUMBEROFUSEDHINTS");
-                if (is_object($xaseAnswer) && !empty($xaseAnswer->getBody())) {
+                if (is_object($xaseAnswer) && !empty($xaseAnswer) && !empty($xaseAnswer->getNumberOfUsedHints())) {
                     $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
                 } else {
                     $this->tpl->setVariable('NUMBEROFUSEDHINTS', 0);
@@ -452,8 +454,69 @@ class xaseItemTableGUI extends ilTable2GUI
         return $cols;
     }
 
-    // TODO change static array values
-    // TODO decide if the listing appears in front of the filter
+    public static function getMaxAchievablePoints($assisted_exercise_id) {
+        $items = xaseItem::where(array('assisted_exercise_id' => $assisted_exercise_id))->get();
+        $max_achievable_points = 0;
+        foreach($items as $item) {
+            $xasePoint = xasePoint::where(array('id' => $item->getPointId()))->first();
+            $max_achievable_points += $xasePoint->getMaxPoints();
+        }
+        return $max_achievable_points;
+    }
+
+    protected function getAnswersFromUser() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->parent_obj->object->getId()))->get();
+        $item_ids = [];
+        foreach($items as $item) {
+            $item_ids[] = $item->getId();
+        }
+        if(empty($item_ids)) {
+            return null;
+        } else {
+            return xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $item_ids), array('user_id' => '=', 'item_id' => 'IN'))->get();
+        }
+    }
+
+    protected function getMaxAchievedPoints() {
+        $answers_from_user = $this->getAnswersFromUser();
+
+        if(empty($answers_from_user)) {
+            return 0;
+        }
+/*        if($this->xase_settings->getModus() == self::M1) {
+            $funcname = 'getPointsTeacher';
+        } elseif($this->xase_settings->getModus() == self::M3) {
+            $funcname = 'getTotalPoints';
+        }*/
+        $max_achieved_points = 0;
+        foreach($answers_from_user as $answer) {
+            $xasePoint = xasePoint::where(array('id' => $answer->getPointId()))->first();
+            $max_achieved_points += $xasePoint->getTotalPoints();
+        }
+        return $max_achieved_points;
+    }
+
+    protected function getTotalUsedHints() {
+        $answers_from_user = $this->getAnswersFromUser();
+        if(empty($answers_from_user)) {
+            return 0;
+        }
+        $total_used_hints = 0;
+        foreach($answers_from_user as $answer) {
+            $total_used_hints += $answer->getNumberOfUsedHints();
+        }
+        return $total_used_hints;
+    }
+
+    protected function getDisposalDate() {
+        if($this->mode_settings->getDisposalDate() == "0000-00-00 00:00:00" || empty($this->mode_settings->getDisposalDate())) {
+            return $this->pl->txt('no_disposal_date');
+        } else {
+            return $this->mode_settings->getDisposalDate();
+        }
+    }
+
+
     public function createListing()
     {
         $f = $this->dic->ui()->factory();
@@ -462,10 +525,10 @@ class xaseItemTableGUI extends ilTable2GUI
         $unordered = $f->listing()->descriptive(
             array
             (
-                $this->pl->txt('max_achievable_points') => strval(80),
-                $this->pl->txt('max_achieved_points') => strval(64),
-                $this->pl->txt('total_used_hints') => strval(4),
-                $this->pl->txt('disposal_date') => '05.09.2017',
+                $this->pl->txt('max_achievable_points') => strval(self::getMaxAchievablePoints($this->parent_obj->object->getId())),
+                $this->pl->txt('max_achieved_points') => strval($this->getMaxAchievedPoints()),
+                $this->pl->txt('total_used_hints') => strval($this->getTotalUsedHints()),
+                $this->pl->txt('disposal_date') => $this->getDisposalDate(),
             )
         );
         return $renderer->render($unordered);
@@ -546,7 +609,7 @@ class xaseItemTableGUI extends ilTable2GUI
             } else {
                 $answer_from_current_user_object = xaseAnswer::where(array('id' => $answers_from_current_user['id']))->first();
             }
-            if($answer_from_current_user_object->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED) {
+            if($answer_from_current_user_object->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer_from_current_user_object->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
                 return true;
             }
         }
@@ -555,12 +618,13 @@ class xaseItemTableGUI extends ilTable2GUI
 
     protected function isDisposalDateExpired() {
         $current_date = date('Y-m-d h:i:s', time());
-        $current_date_datetime = DateTime::createFromFormat('Y-m-d h:i:s', $current_date);
-        $disposal_date_datetime = DateTime::createFromFormat('Y-m-d h:i:s', $this->mode_settings->getDisposalDate());
-        if($disposal_date_datetime < $current_date_datetime) {
-            return true;
-        } else {
+        $current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+        $disposal_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $this->mode_settings->getDisposalDate());
+        if( !($disposal_date_datetime->getTimestamp() < $current_date_datetime->getTimestamp()) || $this->mode_settings->getDisposalDate() == "0000-00-00 00:00:00") {
             return false;
+        }
+        else {
+            return true;
         }
     }
 

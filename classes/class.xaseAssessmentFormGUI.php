@@ -352,6 +352,11 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
             $this->xase_comment->store();
         }
         if(!empty($this->getInput('points'))) {
+            if($this->xase_settings->getModus() == self::M1) {
+                $this->xase_point->setTotalPoints($this->getInput('points'));
+            } elseif($this->xase_settings->getModus() == self::M3) {
+                $this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
+            }
             $this->xase_point->setPointsTeacher($this->getInput('points'));
             $this->xase_point->store();
         }
@@ -366,6 +371,39 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         if (!$this->fillObject()) {
             return false;
         }
+
+        $this->notifyUserAboutAssessment();
+
         return true;
+    }
+
+    public function notifyUserAboutAssessment() {
+        $protocol = $this->https->isDetected() ? 'https://' : 'http://';
+        $server_url = $protocol . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/')) . '/';
+        $contact_address = ilMail::getIliasMailerAddress();
+
+        $mm = new ilMimeMail();
+        $mm->Subject($this->pl->txt('your_answer_of_the_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt("was_assessed"));
+        $mm->From($contact_address);
+        $mm->To($this->dic->user()->getEmail());
+        //TODO finish Body of the Notification E-Mail
+        /*$mm->Body
+        (
+            str_replace
+            (
+                array("\\n", "\\t"),
+                array("\n", "\t"),
+                sprintf
+                (
+                    $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
+                    $pwassist_url,
+                    $server_url,
+                    $_SERVER['REMOTE_ADDR'],
+                    'mailto:' . $contact_address[0],
+                    $alternative_pwassist_url
+                )
+            )
+        );*/
+        $mm->Send();
     }
 }

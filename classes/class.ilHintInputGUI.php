@@ -128,7 +128,7 @@ class ilHintInputGUI extends ilFormPropertyGUI {
             $this->total_minus_points += $data["lvl_1_minus_points"] +  $data["lvl_2_minus_points"];
         }
         if ($_POST["max_points"] <= $this->total_minus_points) {
-            ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+            ilUtil::sendFailure($this->pl->txt("msg_input_minus_points_error"), true);
             return false;
         }
         return true;

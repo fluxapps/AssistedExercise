@@ -158,8 +158,7 @@ class xaseSubmissionGUI
                 break;
             }
         }
-
-        ilUtil::sendSuccess($this->pl->txt('success_message_exercise_submitted'));
+        ilUtil::sendSuccess($this->pl->txt('success_message_exercise_submitted'), true);
         $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
     }
 

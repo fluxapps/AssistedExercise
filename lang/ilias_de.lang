@@ -107,3 +107,10 @@ add_hint_btn_caption#:#Tipp hinzufügen
 submission_date#:#Abgabedatum
 tasks#:#Aufgaben
 number_of_upvotings#:#Anzahl Upvotings
+msg.success.exercise.submitted.for.assessment#:#Die Übung wurde erfolgreich zur Bewertung eingereicht.
+no_disposal_date#:#Kein Abgabedatum
+average_achieved_points#:#Durchschnittlich erreichte Punkte
+average_used_hints_per_item#:#Durschnittliche Anzahl verwendeter Tipps pro Item
+your_answer_of_the_task#:#Ihre Antwort auf die Aufgabe
+was_assessed#:#wurde bewertet
+pleas_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:

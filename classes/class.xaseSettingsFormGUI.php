@@ -86,12 +86,6 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
         $this->parent_gui = $parent_gui;
         $this->assisted_exercise = $ilObjAssistedExercise;
         $this->mode = $mode;
-
-        /*        if($mode === self::M1) {
-                    $this->mode_settings = new xaseSettingsM1();
-                } elseif($mode === self::M3) {
-                    $this->mode_settings = new xaseSettingsM3();
-                }*/
         $this->mode_settings = $this->getModeSettings($this->mode);
         //stores the default mode settings if the user previously created the object in the repository
         if($this->is_creation_mode) {

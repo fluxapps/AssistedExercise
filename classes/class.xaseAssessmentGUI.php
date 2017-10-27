@@ -139,5 +139,4 @@ class xaseAssessmentGUI
             $this->ctrl->redirectByClass('xasesubmissiongui', xaseSubmissionGUI::CMD_STANDARD);
         }
     }
-
 }

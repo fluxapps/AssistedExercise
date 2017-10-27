@@ -103,8 +103,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->setExternalSegmentation(true);
         $this->setEnableHeader(true);
 
-        $list = $this->createListing();
-        $this->tpl->setVariable('LIST', $list);
+        if($this->xase_settings->getModus() != 2) {
+            $list = $this->createListing();
+            $this->tpl->setVariable('LIST', $list);
+        }
 
         $this->initColums();
         $this->addFilterItems();
@@ -153,6 +155,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         return $xaseAssessment;
     }
 
+    protected function getUserObject($xase_answer) {
+        return arUser::where(array('usr_id' => $xase_answer->getUserId()))->first();
+    }
+
     /**
      * @param array $a_set
      */
@@ -164,14 +170,16 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         //$a_set contains the items
         $xaseAnswer = xaseAnswer::find($a_set['id']);
 
+        $user = $this->getUserObject($xaseAnswer);
+
         if ($this->isColumnSelected('firstname')) {
             $this->tpl->setCurrentBlock("firstname");
-            $this->tpl->setVariable('FIRSTNAME', $this->dic->user()->getFirstname());
+            $this->tpl->setVariable('FIRSTNAME', $user->getFirstname());
             $this->tpl->parseCurrentBlock();
         }
         if ($this->isColumnSelected('lastname')) {
             $this->tpl->setCurrentBlock("lastname");
-            $this->tpl->setVariable('LASTNAME', $this->dic->user()->getLastname());
+            $this->tpl->setVariable('LASTNAME', $user->getLastname());
             $this->tpl->parseCurrentBlock();
         }
         if ($this->isColumnSelected('submission_date')) {
@@ -309,13 +317,35 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
     }
 
+    protected function getItemIdsFromThisExercise() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        $item_ids = [];
+        foreach($items as $item) {
+            $item_ids[] = $item->getId();
+        }
+        return $item_ids;
+    }
+
     protected function parseData()
     {
         $this->determineOffsetAndOrder();
         $this->determineLimit();
 
+        /*
+         * 1) Nur Antworten auf Items des entsprechenden assisted exercise anzeigen
+         * 2) get all items from assisted exericse
+         * 3) get all answers from current user
+         * 4)save item ids from this assisted exercise in an array
+         * 5) loop through answers
+         * 6) if item_id is in items array
+         *      a) add the id of the answer to the answers id array
+         * 7) return array with answer ids
+         * 8) check in id of answer in parseData is in the answer id array
+         */
         $collection = xaseAnswer::getCollection();
-        $collection->where(array('answer_status' => array('submitted', 'rated')), array('answer_status' => 'IN'));
+        $item_ids = $this->getItemIdsFromThisExercise();
+        $collection->where(array('item_id' => $item_ids), array('item_id' => 'IN'));
+        $collection->where(array('answer_status' => array(2, 3)), array('answer_status' => 'IN'));
 
         $collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array('assessment_comment'));
 
@@ -402,8 +432,46 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         return $cols;
     }
 
-    // TODO change static array values
-    // TODO decide if the listing appears in front of the filter
+    /*
+     * 1) get all items from this exercise
+     * 2) loop through items
+     * 3) get answers for this item (from all users)
+     * 4) loop through answers
+     * 5) save the total points from each answer in a variable
+     * 6) save the number of answers in a variable ( count() )
+     * 7) divide total points from all answers by the number of answers
+     * 8) return the result of the division
+     */
+    protected function getAverageAchievedPoints() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        $total_points = 0;
+        $number_of_answers = 0;
+        foreach($items as $item) {
+            $answers = xaseAnswer::where(array('item_id' => $item->getId()))->get();
+            foreach($answers as $answer) {
+                $number_of_answers++;
+                $xase_point = xasePoint::where(array('id' => $answer->getPointId()))->first();
+                $total_points += $xase_point->getTotalPoints();
+            }
+        }
+        return $total_points / $number_of_answers;
+    }
+
+
+    protected function getAverageUsedHintsPerItem() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        $total_used_hints = 0;
+        $numer_of_answers = 0;
+        foreach($items as $item) {
+            $answers = xaseAnswer::where(array('item_id' => $item->getId()))->get();
+            foreach($answers as $answer) {
+                $numer_of_answers++;
+                $total_used_hints += $answer->getNumberOfUsedHints();
+            }
+        }
+        return $total_used_hints / $numer_of_answers;
+    }
+
     public function createListing()
     {
         $f = $this->dic->ui()->factory();
@@ -412,9 +480,9 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $unordered = $f->listing()->descriptive(
             array
             (
-                $this->pl->txt('max_achievable_points') => strval(80),
-                $this->pl->txt('average_achieved_points') => strval(64),
-                $this->pl->txt('average_used_hints_per_item') => strval(4)
+                $this->pl->txt('max_achievable_points') => strval(xaseItemTableGUI::getMaxAchievablePoints($this->assisted_exercise->getId())),
+                $this->pl->txt('average_achieved_points') => strval($this->getAverageAchievedPoints()),
+                $this->pl->txt('average_used_hints_per_item') => strval($this->getAverageUsedHintsPerItem())
             )
         );
 
