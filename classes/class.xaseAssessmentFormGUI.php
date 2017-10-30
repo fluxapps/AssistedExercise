@@ -176,8 +176,9 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $this->setTarget('_top');
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
-        //TODO get the real user nam after submitted by
-        $this->setTitle($this->pl->txt('assessment_for_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
+
+        $student_user = $this->getStudentUser();
+        $this->setTitle($this->pl->txt('assessment_for_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $student_user->getFirstName() . " " . $student_user->getLastName());
 
         if(!$this->is_student) {
             $this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_used_hints'), 'show_used_hints');
@@ -389,6 +390,11 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         return true;
     }
 
+    protected function getStudentUser() {
+        return arUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
+
+    }
+
     public function notifyUserAboutAssessment() {
         $protocol = $this->https->isDetected() ? 'https://' : 'http://';
         $server_url = $protocol . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/')) . '/';
@@ -397,8 +403,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $mm = new ilMimeMail();
         $mm->Subject($this->pl->txt('your_answer_of_the_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt("was_assessed"));
         $mm->From($contact_address);
-        //TODO get email from user who answered the email
-        $mm->To($this->dic->user()->getEmail());
+        $mm->To($this->getStudentUser()->getEmail());
 
         $delimiter                = '&';
         $assessment_url             = $protocol . $_SERVER['HTTP_HOST']
@@ -415,15 +420,22 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
             (
                 array("\\n", "\\t"),
                 array("\n", "\t"),
-                sprintf
+/*                sprintf
                 (
                     $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
                     $assessment_url,
                     $server_url,
                     $_SERVER['REMOTE_ADDR'],
                     'mailto:' . $contact_address[0]
+                )*/
+                <<<'EOT'
+                    $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
+                    $assessment_url,
+                    $server_url,
+                    $_SERVER['REMOTE_ADDR'],
+                    'mailto:' . $contact_address[0]
+EOT
                 )
-            )
         );
         $mm->Send();
     }
