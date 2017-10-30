@@ -5,7 +5,7 @@ Start at your ILIAS root directory
 
 1. mkdir -p Customizing/global/plugins/Services/Repository/RepositoryObject/ 
 2. cd  Customizing/global/plugins/Services/Repository/RepositoryObject/
-3. git clone https://git.studer-raimann.ch/ILIAS/Plugins/AssistedExercise.git  
+3. git clone https://github.com/studer-raimann/AssistedExercise.git  
 4. As ILIAS administrator go to "Administration->Plugins" and install/activate the plugin.
 This Plugin requires ActiveRecord.
 
