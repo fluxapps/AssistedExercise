@@ -131,7 +131,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI
             $this->initHiddenUsedHintsInput();
         }
 
-        if($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED || $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
+        if($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED && $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
             $this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
         }
         $this->addCommandButton(xaseAnswerGUI::CMD_CANCEL, $this->pl->txt("cancel"));

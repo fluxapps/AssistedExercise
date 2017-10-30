@@ -358,18 +358,17 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
         $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
+        $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
+
+        if(!empty($xase_answer) &&  $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED && $this->xase_settings->getModus() != self::M2) {
+            $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xase_answer->getId());
+            $current_selection_list->addItem($this->pl->txt('view_assessment'), xaseAssessmentGUI::CMD_VIEW_ASSESSMENT, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_VIEW_ASSESSMENT));
+        }
+        if($this->isSampleSolutionAvailable($this->xase_settings->getModus(), $xaseItem)) {
+            $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
+        }
         if ($this->access->hasWriteAccess() || $this->xase_settings->getModus() == self::M2) {
             $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
-
-            $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
-
-            if(!empty($xase_answer) &&  $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED && $this->xase_settings->getModus() != self::M2) {
-                $this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xase_answer->getId());
-                $current_selection_list->addItem($this->pl->txt('view_assessment'), xaseAssessmentGUI::CMD_VIEW_ASSESSMENT, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_VIEW_ASSESSMENT));
-            }
-            if($this->isSampleSolutionAvailable($this->xase_settings->getModus(), $xaseItem)) {
-                $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
-            }
         }
 /*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));

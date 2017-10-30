@@ -133,7 +133,7 @@ class xaseAssessmentGUI
     }
 
     public function cancel() {
-        if ($this->is_student) {
+        if (!ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId())) {
             $this->ctrl->redirectByClass('xaseitemgui', xaseItemGUI::CMD_STANDARD);
         } else {
             $this->ctrl->redirectByClass('xasesubmissiongui', xaseSubmissionGUI::CMD_STANDARD);

@@ -1,5 +1,7 @@
 <?php
 
+require_once('./Services/Mail/classes/class.ilMail.php');
+require_once('./Services/Mail/classes/class.ilMimeMail.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseComment.php');
 
@@ -96,6 +98,14 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
      * @var int
      */
     protected $is_student;
+    /**
+     * @var ilHTTPS
+     */
+    protected $https;
+    /**
+     * @var ILIAS
+     */
+    protected $ilias;
 
     public function __construct(xaseAssessmentGUI $xase_assessment_gui, ilObjAssistedExercise $assisted_exericse, $is_student = false)
     {
@@ -115,6 +125,8 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $this->parent_gui = $xase_assessment_gui;
         $this->is_student = $is_student;
         $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
+        $this->https = $this->dic['https'];
+        $this->ilias = $this->dic['ilias'];
         parent::__construct();
 
         $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/assessment.js');
@@ -162,9 +174,9 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
     public function initForm()
     {
         $this->setTarget('_top');
-        //TODO check if necessary
         $this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
         $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
+        //TODO get the real user nam after submitted by
         $this->setTitle($this->pl->txt('assessment_for_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt('submitted_by') . " " . $this->dic->user()->getFullname());
 
         if(!$this->is_student) {
@@ -385,9 +397,19 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $mm = new ilMimeMail();
         $mm->Subject($this->pl->txt('your_answer_of_the_task') . " " . $this->xase_item->getItemTitle() . " " . $this->pl->txt("was_assessed"));
         $mm->From($contact_address);
+        //TODO get email from user who answered the email
         $mm->To($this->dic->user()->getEmail());
-        //TODO finish Body of the Notification E-Mail
-        /*$mm->Body
+
+        $delimiter                = '&';
+        $assessment_url             = $protocol . $_SERVER['HTTP_HOST']
+            . '?answer_id=' . $this->xase_answer->getId()
+            . $delimiter . 'cmd=' . xaseAssessmentGUI::CMD_VIEW_ASSESSMENT
+            . $delimiter . 'cmdClass=' . strtolower(xaseAssessmentGUI::class)
+            . $delimiter . 'cmdNode=' . 'f8:zy:j'
+            . $delimiter . 'baseClass=' . 'ilObjPluginDispatchGUI'
+            . $delimiter . 'lang=' . $this->dic->language()->getLangKey();
+
+        $mm->Body
         (
             str_replace
             (
@@ -396,14 +418,13 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
                 sprintf
                 (
                     $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
-                    $pwassist_url,
+                    $assessment_url,
                     $server_url,
                     $_SERVER['REMOTE_ADDR'],
-                    'mailto:' . $contact_address[0],
-                    $alternative_pwassist_url
+                    'mailto:' . $contact_address[0]
                 )
             )
-        );*/
+        );
         $mm->Send();
     }
 }
