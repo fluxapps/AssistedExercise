@@ -120,8 +120,6 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
 
         $this->addCommandButton(ilObjAssistedExerciseGUI::CMD_UPDATE, $this->pl->txt('save'));
         $this->addCommandButton(ilObjAssistedExerciseGUI::CMD_STANDARD, $this->pl->txt("cancel"));
-
-        $this->setFormAction($this->ctrl->getFormAction($this));
     }
 
     protected function availabilityForm()

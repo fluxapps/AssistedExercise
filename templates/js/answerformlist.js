@@ -1,20 +1,26 @@
 $(document).ready(function() {
 
     $('.show-hide-comments').click(function(event) {
-        if ( $(event.target).attr('background-image') == 'url(../../images/downarrow.png)' ) {
-            $(event.target).attr('background-image', 'url(../../images/uparrow.png');
-            $(event.target).closest( ".comment-content" ).css({ display: block });
+        console.log("show-hide-comments clicked");
+        console.log($(event.target));
+        console.log($(event.target).css('background-image'));
+        debugger;
+        if ( $(event.target).css('background-image').indexOf('downarrow') >= 0) {
+            $(event.target).css('background-image').replace('downarrow', 'uparrow')
+            $(event.target).css('background-image', 'url(../../images/uparrow.png');
+            $(event.target).closest( ".comment-content" ).css({ display: 'block' });
         } else {
-            $(event.target).attr('background-image', 'url(../../images/downarrow.png');
-            $(event.target).closest( ".comment-content" ).css({ display: none });
+            $(event.target).css('background-image', 'url(../../images/downarrow.png');
+            $(event.target).closest( ".comment-content" ).css({ display: 'none' });
         }
     });
 
     $('.create-comment-link').click(function(event) {
-        $(event.target).css({ display: none });
-        $(event.target).closest(".comment-wrapper").children(".comment-content").css({ display: block });
-        $(event.target).closest(".comment-create-form").css({ display: block });
-        $(event.target).closest(".comment-links").css({ display: block });
+        $(event.target).css({ display: 'none' });
+        $(event.target).closest(".comment-wrapper").children(".comment-content").css({ display: 'block' });
+        console.log($(event.target));
+        $(event.target).parent(".create-comment-link").siblings(".comment-create-form").css({ display: 'block' });
+        $(event.target).parent(".create-comment-link").siblings(".comment-links").css({ display: 'block' });
     });
 
     function get_comment_as_json_string(textarea_value, answer_id) {
@@ -46,7 +52,7 @@ $(document).ready(function() {
         5) show the create-comment-link
          */
         if(!$.trim($(event.target).closest('.comment-textarea').val())) {
-            $(".comment-form-error-message").css({ display: block });
+            $(".comment-form-error-message").css({ display: 'block' });
             console.log("The input is not allowed to be empty");
         } else {
             textarea_value = $(event.target).closest('.comment-textarea').val();
@@ -57,13 +63,16 @@ $(document).ready(function() {
             new_comment.attr('id', getNextAvailableCommentId());
             $(new_comment>span).text(textarea_value);
 
-            $(event.target).closest(".comment-create-form").css({ display: none });
-            $(event.target).closest(".comment-links").css({ display: none });
-            $(event.target).closest(".create-comment-link").css({ display: none });
+            $(event.target).closest(".comment-create-form").css({ display: 'none' });
+            $(event.target).closest(".comment-links").css({ display: 'none' });
+            $(event.target).closest(".create-comment-link").css({ display: 'block' });
         }
     });
 
-    $('.di  scard-link').click(function(event) {
-
+    $('.discard-link').click(function(event) {
+        $(event.target).parent('.comment-links').siblings(".comment-create-form").css({ display: 'none' });
+        $(event.target).parent(".comment-links").css({ display: 'none' });
+        $(event.target).parent('.comment-links').siblings(".create-comment-link").css({ display: 'block' });
+        $(event.target).parent('.comment-links').siblings(".create-comment-link").children('a').css({ display: 'block' });
     })
 });
