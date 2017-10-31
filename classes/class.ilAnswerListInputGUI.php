@@ -40,6 +40,10 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
      * @var xaseComment
      */
     protected $xase_comment;
+    /**
+     * @var ilAssistedExercisePlugin
+     */
+    protected $pl;
     protected $answer;
     protected $comment;
     protected $comments = [];
@@ -63,6 +67,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     {
         global $DIC;
         $this->dic = $DIC;
+        $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->answer = new ilNonEditableValueGUI("", "answer[]");
         $this->comment = new ilNonEditableValueGUI("", "comment[]");
 
@@ -129,7 +134,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
         $tpl->setCurrentBlock("item");
-        //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("task_label"));
+        //$tpl->setVariable("ITEM_LABEL", $this->pl->txt("task_label"));
         $tpl->setVariable("ITEM", $this->xase_item->getTask());
         $tpl->parseCurrentBlock();
 
@@ -141,7 +146,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         }
 
         $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
-
 
             $tpl->setCurrentBlock("number_of_up_votings");
             if(!empty($this->xase_answer->getNumberOfUpvotings())) {
@@ -159,24 +163,36 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         $tpl->setCurrentBlock("comment_counter");
         $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
         if(count($this->comments) >= 2) {
-            $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comments'));
+            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
         } else {
-            $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comment'));
+            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
         }
         $tpl->parseCurrentBlock();
 
-        foreach($this->comments as $comment) {
-
-            $this->comment->setValue($comment->getBody());
+        if(empty($this->comments)) {
+            $this->comment->setValue("");
             $tpl->setCurrentBlock("comment");
-            $tpl->setVariable("COMMENT_ID", $comment->getId());
+            $tpl->setVariable("COMMENT_ID", "1");
             $tpl->setVariable("COMMENT", $this->comment->render());
-            $tpl->setVariable("COMMENT_SAVE_TEXT", $this->dic->language()->txt('save'));
-            $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->dic->language()->txt('discard_comment'));
+            $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+            $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
             $tpl->parseCurrentBlock();
+
+        } else {
+            foreach($this->comments as $comment) {
+
+                $this->comment->setValue($comment->getBody());
+                $tpl->setCurrentBlock("comment");
+                $tpl->setVariable("COMMENT_ID", $comment->getId());
+                $tpl->setVariable("COMMENT", $this->comment->render());
+                $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+                $tpl->parseCurrentBlock();
+            }
         }
+
         $tpl->setCurrentBlock("create_comment_link");
-        $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->dic->language()->txt('add_comment'));
+        $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
         $tpl->parseCurrentBlock();
 
         if (!empty($this->getExistingAnswerData())) {
@@ -210,13 +226,13 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
 
             foreach ($_POST['answer'] as $id => $data) {
                if(!$this->checkInput()) {
-                   ilUtil::sendFailure($this->dic->language()->txt("msg_vote_for_at_least_one_answer"));
+                   ilUtil::sendFailure($this->pl->txt("msg_vote_for_at_least_one_answer"));
                }
 
                 $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
                 $tpl->setCurrentBlock("item");
-                //$tpl->setVariable("ITEM_LABEL", $this->dic->language()->txt("task_label"));
+                //$tpl->setVariable("ITEM_LABEL", $this->pl->txt("task_label"));
                 $tpl->setVariable("ITEM", $this->xase_item->getTask());
                 $tpl->parseCurrentBlock();
 
@@ -237,9 +253,9 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl->setCurrentBlock("comment_counter");
                 $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
                 if(count($this->comments) >= 2) {
-                    $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comments'));
+                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
                 } else {
-                    $tpl->setVariable("COMMENT_TEXT", $this->dic->language()->txt('comment'));
+                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
                 }
                 $tpl->parseCurrentBlock();
 
@@ -249,12 +265,12 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                     $tpl->setCurrentBlock("comment");
                     $tpl->setVariable("COMMENT_ID", $comment->getId());
                     $tpl->setVariable("COMMENT", $this->comment->render());
-                    $tpl->setVariable("COMMENT_SAVE_TEXT", $this->dic->language()->txt('save'));
-                    $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->dic->language()->txt('discard_comment'));
+                    $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                    $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                     $tpl->parseCurrentBlock();
                 }
                 $tpl->setCurrentBlock("create_comment_link");
-                $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->dic->language()->txt('add_comment'));
+                $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
                 $tpl->parseCurrentBlock();
 
                 if (!empty($this->getExistingAnswerData())) {

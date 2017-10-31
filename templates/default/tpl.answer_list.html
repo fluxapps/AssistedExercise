@@ -32,17 +32,45 @@
         </div>
         <!-- END comment_counter -->
 
-        <!-- BEGIN comment -->
-        <div class="col-sm-9 comment-wrapper" id="{COMMENT_ID}">
-            {COMMENT}
-            <a href="#" style="float: left; display: none">{COMMENT_SAVE_TEXT}</a><a href="#" style="float: right; display: none">{COMMENT_DISCARD_TEXT}</a>
+        <!-- TODO fill content in corresponding input gui and remove dummy data -->
+        <!-- BEGIN comment_wrapper -->
+        <div class="comment-wrapper">
+            <!-- BEGIN comment -->
+            <div class="col-sm-9 comment-content" style="display: none" id="{COMMENT_ID}">
+                {COMMENT}<span>Kommentar</span>
+            </div>
+            <!-- END comment -->
+            <div class="col-sm-9 create-comment-link">
+                <a href="#">Add comment{CREATE_COMMENT_LINK_TEXT}</a>
+            </div>
+            <div class="col-sm-9 comment-create-form" style="display: none">
+                <form>
+                    <div class="form-group">
+                        <label for="comment">{CREATE_COMMENT_FORM_LABEL} Label Comment Create Form</label>
+                        <textarea class="form-control comment-textarea" rows="5" id="comment"></textarea>
+                    </div>
+                </form>
+            </div>
+            <span class="col-sm-9 col-sm-offset-3 comment-form-error-message" style="color:red; padding:0px; display: none">Fehlermeldung</span>
+            <div class="col-sm-offset-3 col-sm-9 comment-links" style="display: none">
+                <a href="#" style="float: left;" class="save-link">{COMMENT_SAVE_TEXT}</a>
+                <a href="#" style="float: right;" class="discard-link">{COMMENT_DISCARD_TEXT}</a>
+            </div>
+            <span class="new-comment-data" data-new-comments="{CONTENT}" ></span>
         </div>
-        <!-- END comment -->
+        <!-- END comment_wrapper -->
         <!-- BEGIN create_comment_link -->
-        <div class="col-sm-9 create-comment-link">
+<!--        <div class="col-sm-9 create-comment-link">
             <a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
-        </div>
+        </div>-->
         <!-- END create_comment_link -->
+
+        <!-- BEGIN create_comment_form -->
+<!--        <div class="form-group" style="display: none">
+            <label for="comment">{CREATE_COMMENT_FORM_LABEL}</label>
+            <input type="text" class="form-control" id="comment" />
+        </div>-->
+        <!-- END create_comment_form -->
 
     <!-- BEGIN existing_answer_data -->
     <span class="existing-answer-data" data-answers="{CONTENT_ANSWER}"></span>
@@ -57,4 +85,3 @@
     <!-- END existing_comment_data -->
 
 </div>
-

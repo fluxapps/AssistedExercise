@@ -13,9 +13,25 @@
 }
 
 .comment-wrapper {
-    display: none;
+    /*display: none;*/
     margin-top: 5px;
     margin-bottom: 2px;
+}
+
+.comment-wrapper>.comment-content, .col-sm-9.comment-create-form, .col-sm-offset-3.col-sm-9.comment-links {
+    padding: 0px;
+    display: block;
+}
+
+.col-sm-9.comment-create-form>.form-group {
+    margin-top: 0px;
+}
+
+.comment-links, .comment-content>span {
+    display: block;
+}
+
+.comment-content>span:not(:empty) {
     border: 1px solid lightgrey;
 }
 
@@ -23,7 +39,7 @@
     padding-left: 0px !important;
 }
 
-.comment-wrapper + .create-comment-link {
+.col-sm-9.create-comment-link {
     padding-left: 0px;
 }
 
