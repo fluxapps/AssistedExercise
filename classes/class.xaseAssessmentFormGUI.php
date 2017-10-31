@@ -407,36 +407,34 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
 
         $delimiter                = '&';
         $assessment_url             = $protocol . $_SERVER['HTTP_HOST']
-            . '?answer_id=' . $this->xase_answer->getId()
+            . '/ilias.php?ref_id=' . $_GET['ref_id']
+            . $delimiter . 'answer_id=' . $this->xase_answer->getId()
             . $delimiter . 'cmd=' . xaseAssessmentGUI::CMD_VIEW_ASSESSMENT
             . $delimiter . 'cmdClass=' . strtolower(xaseAssessmentGUI::class)
             . $delimiter . 'cmdNode=' . 'f8:zy:j'
-            . $delimiter . 'baseClass=' . 'ilObjPluginDispatchGUI'
-            . $delimiter . 'lang=' . $this->dic->language()->getLangKey();
+            . $delimiter . 'baseClass=' . 'ilObjPluginDispatchGUI';
 
-        $mm->Body
+/*        $mm->Body
         (
             str_replace
             (
                 array("\\n", "\\t"),
                 array("\n", "\t"),
-/*                sprintf
+                sprintf
                 (
                     $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
                     $assessment_url,
                     $server_url,
                     $_SERVER['REMOTE_ADDR'],
                     'mailto:' . $contact_address[0]
-                )*/
-                <<<'EOT'
-                    $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
-                    $assessment_url,
-                    $server_url,
-                    $_SERVER['REMOTE_ADDR'],
-                    'mailto:' . $contact_address[0]
-EOT
                 )
-        );
+            )
+        );*/
+
+        $body = $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment')."\n".
+            $assessment_url ."\n";
+
+        $mm->Body($body);
         $mm->Send();
     }
 }

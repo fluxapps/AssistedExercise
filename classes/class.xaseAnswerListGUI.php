@@ -9,6 +9,7 @@ class xaseAnswerListGUI
     const CMD_STANDARD = 'edit';
     const CMD_UPDATE = 'update';
     const CMD_CANCEL = 'cancel';
+    const CMD_COMMENT_ID = 'getNexAvailableCommentId';
 
     /**
      * @var ilObjAssistedExercise
@@ -79,6 +80,7 @@ class xaseAnswerListGUI
             case self::CMD_STANDARD:
             case self::CMD_UPDATE:
             case self::CMD_CANCEL:
+            case self::CMD_COMMENT_ID:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;
@@ -115,5 +117,18 @@ class xaseAnswerListGUI
 
     protected function cancel() {
         $this->ctrl->redirectByClass('xaseitemgui', xaseItemGUI::CMD_STANDARD);
+    }
+
+    public function getNexAvailableCommentId() {
+        $statement = $this->dic->database()->query("SELECT * FROM ilias.rep_robj_xase_comment ORDER BY id DESC LIMIT 1");
+
+        $results = array();
+
+        while ($record = $this->dic->database()->fetchAssoc($statement))
+        {
+            $results[] = $record;
+        }
+
+        return json_encode($results, JSON_UNESCAPED_UNICODE);
     }
 }

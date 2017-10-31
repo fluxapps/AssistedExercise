@@ -96,6 +96,7 @@ msg_input_max_assignable_points#:#Maximal zulässige Punkte sind
 submitted#:#Eingereicht
 rated#:#Bewertet
 view_sample_solution#:#Musterlösung einsehen
+discard_comment#:#Verwerfen
 points_teacher#:#Punkte Lehrer
 add_comment#:#Kommentar hinzufügen
 discard_comment#:#Verwerfen
