@@ -454,22 +454,22 @@ class xaseSubmissionTableGUI extends ilTable2GUI
                 $total_points += $xase_point->getTotalPoints();
             }
         }
-        return $total_points / $number_of_answers;
+        return $number_of_answers > 0 ? $total_points / $number_of_answers : 0;
     }
 
 
     protected function getAverageUsedHintsPerItem() {
         $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
         $total_used_hints = 0;
-        $numer_of_answers = 0;
+        $number_of_answers = 0;
         foreach($items as $item) {
             $answers = xaseAnswer::where(array('item_id' => $item->getId()))->get();
             foreach($answers as $answer) {
-                $numer_of_answers++;
+                $number_of_answers++;
                 $total_used_hints += $answer->getNumberOfUsedHints();
             }
         }
-        return $total_used_hints / $numer_of_answers;
+        return $number_of_answers > 0 ? $total_used_hints / $number_of_answers : 0;
     }
 
     public function createListing()
