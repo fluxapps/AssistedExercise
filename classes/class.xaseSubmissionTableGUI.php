@@ -204,7 +204,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         }
         if ($this->isColumnSelected('number_of_used_hints')) {
             $this->tpl->setCurrentBlock('numberofusedhints');
-            $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints());
+            $this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints() === null ? 0 : $xaseAnswer->getNumberOfUsedHints());
             $this->tpl->parseCurrentBlock();
         }
 
