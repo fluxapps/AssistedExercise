@@ -17,7 +17,8 @@
             <!-- BEGIN number_of_up_votings -->
             <span itemprop="upvoteCount" class="vote-count-post ">{NUMBEROFUPVOTINGS}</span>
             <!-- END number_of_up_votings -->
-            <a class="vote-down-off" title="This answer is not useful"></a>
+            <a class="vote-down-off" style="display: none" title="This answer is not useful"></a>
+            <span style="color:red; display:none" class="voting_error">{VOTE_ERROR_TEXT} Please first down vote the answer you upvoted previously.</span>
         </div>
 
         <!-- BEGIN answer -->
@@ -35,11 +36,13 @@
         <!-- TODO fill content in corresponding input gui and remove dummy data -->
         <!-- BEGIN comment_wrapper -->
         <div class="comment-wrapper">
+            <div class="comments">
             <!-- BEGIN comment -->
-            <div class="col-sm-9 comment-content" style="display: none" id="{COMMENT_ID}">
-                {COMMENT}<span>Kommentar</span>
-            </div>
+                <div class="col-sm-9 comment-content" style="display: none" id="{COMMENT_ID}">
+                    {COMMENT}
+                </div>
             <!-- END comment -->
+            </div>
             <div class="col-sm-9 create-comment-link">
                 <a href="#">Add comment{CREATE_COMMENT_LINK_TEXT}</a>
             </div>

@@ -4,6 +4,7 @@ require_once('./Services/Mail/classes/class.ilMail.php');
 require_once('./Services/Mail/classes/class.ilMimeMail.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseComment.php');
+require_once('./Services/Link/classes/class.ilLink.php');
 
 /**
  * Class xaseAssessmentFormGUI
@@ -392,9 +393,9 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
 
     protected function getStudentUser() {
         return arUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
-
     }
 
+    // TODO: Prüfen, ob eine Variante implementier werden muss, die direkt auf eine Bewertung führt. ilobjassistedexercisegui
     public function notifyUserAboutAssessment() {
         $protocol = $this->https->isDetected() ? 'https://' : 'http://';
         $server_url = $protocol . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/')) . '/';
@@ -405,14 +406,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $mm->From($contact_address);
         $mm->To($this->getStudentUser()->getEmail());
 
-        $delimiter                = '&';
-        $assessment_url             = $protocol . $_SERVER['HTTP_HOST']
-            . '/ilias.php?ref_id=' . $_GET['ref_id']
-            . $delimiter . 'answer_id=' . $this->xase_answer->getId()
-            . $delimiter . 'cmd=' . xaseAssessmentGUI::CMD_VIEW_ASSESSMENT
-            . $delimiter . 'cmdClass=' . strtolower(xaseAssessmentGUI::class)
-            . $delimiter . 'cmdNode=' . 'f8:zy:j'
-            . $delimiter . 'baseClass=' . 'ilObjPluginDispatchGUI';
+        $assessment_url = ilLink::_getStaticLink($_GET['ref_id'], 'xase', true);
 
 /*        $mm->Body
         (
@@ -431,8 +425,9 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
             )
         );*/
 
-        $body = $this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment')."\n".
-            $assessment_url ."\n";
+        $body = $this->pl->txt('the_following_link_leads_to_the_list_view_of_the_items')."\n".
+            $assessment_url ."\n".
+            $this->pl->txt('click_on_actions_view_assessment');
 
         $mm->Body($body);
         $mm->Send();

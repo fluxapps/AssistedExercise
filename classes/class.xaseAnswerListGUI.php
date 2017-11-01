@@ -119,7 +119,7 @@ class xaseAnswerListGUI
         $this->ctrl->redirectByClass('xaseitemgui', xaseItemGUI::CMD_STANDARD);
     }
 
-    public function getNexAvailableCommentId() {
+    public function getNextAvailableCommentId() {
         $statement = $this->dic->database()->query("SELECT * FROM ilias.rep_robj_xase_comment ORDER BY id DESC LIMIT 1");
 
         $results = array();
@@ -129,6 +129,8 @@ class xaseAnswerListGUI
             $results[] = $record;
         }
 
-        return json_encode($results, JSON_UNESCAPED_UNICODE);
+        echo ++$results[0]['id'];
+
+        //return json_encode($results, JSON_UNESCAPED_UNICODE);
     }
 }

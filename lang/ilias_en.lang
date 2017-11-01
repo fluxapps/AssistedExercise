@@ -109,5 +109,7 @@ average_achieved_points#:#Average achieved points
 average_used_hints_per_item#:#Average number of used hints per item
 your_answer_of_the_task#:#Your answer of the task
 was_assessed#:#was assessed
+the_following_link_leads_to_the_list_view_of_the_items#:#The following link leads to the list view of the items
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
+click_on_actions_view_assessment#:#With a click on the actions button of the correspondent task you can view the assessment over the context menu.
