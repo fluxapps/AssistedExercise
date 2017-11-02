@@ -382,10 +382,16 @@ class xaseItemTableGUI extends ilTable2GUI
             $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
         }
         if ($this->access->hasWriteAccess() || $this->xase_settings->getModus() == self::M2) {
-            if(!$this->has_submitted_answers()) {
+            if (!$this->has_submitted_answers()) {
                 $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
             }
         }
+        if ($this->access->hasDeleteAccess()) {
+            if(!$this->has_submitted_answers()) {
+                $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemGUI::CMD_DELETE, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_DELETE));
+            }
+        }
+
 /*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
         }*/

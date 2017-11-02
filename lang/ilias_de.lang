@@ -74,7 +74,7 @@ info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünsch
 msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.
 answer_task#:#Aufgabe beantworten
 show_hints#:#Tipps anzeigen
-answer#:#Antwort
+answer#:#Antworten
 submit_for_assessment#:#Übung zur Bewertung einreichen
 assessment_for_task#:#Bewertung für die Aufgabe
 submitted_by#:#eingereicht von
@@ -103,7 +103,8 @@ discard_comment#:#Verwerfen
 view_answers#:#Antworten ansehen
 task_label#:#Aufgabe:
 pleas_vote_for_the_best_answer#:#Bitte voten Sie für die beste Antwort
-edit_task#:#Aufgabe bearbeiten
+edit_task#:#Bearbeiten
+delete_task#:#Löschen
 add_hint_btn_caption#:#Tipp hinzufügen
 submission_date#:#Abgabedatum
 tasks#:#Aufgaben
