@@ -117,7 +117,7 @@ class xaseItemDeleteGUI
 
     public function confirmedDelete()
     {
-        //TODO remove data from database
+        xaseItem::where(array('id' => $_GET['item_id']))->first()->delete();
         ilUtil::sendSuccess($this->pl->txt('successfully_deleted'), true);
         $this->ctrl->redirectByClass("xaseItemGUI");
     }
