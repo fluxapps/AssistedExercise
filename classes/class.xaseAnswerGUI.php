@@ -124,13 +124,14 @@ class xaseAnswerGUI
                 $this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
                 $this->ctrl->redirectByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD);
             } else {
-                $this->ctrl->redirect($this, self::CMD_STANDARD);
+                //$this->ctrl->redirect($this, self::CMD_STANDARD);
+                $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
             }
         }
-        $xaseAnswerFormGUI->setValuesByPost();
+/*        $xaseAnswerFormGUI->setValuesByPost();
         $xaseAnswerFormGUI->fillTaskInput();
         $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
-        $this->tpl->show();
+        $this->tpl->show();*/
     }
 
     public function cancel() {

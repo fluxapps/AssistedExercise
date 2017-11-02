@@ -480,7 +480,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI
         $unordered = $f->listing()->descriptive(
             array
             (
-                $this->pl->txt('max_achievable_points') => strval(xaseItemTableGUI::getMaxAchievablePoints($this->assisted_exercise->getId())),
+                $this->pl->txt('max_achievable_points') => strval(xaseItemTableGUI::getMaxAchievablePoints($this->assisted_exercise->getId(), $this->xase_settings->getModus())),
                 $this->pl->txt('average_achieved_points') => strval($this->getAverageAchievedPoints()),
                 $this->pl->txt('average_used_hints_per_item') => strval($this->getAverageUsedHintsPerItem())
             )

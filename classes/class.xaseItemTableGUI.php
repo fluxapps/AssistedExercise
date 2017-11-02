@@ -97,14 +97,14 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
         if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
-            if(!$this->has_submitted_answers()) {
+            //if(!$this->has_submitted_answers()) {
                 $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
                 $ilLinkButton = ilLinkButton::getInstance();
                 $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
                 $ilLinkButton->setUrl($new_item_link);
                 /** @var $ilToolbar ilToolbarGUI */
                 $DIC->toolbar()->addButtonInstance($ilLinkButton);
-            }
+            //}
         }
 
         if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
@@ -468,12 +468,16 @@ class xaseItemTableGUI extends ilTable2GUI
         return $cols;
     }
 
-    public static function getMaxAchievablePoints($assisted_exercise_id) {
+    public static function getMaxAchievablePoints($assisted_exercise_id, $modus) {
         $items = xaseItem::where(array('assisted_exercise_id' => $assisted_exercise_id))->get();
         $max_achievable_points = 0;
-        foreach($items as $item) {
-            $xasePoint = xasePoint::where(array('id' => $item->getPointId()))->first();
-            $max_achievable_points += $xasePoint->getMaxPoints();
+        if($modus != self::M2) {
+            foreach($items as $item) {
+                $xasePoint = xasePoint::where(array('id' => $item->getPointId()))->first();
+                if(!empty($xasePoint)) {
+                    $max_achievable_points += $xasePoint->getMaxPoints();
+                }
+            }
         }
         return $max_achievable_points;
     }
@@ -539,7 +543,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $unordered = $f->listing()->descriptive(
             array
             (
-                $this->pl->txt('max_achievable_points') => strval(self::getMaxAchievablePoints($this->parent_obj->object->getId())),
+                $this->pl->txt('max_achievable_points') => strval(self::getMaxAchievablePoints($this->parent_obj->object->getId(), $this->xase_settings->getModus())),
                 $this->pl->txt('max_achieved_points') => strval($this->getMaxAchievedPoints()),
                 $this->pl->txt('total_used_hints') => strval($this->getTotalUsedHints()),
                 $this->pl->txt('disposal_date') => $this->getDisposalDate(),

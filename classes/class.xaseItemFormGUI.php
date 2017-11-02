@@ -329,7 +329,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         $this->object->setItemTitle($this->getInput('title'));
         $this->object->setTask($this->getInput('task'));
         $this->object->store();
-        $this->ctrl->setParameterByClass(xaseItemGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
         if($this->xase_settings->getModus() != self::M2) {
             $this->xase_sample_solution->setSolution($this->getInput('sample_solution'));
             $this->xase_sample_solution->store();

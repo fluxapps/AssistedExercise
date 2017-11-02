@@ -130,9 +130,10 @@ class xaseItemGUI
         if ($xaseItemFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
         }
-        $xaseItemFormGUI->setValuesByPost();
+/*        $xaseItemFormGUI->setValuesByPost();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
-        $this->tpl->show();
+        $this->tpl->show();*/
+        $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 
     public function content()
