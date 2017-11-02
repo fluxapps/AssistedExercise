@@ -127,11 +127,12 @@ class xaseAnswerGUI
                 //$this->ctrl->redirect($this, self::CMD_STANDARD);
                 $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
             }
+        } else {
+            $xaseAnswerFormGUI->setValuesByPost();
+            $xaseAnswerFormGUI->fillTaskInput();
+            $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+            $this->tpl->show();
         }
-/*        $xaseAnswerFormGUI->setValuesByPost();
-        $xaseAnswerFormGUI->fillTaskInput();
-        $this->tpl->setContent($xaseAnswerFormGUI->getHTML());
-        $this->tpl->show();*/
     }
 
     public function cancel() {

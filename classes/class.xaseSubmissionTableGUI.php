@@ -344,7 +344,13 @@ class xaseSubmissionTableGUI extends ilTable2GUI
          */
         $collection = xaseAnswer::getCollection();
         $item_ids = $this->getItemIdsFromThisExercise();
+
+        if(empty($item_ids)) {
+            return;
+        }
+
         $collection->where(array('item_id' => $item_ids), array('item_id' => 'IN'));
+
         $collection->where(array('answer_status' => array(2, 3)), array('answer_status' => 'IN'));
 
         $collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array('assessment_comment'));
@@ -380,9 +386,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI
                     }
             }
         }
-
-        //$collection->debug();
-
         $this->setData($collection->getArray());
     }
 

@@ -129,11 +129,11 @@ class xaseItemGUI
         $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
         if ($xaseItemFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
+            $this->ctrl->redirect($this, self::CMD_STANDARD);
         }
-/*        $xaseItemFormGUI->setValuesByPost();
+        $xaseItemFormGUI->setValuesByPost();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
-        $this->tpl->show();*/
-        $this->ctrl->redirect($this, self::CMD_STANDARD);
+        $this->tpl->show();
     }
 
     public function content()
