@@ -91,10 +91,6 @@ class xaseSubmissionGUI
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
             case self::CMD_STANDARD:
-            case self::CMD_EDIT:
-            case self::CMD_UPDATE:
-            case self::CMD_ADD_SUBMITTED_EXERCISE:
-            case self::CMD_CANCEL:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;
@@ -102,32 +98,15 @@ class xaseSubmissionGUI
                     ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
                     break;
                 }
+            case self::CMD_ADD_SUBMITTED_EXERCISE:
+            if ($this->access->hasReadAccess()) {
+                $this->{$cmd}();
+                break;
+            } else {
+                ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+                break;
+            }
         }
-    }
-
-    //TODO comment / remove edit and update command
-    public function edit()
-    {
-        $this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
-        $this->tabs->activateTab(self::CMD_STANDARD);
-        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
-        $xaseItemFormGUI->fillForm();
-        //echo $xaseItemFormGUI->getHTML(); exit();
-        $this->tpl->setContent($xaseItemFormGUI->getHTML());
-        $this->tpl->show();
-    }
-
-    public function update()
-    {
-        $this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
-        $this->tabs->activateTab(self::CMD_STANDARD);
-        $xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
-        if ($xaseItemFormGUI->updateObject()) {
-            ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-        }
-        $xaseItemFormGUI->setValuesByPost();
-        $this->tpl->setContent($xaseItemFormGUI->getHTML());
-        $this->tpl->show();
     }
 
     public function addSubmittedExercise() {
