@@ -18,7 +18,6 @@ class xaseItemGUI
     const CMD_STANDARD = 'content';
     const CMD_CANCEL = 'cancel';
     const CMD_EDIT = 'edit';
-    const CMD_DELETE = 'delete';
     const CMD_UPDATE = 'update';
 
     /**
@@ -109,14 +108,6 @@ class xaseItemGUI
                     ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
                     break;
                 }
-            case self::CMD_DELETE:
-                if ($this->access->hasDeleteAcces()){
-                    $this->{cmd}();
-                    break;
-                } else {
-                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-                    break;
-                }
         }
     }
 
@@ -142,10 +133,6 @@ class xaseItemGUI
         $xaseItemFormGUI->setValuesByPost();
         $this->tpl->setContent($xaseItemFormGUI->getHTML());
         $this->tpl->show();
-    }
-
-    public function delete(){
-        //TODO
     }
 
     public function content()

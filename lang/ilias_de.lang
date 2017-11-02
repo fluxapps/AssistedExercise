@@ -119,3 +119,5 @@ the_following_link_leads_to_the_list_view_of_the_items#:#Der folgende Link führ
 click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Aufgabe können Sie über das Kontext Menü die Bewertung einsehen.
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
+confirm_delete_question#:#Bist du sicher, dass du diese Aufgabe löschen willst?
+successfully_deleted#:#Aufgabe erfolgreich gelöscht.

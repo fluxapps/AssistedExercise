@@ -10,6 +10,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettings.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemDeleteGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSubmissionGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
@@ -41,6 +42,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilObjectCopyGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilCommonActionDispatcherGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemDeleteGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAssessmentGUI
@@ -136,6 +138,15 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI
                 $this->tpl->getStandardTemplate();
                 $xaseItemGUI = new xaseItemGUI();
                 $this->ctrl->forwardCommand($xaseItemGUI);
+                break;
+
+            case 'xaseitemdeletegui':
+                $this->setTabs();
+                $this->setLocator();
+                $this->tabs->activateTab(xaseItemDeleteGUI::CMD_STANDARD);
+                $this->tpl->getStandardTemplate();
+                $xaseItemDeleteGUI = new xaseItemDeleteGUI();
+                $this->ctrl->forwardCommand($xaseItemDeleteGUI);
                 break;
 
             case 'xaseanswergui':

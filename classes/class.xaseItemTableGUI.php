@@ -387,7 +387,7 @@ class xaseItemTableGUI extends ilTable2GUI
         }
         if ($this->access->hasDeleteAccess()) {
             if(!$this->has_submitted_answers()) {
-                $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemGUI::CMD_DELETE, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_DELETE));
+                $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
             }
         }
 

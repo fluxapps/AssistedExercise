@@ -9,6 +9,7 @@ common_actions#:#Action
 completely_teacher_controlled#:#Completely teacher controlled
 description#:#Description
 finish_time#:#Finish Time
+first_name#:#First Name
 general_settings#:#General Settings
 max_points#:#Maximum points
 max_achievable_points#:#Maximum achievable points
@@ -114,3 +115,5 @@ the_following_link_leads_to_the_list_view_of_the_items#:#The following link lead
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
 click_on_actions_view_assessment#:#With a click on the actions button of the correspondent task you can view the assessment over the context menu.
+confirm_delete_question#:#Are you sure you want to delete this exercise?
+successfully_deleted#:#Successfully deleted exercise.
