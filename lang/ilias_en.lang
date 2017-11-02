@@ -97,7 +97,8 @@ discard_comment#:#Discard
 view_answers#:#View answers
 task_label#:#Task:
 pleas_vote_for_the_best_answer#:#Please vote for the best answer
-edit_task#:#Edit task
+edit_task#:#Edit
+delete_task#:#Delete
 add_hint_btn_caption#:#Add hint
 last_name#:#Last name
 submission_date#:#Submission date
