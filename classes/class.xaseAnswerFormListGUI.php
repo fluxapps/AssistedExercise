@@ -108,6 +108,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
      *  -afterwards?
      *      -yes to adopt the voting
      */
+    //TODO check if necessary
     protected function is_already_answered_by_user() {
         $user_answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId()))->get();
         if(count($user_answers) > 0) {
