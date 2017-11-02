@@ -100,6 +100,22 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         $this->setValuesByArray($array);
     }
 
+    /*
+     * Usage in: after answer update to check if the user gets redirected to the item table list gui or to the list of answers
+     * Questions:
+     * -Should the user be redirected to the list of answers in all cases? Also if he answered it for the first time?
+     *  -yes for the voting after the first time
+     *  -afterwards?
+     *      -yes to adopt the voting
+     */
+    protected function is_already_answered_by_user() {
+        $user_answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId()))->get();
+        if(count($user_answers) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     protected function initAnswerList() {
         $answers = $this->getAnswers();
         if(!empty($answers)) {
@@ -119,6 +135,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
                 $answer_list_input_gui->setComments($comments_for_answer);
                 $this->addItem($answer_list_input_gui);
             }
+
             $this->addCommandButton(xaseAnswerListGUI::CMD_UPDATE, $this->pl->txt('save'));
             if($this->hasUserVoted()) {
                 $this->addCommandButton(xaseAnswerListGUI::CMD_CANCEL, $this->pl->txt("cancel"));
