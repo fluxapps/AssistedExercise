@@ -369,6 +369,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+        $this->ctrl->setParameterByClass(xaseItemDeleteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
         $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
         $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
