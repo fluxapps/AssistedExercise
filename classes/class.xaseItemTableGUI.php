@@ -98,12 +98,14 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
         if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
-            $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
-            $ilLinkButton = ilLinkButton::getInstance();
-            $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
-            $ilLinkButton->setUrl($new_item_link);
-            /** @var $ilToolbar ilToolbarGUI */
-            $DIC->toolbar()->addButtonInstance($ilLinkButton);
+            if(!$this->has_submitted_answers()) {
+                $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
+                $ilLinkButton = ilLinkButton::getInstance();
+                $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
+                $ilLinkButton->setUrl($new_item_link);
+                /** @var $ilToolbar ilToolbarGUI */
+                $DIC->toolbar()->addButtonInstance($ilLinkButton);
+            }
         }
 
         if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
@@ -145,6 +147,18 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->initColums();
         $this->addFilterItems();
         $this->parseData();
+    }
+
+    //TODO evtl. In Antwort Assisted Exercise Id speichern und mit count Function arbeiten
+    protected function has_submitted_answers() {
+        $all_items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        foreach($all_items as $item) {
+            $answer_array = xaseAnswer::where(array('item_id' => $item->getId()))->get();
+            if(!empty($answer_array)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected function addFilterItems()
@@ -368,7 +382,9 @@ class xaseItemTableGUI extends ilTable2GUI
             $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
         }
         if ($this->access->hasWriteAccess() || $this->xase_settings->getModus() == self::M2) {
-            $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
+            if(!$this->has_submitted_answers()) {
+                $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
+            }
         }
 /*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));

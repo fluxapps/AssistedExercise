@@ -75,9 +75,8 @@ class xaseAnswerGUI
         $nextClass = $this->ctrl->getNextClass();
         switch ($nextClass) {
             default:
-                $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
                 $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-                $this->{$cmd}();
+                $this->performCommand();
         }
     }
 

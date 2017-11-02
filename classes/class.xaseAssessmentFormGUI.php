@@ -298,6 +298,13 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI
         $renderer = $this->dic->ui()->renderer();
 
         $used_hints = json_decode($this->xase_answer->getUsedHints(), true);
+
+        if($used_hints === null){
+            $listing_array = [];
+            $unordered = $f->listing()->descriptive($listing_array);
+            return $renderer->render($unordered);
+        }
+
         $hint_ids = array_keys($used_hints);
         $hint_objects = [];
         foreach($hint_ids as $hint_id) {

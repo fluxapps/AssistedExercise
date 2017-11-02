@@ -5,10 +5,14 @@ $(document).ready(function() {
             uparrow_value = $(event.target).css('background-image').replace('downarrow', 'uparrow');
             $(event.target).css('background-image', uparrow_value);
             $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.comments').children(".comment-content").css({ display: 'none' });
+            $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.create-comment-link').removeClass('col-sm-offset-3');
+            $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.comment-create-form').removeClass('col-sm-offset-3');
         } else {
             downarrow_value = $(event.target).css('background-image').replace('uparrow', 'downarrow');
             $(event.target).css('background-image', downarrow_value);
             $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.comments').children(".comment-content").css({ display: 'block' });
+            $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.create-comment-link').addClass('col-sm-offset-3');
+            $(event.target).parent(".comment-counter").siblings('.comment-wrapper').children('.comment-create-form').addClass('col-sm-offset-3');
         }
     });
 
@@ -36,7 +40,6 @@ $(document).ready(function() {
     }
 
     function getNumberOfComments(event_target) {
-        debugger;
         return event_target.parent('.comment-links').siblings('.comments').children('.comment-content').length;
     }
 
@@ -77,6 +80,10 @@ $(document).ready(function() {
                 }
             }
             $(event.target).closest('.comment-wrapper').siblings('.comment-counter').children('.comment-counter-label').text(new_counter_text);
+
+            //after the comment was safed empty the textarea
+            $(event.target).parent('.comment-links').siblings('.comment-create-form').children('.form-group').children('.comment-textarea').val('');
+
         }
     });
 
@@ -87,17 +94,7 @@ $(document).ready(function() {
         $(event.target).parent('.comment-links').siblings(".create-comment-link").children('a').css({ display: 'block' });
     });
 
-    /* Execute function on click on the up arrow (on load is handled in the corresponding input gui)
-    1) loop through each answer form
-    2) check if the value of the hidden input with name answer[][answer_id] is 1
-    3) if the value is one show the down arrow
-    4) if the user has already votet for one of the answers
-    5) inform the user that he first has to downvote the other answer
-        a) alternatives: - info text
-                         - disable up voting links
 
-
-     */
 
     function hasUserAlreadyVoted() {
         alreadyVoted = false;
@@ -110,11 +107,7 @@ $(document).ready(function() {
                 return true;
             }
         });
-        if(!alreadyVoted) {
-            return false;
-        } else {
-            return true;
-        }
+        return alreadyVoted;
     }
 
     function resetPreviousUpvotings() {
@@ -129,19 +122,9 @@ $(document).ready(function() {
         })
     }
 
-    /*
-    1) save in a hidden input for which answer the current user voted
-    1) check if user has already votet
-    2) yes
-        a) display a window which informs the user that he has already votet for the answer xy and that he has to downvote the answer
-        b) show at the answer which the user upvotet the downvoting arrow
-     */
-
     $('.vote-up-off').click(function(event) {
-        debugger;
         if(hasUserAlreadyVoted()) {
             $(event.target).siblings('.voting_error').css('display', '');
-
         } else {
             resetPreviousUpvotings();
             $(event.target).closest('.answer_form').children('input[name*="[is_voted_by_current_user]"]').val(1);
@@ -158,5 +141,15 @@ $(document).ready(function() {
         counter_value = $(event.target).siblings('.vote-count-post').text();
         new_counter_value = --counter_value;
         $(event.target).siblings('.vote-count-post').text(new_counter_value);
-    })
+        $(event.target).siblings('.voting_error').css('display', 'none');
+    });
+
+    /*
+    execute function on initialisation and if the user clicks the upvoting and downvoting arrow
+    Disable submit btn if the user has not already voted for an answer
+    enable submit btn if the user has voted for an answer
+     */
+    $("input[name='cmd\[update\]']").on("click", function (e) {
+
+    });
 });

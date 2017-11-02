@@ -81,9 +81,8 @@ class xaseSubmissionGUI
         $nextClass = $this->ctrl->getNextClass();
         switch ($nextClass) {
             default:
-                $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
                 $this->tabs->activateTab(self::CMD_STANDARD);
-                $this->{$cmd}();
+                $this->performCommand();
         }
     }
 
