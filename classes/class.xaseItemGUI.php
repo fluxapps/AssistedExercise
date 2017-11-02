@@ -91,6 +91,7 @@ class xaseItemGUI
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
             case self::CMD_STANDARD:
+            case self::CMD_CANCEL:
                 if ($this->access->hasReadAccess()) {
                     $this->{$cmd}();
                     break;

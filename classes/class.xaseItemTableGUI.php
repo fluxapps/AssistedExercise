@@ -19,7 +19,6 @@ require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 
 class xaseItemTableGUI extends ilTable2GUI
 {
-    const CMD_STANDARD = 'content';
     const TBL_ID = 'tbl_xase_items';
     const M1 = "1";
     const M2 = "2";

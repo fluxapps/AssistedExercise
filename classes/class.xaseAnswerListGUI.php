@@ -79,7 +79,6 @@ class xaseAnswerListGUI
             case self::CMD_STANDARD:
             case self::CMD_UPDATE:
             case self::CMD_CANCEL:
-            case self::CMD_COMMENT_ID:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;
@@ -87,6 +86,14 @@ class xaseAnswerListGUI
                     ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
                     break;
                 }
+            case self::CMD_COMMENT_ID:
+            if ($this->access->hasReadAccess()) {
+                $this->{$cmd}();
+                break;
+            } else {
+                ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+                break;
+            }
         }
     }
 

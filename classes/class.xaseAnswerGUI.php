@@ -86,6 +86,7 @@ class xaseAnswerGUI
         switch ($cmd) {
             case self::CMD_STANDARD:
             case self::CMD_UPDATE:
+            case self::CMD_CANCEL:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;

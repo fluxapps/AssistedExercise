@@ -17,9 +17,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     const M2 = 2;
     const M3 = 3;
 
-    const CMD_ADD_HINT = 'addHint';
-    const CMD_REMOVE_HINT = 'removeHint';
-
     /**
      * @var  xaseItem
      */

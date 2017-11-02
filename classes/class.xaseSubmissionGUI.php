@@ -93,6 +93,8 @@ class xaseSubmissionGUI
             case self::CMD_STANDARD:
             case self::CMD_EDIT:
             case self::CMD_UPDATE:
+            case self::CMD_ADD_SUBMITTED_EXERCISE:
+            case self::CMD_CANCEL:
                 if ($this->access->hasWriteAccess()) {
                     $this->{$cmd}();
                     break;
