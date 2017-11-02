@@ -109,13 +109,15 @@ class xaseItemDeleteGUI
         $cgui->setCancel($this->dic->language()->txt('cancel'), "canceledDelete");
         $cgui->setConfirm($this->dic->language()->txt('confirm'), "confirmedDelete");
 
+        //TODO show item im body of confirmation dialog
+
         $this->tpl->setContent($cgui->getHTML());
         $this->tpl->show();
     }
 
     public function confirmedDelete()
     {
-        //TODO remove data
+        //TODO remove data from database
         ilUtil::sendSuccess($this->pl->txt('successfully_deleted'), true);
         $this->ctrl->redirectByClass("xaseItemGUI");
     }
