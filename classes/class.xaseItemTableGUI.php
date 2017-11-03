@@ -386,7 +386,7 @@ class xaseItemTableGUI extends ilTable2GUI
         if($this->access->hasWriteAccess()){
             $isAllowedToEdit = true;
         }else if($this->xase_settings->getModus() == self::M2){
-            $isAllowedToEdit = $this->IsOwnerOfItem($xaseItem);
+            $isAllowedToEdit = $this->isOwnerOfItem($xaseItem);
         }
         if ($isAllowedToEdit) {
             if (!$this->has_submitted_answers()) {
@@ -398,7 +398,7 @@ class xaseItemTableGUI extends ilTable2GUI
         if($this->access->hasDeleteAccess()){
             $isAllowedToDelete = true;
         }else if($this->xase_settings->getModus() == self::M2){
-            $isAllowedToDelete = $this->IsOwnerOfItem($xaseItem);
+            $isAllowedToDelete = $this->isOwnerOfItem($xaseItem);
         }
         if ($isAllowedToDelete) {
             $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
@@ -410,7 +410,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
     }
 
-    private function IsOwnerOfItem(xaseItem $xaseItem)
+    private function isOwnerOfItem(xaseItem $xaseItem)
     {
         $xaseItem->getUserId() === $this->dic->user()->getId();
     }
