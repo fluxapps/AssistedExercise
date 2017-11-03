@@ -117,7 +117,57 @@ class xaseItemDeleteGUI
 
     public function confirmedDelete()
     {
-        xaseItem::where(array('id' => $_GET['item_id']))->first()->delete();
+        // Get Item
+        $xaseItem = xaseItem::where(array('id' => $_GET['item_id']))->first();
+
+        // Delete SampleSolution
+        xaseSampleSolution::where(array('id' => $xaseItem->getSampleSolutionId()))->first()->delete();
+
+        // Get all Hints and delete all associated Level and finally the Hint itself
+        $xaseHints = xaseHint::where(array('item_id' => $_GET['item_id']))->get();
+        var_dump($xaseHints);
+        foreach ($xaseHints as $xaseHint) {
+            // Get and delete all Level and associated Points
+            $xaseLevels = xaseLevel::where(array('hint_id' => $xaseHint->getId()))->get();
+            foreach ($xaseLevels as $xaseLevel) {
+                $xasePoint = xasePoint::where(array('id' => $xaseLevel->getPointId()))->first();
+                if($xasePoint !== null) $xasePoint->delete();
+
+                $xaseLevel->delete();
+            }
+
+            // Delete Hint
+            $xaseHint->delete();
+        }
+
+        // Delete all Points
+        $xasePoints = xasePoint::where(array('item_id' => $_GET['item_id']))->get();
+        foreach ($xasePoints as $xasePoint) {
+            $xasePoint->delete();
+        }
+
+        // Get all Answers and delete all associated Comments, Votings and finally the Answer itself
+        $xaseAnswers = xaseAnswer::where(array('item_id' => $_GET['item_id']))->get();
+        foreach ($xaseAnswers as $xaseAnswer) {
+            // Get and delete all Comments
+            $xaseComments = xaseComment::where(array('answer_id' => $xaseAnswer->getId()))->get();
+            foreach ($xaseComments as $xaseComment) {
+                $xaseComment->delete();
+            }
+
+            // Get and delete all Votings
+            $xaseVotings = xaseVoting::where(array('answer_id' => $xaseAnswer->getId()))->get();
+            foreach ($xaseVotings as $xaseVoting) {
+                $xaseVoting->delete();
+            }
+
+            // Delete Answer
+            $xaseAnswer->delete();
+        }
+
+        // Delete the Item itself
+        $xaseItem->delete();
+
         ilUtil::sendSuccess($this->pl->txt('successfully_deleted'), true);
         $this->ctrl->redirectByClass("xaseItemGUI");
     }
