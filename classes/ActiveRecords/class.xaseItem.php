@@ -77,6 +77,32 @@ class xaseItem extends ActiveRecord
     protected $task;
 
     /**
+     * @var int
+     *
+     * @db_has_field  true
+     * @db_fieldtype  integer
+     * @db_length     4
+     * @db_is_notnull true
+     */
+    protected $user_id;
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
+    /**
+     * @param int $user_id
+     */
+    public function setUserId($user_id)
+    {
+        $this->user_id = $user_id;
+    }
+
+    /**
      * @return int
      */
     public function getId()
