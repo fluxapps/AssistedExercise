@@ -122,11 +122,13 @@ class xaseItemDeleteGUI
         $xaseItem = xaseItem::where(array('id' => $_GET['item_id']))->first();
 
         // Delete SampleSolution
-        xaseSampleSolution::where(array('id' => $xaseItem->getSampleSolutionId()))->first()->delete();
+        $xaseSampleSolution = xaseSampleSolution::where(array('id' => $xaseItem->getSampleSolutionId()))->first();
+        if($xaseSampleSolution !== null) {
+            $xaseSampleSolution->delete();
+        }
 
         // Get all Hints and delete all associated Level and finally the Hint itself
         $xaseHints = xaseHint::where(array('item_id' => $_GET['item_id']))->get();
-        var_dump($xaseHints);
         foreach ($xaseHints as $xaseHint) {
             // Get and delete all Level and associated Points
             $xaseLevels = xaseLevel::where(array('hint_id' => $xaseHint->getId()))->get();
