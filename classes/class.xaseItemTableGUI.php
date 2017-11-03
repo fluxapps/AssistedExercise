@@ -68,7 +68,7 @@ class xaseItemTableGUI extends ilTable2GUI
     public $xase_settings;
 
     /**
-     * @var xaseSettingsM1|null|xaseSettingsM3
+     * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
      */
     protected $mode_settings;
 
@@ -112,19 +112,30 @@ class xaseItemTableGUI extends ilTable2GUI
                 if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
                     if(!$this->isDisposalDateExpired()) {
                         if($this->mode_settings->getRateAnswers()) {
-                            $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
-                            $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
-                            $submissionLinkButton = ilLinkButton::getInstance();
-                            $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
-                            $submissionLinkButton->setUrl($new_submission_link);
-                            /** @var $ilToolbar ilToolbarGUI */
-                            $DIC->toolbar()->addButtonInstance($submissionLinkButton);
+                            if($this->xase_settings->getModus() == self::M3 && $this->hasUserVotedForAllItems()) {
+                                $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
+                                $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
+                                $submissionLinkButton = ilLinkButton::getInstance();
+                                $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
+                                $submissionLinkButton->setUrl($new_submission_link);
+                                /** @var $ilToolbar ilToolbarGUI */
+                                $DIC->toolbar()->addButtonInstance($submissionLinkButton);
+                            }
                         }
                     }
                 }
             }
         }
-
+        if($this->xase_settings->getModus() == self::M2 ) {
+            if(!empty($this->getAnswersFromUser())) {
+                $new_release_answers_for_voting_link = $this->ctrl->getLinkTarget($this, $this->setAnswerStatusToCanBeVoted());
+                $releaseForVotingLinkButton = ilLinkButton::getInstance();
+                $releaseForVotingLinkButton->setCaption($this->pl->txt("release_answers_for_voting"), false);
+                $releaseForVotingLinkButton->setUrl($new_release_answers_for_voting_link);
+                /** @var $ilToolbar ilToolbarGUI */
+                $DIC->toolbar()->addButtonInstance($releaseForVotingLinkButton);
+            }
+        }
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
@@ -146,6 +157,17 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->initColums();
         $this->addFilterItems();
         $this->parseData();
+    }
+
+    protected function setAnswerStatusToCanBeVoted() {
+        $answers_from_user = $this->getAnswersFromUser();
+        if(!empty($answers_from_user)) {
+            foreach($answers_from_user as $answer) {
+                if($answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+                    $answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED);
+                }
+            }
+        }
     }
 
     //TODO evtl. In Antwort Assisted Exercise Id speichern und mit count Function arbeiten
@@ -170,6 +192,9 @@ class xaseItemTableGUI extends ilTable2GUI
         $option[1] = $this->pl->txt('answered');
         $option[2] = $this->pl->txt('submitted');
         $option[3] = $this->pl->txt('rated');
+        if($this->xase_settings->getModus() == self::M2) {
+            $option[4] = $this->pl->txt('can_be_voted');
+        }
         $status = new ilSelectInputGUI($this->pl->txt("status"), "answer_status");
         $status->setOptions($option);
         $this->addAndReadFilterItem($status);
@@ -224,6 +249,8 @@ class xaseItemTableGUI extends ilTable2GUI
                 $this->tpl->setVariable('STATUS', $this->pl->txt('submitted'));
             } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
                 $this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
+            } elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+                $this->tpl->setVariable('STATUS', $this->pl->txt('can_be_voted'));
             }
             $this->tpl->parseCurrentBlock();
         }
@@ -318,6 +345,15 @@ class xaseItemTableGUI extends ilTable2GUI
         }
 
         if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
+            if ($this->isColumnSelected('is_voted')) {
+                $this->tpl->setCurrentBlock("ISVOTED");
+                if ($this->hasUserVotedForItem($xaseItem)) {
+                    $this->tpl->setVariable('ISVOTED', $this->pl->txt('yes'));
+                } else {
+                    $this->tpl->setVariable('ISVOTED', $this->pl->txt('no'));
+                }
+                $this->tpl->parseCurrentBlock();
+            }
             if ($this->isColumnSelected('number_of_upvotings')) {
                 $this->tpl->setCurrentBlock("NUMBEROFUPVOTINGS");
                 if (!empty($xaseAnswer->getNumberOfUpvotings())) {
@@ -328,9 +364,6 @@ class xaseItemTableGUI extends ilTable2GUI
                 $this->tpl->parseCurrentBlock();
             }
         }
-
-
-
         $this->addActionMenu($xaseItem);
     }
 
@@ -461,6 +494,9 @@ class xaseItemTableGUI extends ilTable2GUI
                 "default" => true);
         }
         if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
+            $cols["is_voted"] = array(
+                "txt" => $this->pl->txt("is_voted"),
+                "default" => true);
             $cols["number_of_upvotings"] = array(
                 "txt" => $this->pl->txt("number_of_upvotings"),
                 "default" => true);
@@ -691,6 +727,16 @@ class xaseItemTableGUI extends ilTable2GUI
         }
     }
 
+    protected function hasUserVotedForAllItems() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        foreach($items as $item) {
+            if(!$this->hasUserVotedForItem($item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
      * 1) get all Answers from the current item
      * 2) get all the votings from the current user
@@ -723,6 +769,8 @@ class xaseItemTableGUI extends ilTable2GUI
         }
         elseif ($mode == self::M3) {
             return xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
+        } else {
+            return xaseSettingsM2::where(['settings_id' => $this->xase_settings->getId()])->first();
         }
         return null;
     }

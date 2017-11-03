@@ -114,6 +114,7 @@ class xaseAnswerListGUI
         $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
         if ($xaseAnswerFormListGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
+            //TODO redirect nur ausführen wenn das votings ab Datum in den Modus Settings noch nicht erreicht wurde + wenn mindestens eine Antwort vorhanden ist für das Item und diese eingereicht wurde
             $this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
         }
         $xaseAnswerFormListGUI->setValuesByPost();

@@ -99,13 +99,13 @@ class xaseSubmissionGUI
                     break;
                 }
             case self::CMD_ADD_SUBMITTED_EXERCISE:
-            if ($this->access->hasReadAccess()) {
-                $this->{$cmd}();
-                break;
-            } else {
-                ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-                break;
-            }
+                if ($this->access->hasReadAccess()) {
+                    $this->{$cmd}();
+                    break;
+                } else {
+                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+                    break;
+                }
         }
     }
 

@@ -118,3 +118,6 @@ the_following_link_leads_to_the_list_view_of_the_items#:#Der folgende Link führ
 click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Aufgabe können Sie über das Kontext Menü die Bewertung einsehen.
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
+is_voted#:#Stimme abgegeben
+release_answers_for_voting#:#Antworten zum Voten freigeben
+can_be_voted#:#Zum Voting freigegeben

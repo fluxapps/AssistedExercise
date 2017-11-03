@@ -66,7 +66,10 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
     }
 
     protected function getAnswers() {
-        $answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
+        $answer_status[] = xaseAnswer::ANSWER_STATUS_SUBMITTED;
+        $answer_status[] = xaseAnswer::ANSWER_STATUS_RATED;
+        //TODO abfangen dass nur bereits existerende angezeigt werden
+        $answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId(), 'answer_status' => $answer_status), array('item_id' => '=', 'answer_status' => 'IN'))->get();
         return $answers;
     }
 
@@ -108,7 +111,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
      *  -afterwards?
      *      -yes to adopt the voting
      */
-    //TODO check if necessary
+    //TODO check if used
     protected function is_already_answered_by_user() {
         $user_answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId()))->get();
         if(count($user_answers) > 0) {

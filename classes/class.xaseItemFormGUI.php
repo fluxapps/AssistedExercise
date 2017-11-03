@@ -62,7 +62,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
     protected $xase_settings;
 
     /**
-     * @var xaseSettingsM1|null|xaseSettingsM3
+     * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
      */
     protected $mode_settings;
 
@@ -112,6 +112,8 @@ class xaseItemFormGUI extends ilPropertyFormGUI
             $this->mode_settings = $this->getModusSettings(xaseSettingsM1::class);//xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
         } elseif($this->xase_settings->getModus() == self::M3) {
             $this->mode_settings = $this->getModusSettings(xaseSettingsM3::class);//xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
+        } else {
+            $this->mode_settings = $this->getModusSettings(xaseSettingsM2::class);
         }
         $this->xase_hints = $this->getHintsByItem($this->object->getId());
         parent::__construct();
@@ -235,7 +237,10 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         if (empty($xaseModus)) {
             if($this->xase_settings->getModus() == self::M1) {
                 $xaseModus = new xaseSettingsM1();
-            } else {
+            } elseif($this->xase_settings->getModus() == self::M2) {
+                $xaseModus = new xaseSettingsM2();
+            }
+            else {
                 $xaseModus = new xaseSettingsM3();
             }
         }

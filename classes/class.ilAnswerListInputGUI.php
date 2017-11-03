@@ -236,62 +236,64 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl->setVariable("ITEM", $this->xase_item->getTask());
                 $tpl->parseCurrentBlock();
 
-                $tpl->setVariable("ANSWER_FORM_ID", $this->xase_answer->getId());
-                if($this->hasUserVotedForAnswer()) {
-                    $tpl->setVariable("IS_VOTED", 1);
-                } else {
-                    $tpl->setVariable("IS_VOTED", 0);
-                }
+                if($this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+                    $tpl->setVariable("ANSWER_FORM_ID", $this->xase_answer->getId());
+                    if($this->hasUserVotedForAnswer()) {
+                        $tpl->setVariable("IS_VOTED", 1);
+                    } else {
+                        $tpl->setVariable("IS_VOTED", 0);
+                    }
 
-                $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
+                    $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
 
-                $tpl->setCurrentBlock("answer");
-                $this->answer->setValue($this->xase_answer->getBody());
-                $tpl->setVariable("ANSWER", $this->answer->render());
-                $tpl->parseCurrentBlock();
-
-                $tpl->setCurrentBlock("comment_counter");
-                $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
-                if(count($this->comments) >= 2) {
-                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
-                } else {
-                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
-                }
-                $tpl->parseCurrentBlock();
-
-                foreach($this->comments as $comment) {
-
-                    $this->comment->setValue($comment->getBody());
-                    $tpl->setCurrentBlock("comment");
-                    $tpl->setVariable("COMMENT_ID", $comment->getId());
-                    $tpl->setVariable("COMMENT", $this->comment->render());
-                    $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-                    $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+                    $tpl->setCurrentBlock("answer");
+                    $this->answer->setValue($this->xase_answer->getBody());
+                    $tpl->setVariable("ANSWER", $this->answer->render());
                     $tpl->parseCurrentBlock();
-                }
-                $tpl->setCurrentBlock("create_comment_link");
-                $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-                $tpl->parseCurrentBlock();
 
-                if (!empty($this->getExistingAnswerData())) {
-                    foreach ($this->getExistingAnswerData() as $answer_data) {
-                        $tpl->setCurrentBlock("existing_answer_data");
-                        $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
+                    $tpl->setCurrentBlock("comment_counter");
+                    $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+                    if(count($this->comments) >= 2) {
+                        $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
+                    } else {
+                        $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
+                    }
+                    $tpl->parseCurrentBlock();
+
+                    foreach($this->comments as $comment) {
+
+                        $this->comment->setValue($comment->getBody());
+                        $tpl->setCurrentBlock("comment");
+                        $tpl->setVariable("COMMENT_ID", $comment->getId());
+                        $tpl->setVariable("COMMENT", $this->comment->render());
+                        $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                        $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                         $tpl->parseCurrentBlock();
+                    }
+                    $tpl->setCurrentBlock("create_comment_link");
+                    $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+                    $tpl->parseCurrentBlock();
 
-                        if (!empty($this->getExistingCommentData())) {
-                            foreach ($this->getExistingCommentData() as $comment_data) {
-                                $tpl->setCurrentBlock("existing_comment_data");
-                                $tpl->setVariable("CONTENT_COMMENT", htmlentities(json_encode($comment_data, JSON_UNESCAPED_UNICODE)));
-                                $tpl->parseCurrentBlock();
-                            }
-                        }
-                        if(!empty($this->getExistingVotingData())) {
-                            foreach ($this->getExistingVotingData() as $voting) {
-                                $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
-                            }
-                        }
+                    if (!empty($this->getExistingAnswerData())) {
+                        foreach ($this->getExistingAnswerData() as $answer_data) {
+                            $tpl->setCurrentBlock("existing_answer_data");
+                            $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
+                            $tpl->parseCurrentBlock();
 
+                            if (!empty($this->getExistingCommentData())) {
+                                foreach ($this->getExistingCommentData() as $comment_data) {
+                                    $tpl->setCurrentBlock("existing_comment_data");
+                                    $tpl->setVariable("CONTENT_COMMENT", htmlentities(json_encode($comment_data, JSON_UNESCAPED_UNICODE)));
+                                    $tpl->parseCurrentBlock();
+                                }
+                            }
+                            if(!empty($this->getExistingVotingData())) {
+                                foreach ($this->getExistingVotingData() as $voting) {
+                                    $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
+                                }
+                            }
+
+                        }
                     }
                 }
 

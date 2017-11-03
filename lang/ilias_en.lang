@@ -113,3 +113,7 @@ the_following_link_leads_to_the_list_view_of_the_items#:#The following link lead
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
 click_on_actions_view_assessment#:#With a click on the actions button of the correspondent task you can view the assessment over the context menu.
+is_voted#:#voted
+release_answers_for_voting#:#Release answers for voting
+can_be_voted#:#Can be voted
+

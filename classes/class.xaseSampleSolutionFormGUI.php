@@ -33,7 +33,7 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI
     public $xase_settings;
 
     /**
-     * @var xaseSettingsM1|null|xaseSettingsM3
+     * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
      */
     protected $mode_settings;
 

@@ -30,6 +30,9 @@ xaseSettings::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM1.php');
 xaseSettingsM1::updateDB();
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM2.php');
+xaseSettingsM2::updateDB();
+
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM3.php');
 xaseSettingsM3::updateDB();
 

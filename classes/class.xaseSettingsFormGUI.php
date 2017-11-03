@@ -7,6 +7,7 @@
 
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM1.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM2.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettingsM3.php');
 
 class xaseSettingsFormGUI extends ilPropertyFormGUI
@@ -46,7 +47,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
     protected $tpl;
 
     /**
-     * @var xaseSettingsM1|null|xaseSettingsM3
+     * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
      */
     protected $mode_settings;
 
@@ -189,6 +190,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
 
         $m2 = new ilRadioOption($this->pl->txt('student_creates_question'), self::M2);
         $m2->setInfo($this->pl->txt('m2_info'));
+        $this->initVotingsForm($m2);
         $mode->addOption($m2);
 
         $m3 = new ilRadioOption($this->pl->txt('partially_teacher_controlled'), self::M3);
@@ -207,13 +209,17 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
         $this->initSolutionVisibleForm($radioOption);
     }
 
-    protected function initM3Form(ilRadioOption $radioOption)
-    {
-        $dt_votings_after = new ilDateTimeInputGUI($this->pl->txt('votings_after'), "votings_after");
+    protected function initVotingsForm(ilRadioOption $radioOption, $is_mode_3 = false) {
+        $mode_number = $is_mode_3 ? 3 : 2;
+        $dt_votings_after = new ilDateTimeInputGUI($this->pl->txt('votings_after'), "votings_after" . $mode_number);
         $dt_votings_after->setDate(new ilDateTime(time(), IL_CAL_UNIX));
         $dt_votings_after->setShowTime(true);
         $radioOption->addSubItem($dt_votings_after);
+    }
 
+    protected function initM3Form(ilRadioOption $radioOption)
+    {
+        $this->initVotingsForm($radioOption, true);
         $this->initRateAnswerForm($radioOption, true);
         $this->initSolutionVisibleForm($radioOption, true);
     }
@@ -313,6 +319,10 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
                 foreach ($this->fillM3Form() as $key => $value) {
                     $values[$key] = $value;
                 }
+            } else {
+                foreach ($this->fillM2Form() as $key => $value) {
+                    $values[$key] = $value;
+                }
             }
         }
 
@@ -350,12 +360,17 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
         return $values;
     }
 
+    public function fillM2Form() {
+        $values['votings_after2'] = $this->mode_settings->getStartVotingDate();
+        return $values;
+    }
+
     public function fillM3Form()
     {
         /*        $values['rate_answers3'] = $this->mode_settings->getRateAnswers();
                 $values['disposals_until3'] = $this->mode_settings->getDisposalDate();
                 $values['sample_solution_visible3'] = $this->mode_settings->getSampleSolutionVisible();*/
-        $values['votings_after'] = $this->mode_settings->getStartVotingDate();
+        $values['votings_after3'] = $this->mode_settings->getStartVotingDate();
         $values['additional_points_for_voting'] = $this->mode_settings->getVotingPoints();
         $values['number_of_percentage'] = $this->mode_settings->getVotingPointsPercentage();
         return $values;
@@ -390,10 +405,13 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
             $this->fillM1AndM3Objects((int)$this->getInput('mode'));
         }
         if ($this->getInput('mode') === '1') {
+            $this->object->setModus(1);
             $this->fillObjectM1();
         } elseif ($this->getInput('mode') === self::M2) {
             $this->object->setModus(2);
+            $this->fillObjectM2();
         } elseif ($this->getInput('mode') === '3') {
+            $this->object->setModus(3);
             $this->fillObjectM3();
         } else {
             ilUtil::sendFailure($this->pl->txt('please_choose_mode'));
@@ -425,6 +443,10 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
         }
     }
 
+    public function fillObjectM2() {
+        $this->mode_settings->setStartVotingDate(new ilDateTime($this->getInput('votings_after2'), IL_CAL_DATETIME));
+    }
+
     public function fillObjectM3()
     {
         /*        $this->object->setModus(3);
@@ -435,7 +457,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
                 $this->mode_settings->setDisposalDate($disposal_until);
                 $this->mode_settings->setSampleSolutionVisible($this->getInput('sample_solution_visible' . $this->object->getModus()) === '1' ? 1 : 0);*/
 
-        $this->mode_settings->setStartVotingDate(new ilDateTime($this->getInput('votings_after'), IL_CAL_DATETIME));
+        $this->mode_settings->setStartVotingDate(new ilDateTime($this->getInput('votings_after3'), IL_CAL_DATETIME));
         //$additional_points_for_voting = $this->getInput('additional_points_for_voting');
         $this->mode_settings->setVotingPoints($this->getInput('additional_points_for_voting'));
         //$number_of_percentage = $this->getInput('number_of_percentage');
@@ -462,9 +484,56 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
         } elseif ($chosen_mode != self::M3 && xaseSettingsM3::where(['settings_id' => $this->object->getId()])->hasSets()) {
             $xaseSettingsM3 = xaseSettingsM3::where(['settings_id' => $this->object->getId()])->first();
             $xaseSettingsM3->delete();
+        } elseif ($chosen_mode != self::M2 && xaseSettingsM2::where(['settings_id' => $this->object->getId()])->hasSets()) {
+            $xaseSettingsM2 = xaseSettingsM2::where(['settings_id' => $this->object->getId()])->first();
+            $xaseSettingsM2->delete();
+            $this->resetModus2SpecificStatusToAnswerd();
         }
         return;
     }
+
+    protected function resetModus2SpecificStatusToAnswerd() {
+        $all_answers = xaseAnswer::get();
+        foreach($all_answers as $answer) {
+            if($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED)
+            $answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
+        }
+    }
+
+    /*protected function has_user_answered_all_items() {
+        $item_ids = $this->getItemIds();
+        $answers = $this->getAnswersFromUser();
+        $answer_item_ids = [];
+        foreach($answers as $answer) {
+            $answer_item_ids[] = $answer->getItemId();
+        }
+        if(!empty(array_diff($item_ids, $answer_item_ids))) {
+            foreach($answers as $answer) {
+                $answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
+                $answer->store();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    protected function getItemIds() {
+        $items = xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get();
+        $item_ids = [];
+        foreach($items as $item) {
+            $item_ids[] = $item->getId();
+        }
+        return $item_ids;
+    }
+
+    protected function getAnswersFromUser() {
+        $item_ids = $this->getItemIds();
+        if(empty($item_ids)) {
+            return null;
+        } else {
+            return xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $item_ids), array('user_id' => '=', 'item_id' => 'IN'))->get();
+        }
+    }*/
 
     /**
      * @return bool|string
@@ -491,6 +560,15 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI
             } elseif (!xaseSettingsM1::where(['settings_id' => $this->object->getId()])->hasSets()) {
                 $this->is_creation_mode = true;
                 return new xaseSettingsM1();
+            }
+        }
+        if ($mode == self::M2) {
+            if (xaseSettingsM2::where(['settings_id' => $this->object->getId()])->hasSets()) {
+                $this->is_creation_mode = false;
+                return xaseSettingsM2::where(['settings_id' => $this->object->getId()])->first();
+            } elseif (!xaseSettingsM2::where(['settings_id' => $this->object->getId()])->hasSets()) {
+                $this->is_creation_mode = true;
+                return new xaseSettingsM2();
             }
         }
         if ($mode == self::M3) {
