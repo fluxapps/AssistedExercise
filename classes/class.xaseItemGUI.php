@@ -11,6 +11,8 @@
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemTableGUI.php');
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/services/xaseItemAccess.php');
+
 class xaseItemGUI
 {
 
@@ -92,7 +94,7 @@ class xaseItemGUI
         switch ($cmd) {
             case self::CMD_STANDARD:
             case self::CMD_CANCEL:
-                if ($this->access->hasReadAccess()) {
+                if (xaseItemAccess::hasReadAccess($this->xase_settings, $this->xase_item)) {
                     $this->{$cmd}();
                     break;
                 } else {
@@ -101,7 +103,7 @@ class xaseItemGUI
                 }
             case self::CMD_EDIT:
             case self::CMD_UPDATE:
-                if ($this->access->hasWriteAccess()) {
+                if (xaseItemAccess::hasWriteAccess($this->xase_settings, $this->xase_item)) {
                     $this->{$cmd}();
                     break;
                 } else {
@@ -139,7 +141,7 @@ class xaseItemGUI
     public function content()
     {
         $this->ctrl->saveParameterByClass(xaseItemTableGUI::class, self::ITEM_IDENTIFIER);
-        if (!$this->access->hasReadAccess()) {
+        if (!xaseItemAccess::hasReadAccess($this->xase_settings, $this->xase_item)) {
             ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
         }
         $xaseItemTableGUI = new xaseItemTableGUI($this, self::CMD_STANDARD, $this->object);
