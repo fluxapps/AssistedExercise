@@ -109,7 +109,8 @@ class xaseItemDeleteGUI
         $cgui->setCancel($this->dic->language()->txt('cancel'), "canceledDelete");
         $cgui->setConfirm($this->dic->language()->txt('confirm'), "confirmedDelete");
 
-        //TODO show item im body of confirmation dialog
+        $cgui->addItem('', '', xaseItem::where(array('id' => $_GET['item_id']))->first()->getItemTitle(), ilObject::_getIcon($this->object->getId()));
+
 
         $this->tpl->setContent($cgui->getHTML());
         $this->tpl->show();
