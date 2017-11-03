@@ -5,8 +5,6 @@
  * @ilCtrl_isCalledBy xaseItemDeleteGUI: ilObjAssistedExerciseGUI
  */
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemDeleteFormGUI.php');
-
 class xaseItemDeleteGUI
 {
 

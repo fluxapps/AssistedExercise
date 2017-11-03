@@ -438,7 +438,7 @@ class xaseItemTableGUI extends ilTable2GUI
 
     private function isOwnerOfItem(xaseItem $xaseItem)
     {
-        $xaseItem->getUserId() === $this->dic->user()->getId();
+        return $xaseItem->getUserId() === $this->dic->user()->getId();
     }
 
     protected function parseData()

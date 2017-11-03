@@ -9,9 +9,11 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormListGUI.php');
 
 
-
 class xaseAnswerGUI
 {
+    const M1 = "1";
+    const M2 = "2";
+    const M3 = "3";
     const ANSWER_IDENTIFIER = 'answer_id';
     const CMD_STANDARD = 'edit';
     const CMD_UPDATE = 'update';
@@ -53,6 +55,10 @@ class xaseAnswerGUI
      * @var xaseSettings
      */
     public $xase_settings;
+    /**
+     * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
+     */
+    protected $mode_settings;
 
     public function __construct(ilObjAssistedExercise $assisted_exericse)
     {
@@ -65,6 +71,7 @@ class xaseAnswerGUI
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
         $this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->assisted_exercise->getId()])->first();
+        $this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
         $this->xase_item = new xaseItem($_GET['item_id']);
         $this->xase_answer = $this->getAnswer();
         //parent::__construct();
@@ -105,6 +112,18 @@ class xaseAnswerGUI
         return $xaseAnswer;
     }
 
+    protected function canVote() {
+        $current_date = date('Y-m-d h:i:s', time());
+        $current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+        $start_voting_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $this->mode_settings->getStartVotingDate());
+        if( $start_voting_date_datetime->getTimestamp() <= $current_date_datetime->getTimestamp() || $this->mode_settings->getStartVotingDate() == "0000-00-00 00:00:00") {
+            return true;
+        }
+        else {
+            return true;
+        }
+    }
+
     public function edit()
     {
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
@@ -120,7 +139,7 @@ class xaseAnswerGUI
         $xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
         if ($xaseAnswerFormGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-            if($this->xase_settings->getModus() == 2) {
+            if($this->xase_settings->getModus() == 2 && xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->hasSets() && $this->canVote()) {
                 $this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
                 $this->ctrl->redirectByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD);
             } else {
@@ -137,5 +156,17 @@ class xaseAnswerGUI
 
     public function cancel() {
         $this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_CANCEL);
+    }
+
+    protected function getModeSettings($mode)
+    {
+        if ($mode == self::M1) {
+            return xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
+        }
+        elseif ($mode == self::M3) {
+            return xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
+        } else {
+            return xaseSettingsM2::where(['settings_id' => $this->xase_settings->getId()])->first();
+        }
     }
 }
