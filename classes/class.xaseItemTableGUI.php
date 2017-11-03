@@ -17,6 +17,8 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/services/xaseItemAccess.php');
+
 class xaseItemTableGUI extends ilTable2GUI
 {
     const TBL_ID = 'tbl_xase_items';
@@ -408,25 +410,13 @@ class xaseItemTableGUI extends ilTable2GUI
             $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
         }
 
-        $isAllowedToEdit = false;
-        if($this->access->hasWriteAccess()){
-            $isAllowedToEdit = true;
-        }else if($this->xase_settings->getModus() == self::M2){
-            $isAllowedToEdit = $this->isOwnerOfItem($xaseItem);
-        }
-        if ($isAllowedToEdit) {
+        if (xaseItemAccess::hasWriteAccess($this->xase_settings, $this->xase_item)) {
             if (!$this->has_submitted_answers()) {
                 $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
             }
         }
 
-        $isAllowedToDelete = false;
-        if($this->access->hasDeleteAccess()){
-            $isAllowedToDelete = true;
-        }else if($this->xase_settings->getModus() == self::M2){
-            $isAllowedToDelete = $this->isOwnerOfItem($xaseItem);
-        }
-        if ($isAllowedToDelete) {
+        if (xaseItemAccess::hasDeleteAccess($this->xase_settings, $this->xase_item)) {
             $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
         }
 
@@ -434,11 +424,6 @@ class xaseItemTableGUI extends ilTable2GUI
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
         }*/
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
-    }
-
-    private function isOwnerOfItem(xaseItem $xaseItem)
-    {
-        return $xaseItem->getUserId() === $this->dic->user()->getId();
     }
 
     protected function parseData()

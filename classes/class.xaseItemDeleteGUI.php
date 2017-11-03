@@ -5,6 +5,8 @@
  * @ilCtrl_isCalledBy xaseItemDeleteGUI: ilObjAssistedExerciseGUI
  */
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/services/xaseItemAccess.php');
+
 class xaseItemDeleteGUI
 {
 
@@ -85,7 +87,7 @@ class xaseItemDeleteGUI
             case self::CMD_STANDARD:
             case self::CMD_CONFIRM_DELETE:
             case self::CMD_CANCEL_DELETE:
-                if ($this->access->hasDeleteAccess()) {
+                if (xaseItemAccess::hasDeleteAccess($this->xase_settings, $this->xase_item)) {
                     $this->{$cmd}();
                     break;
                 } else {
