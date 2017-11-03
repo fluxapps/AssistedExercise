@@ -330,6 +330,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI
         if (!$this->checkInput()) {
             return false;
         }
+        $this->object->setUserId($this->dic->user()->getId());
         $this->object->setAssistedExerciseId($this->assisted_exercise->getId());
         $this->object->setItemTitle($this->getInput('title'));
         $this->object->setTask($this->getInput('task'));

@@ -9,6 +9,7 @@ common_actions#:#Action
 completely_teacher_controlled#:#Completely teacher controlled
 description#:#Description
 finish_time#:#Finish Time
+first_name#:#First Name
 general_settings#:#General Settings
 max_points#:#Maximum points
 max_achievable_points#:#Maximum achievable points
@@ -97,7 +98,8 @@ discard_comment#:#Discard
 view_answers#:#View answers
 task_label#:#Task:
 pleas_vote_for_the_best_answer#:#Please vote for the best answer
-edit_task#:#Edit task
+edit_task#:#Edit
+delete_task#:#Delete
 add_hint_btn_caption#:#Add hint
 last_name#:#Last name
 submission_date#:#Submission date
@@ -116,4 +118,5 @@ click_on_actions_view_assessment#:#With a click on the actions button of the cor
 is_voted#:#voted
 release_answers_for_voting#:#Release answers for voting
 can_be_voted#:#Can be voted
-
+confirm_delete_question#:#Are you sure you want to delete this exercise?
+successfully_deleted#:#Successfully deleted exercise.

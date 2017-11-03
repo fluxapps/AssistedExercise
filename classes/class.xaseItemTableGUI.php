@@ -395,6 +395,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
         $this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+        $this->ctrl->setParameterByClass(xaseItemDeleteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
         $current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
         $xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
@@ -406,15 +407,38 @@ class xaseItemTableGUI extends ilTable2GUI
         if($this->isSampleSolutionAvailable($this->xase_settings->getModus(), $xaseItem)) {
             $current_selection_list->addItem($this->pl->txt('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
         }
-        if ($this->access->hasWriteAccess() || $this->xase_settings->getModus() == self::M2) {
-            if(!$this->has_submitted_answers()) {
+
+        $isAllowedToEdit = false;
+        if($this->access->hasWriteAccess()){
+            $isAllowedToEdit = true;
+        }else if($this->xase_settings->getModus() == self::M2){
+            $isAllowedToEdit = $this->isOwnerOfItem($xaseItem);
+        }
+        if ($isAllowedToEdit) {
+            if (!$this->has_submitted_answers()) {
                 $current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
             }
         }
+
+        $isAllowedToDelete = false;
+        if($this->access->hasDeleteAccess()){
+            $isAllowedToDelete = true;
+        }else if($this->xase_settings->getModus() == self::M2){
+            $isAllowedToDelete = $this->isOwnerOfItem($xaseItem);
+        }
+        if ($isAllowedToDelete) {
+            $current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
+        }
+
 /*        if ($this->access->hasWriteAccess()) {
             $current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
         }*/
         $this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
+    }
+
+    private function isOwnerOfItem(xaseItem $xaseItem)
+    {
+        $xaseItem->getUserId() === $this->dic->user()->getId();
     }
 
     protected function parseData()
