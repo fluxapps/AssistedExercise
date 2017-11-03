@@ -374,13 +374,6 @@ class xaseItemTableGUI extends ilTable2GUI
             $this->addColumn($all_cols[$col]['txt'], $col, '16.66666666667%');
         }
         $this->addColumn($this->pl->txt('common_actions'), '', '16.66666666667%');
-
-        /*        $this->addColumn($this->pl->txt('title'), 'title');
-                $this->addColumn($this->pl->txt('status'), 'status');
-                $this->addColumn($this->pl->txt('max_points'), 'max_points');
-                $this->addColumn($this->pl->txt('number_of_used_hints'), 'number_of_used_hints');
-                $this->addColumn($this->pl->txt('points'), 'points');
-                $this->addColumn($this->pl->txt('common_actions'), '', '150px');*/
     }
 
     protected function getUserAnswerByItemId($item_id) {
@@ -772,7 +765,6 @@ class xaseItemTableGUI extends ilTable2GUI
         } else {
             return xaseSettingsM2::where(['settings_id' => $this->xase_settings->getId()])->first();
         }
-        return null;
     }
 
 }
