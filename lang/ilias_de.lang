@@ -124,3 +124,7 @@ release_answers_for_voting#:#Antworten zum Voten freigeben
 can_be_voted#:#Zum Voting freigegeben
 confirm_delete_question#:#Bist du sicher, dass du diese Aufgabe löschen willst?
 successfully_deleted#:#Aufgabe erfolgreich gelöscht.
+vote_error_text#:#Bitte down voten Sie die zuvor upgevotete Antwort.
+add_new_comment#:#Neuen Kommentar hinzufügen
+create_comment_form_error_message#:#Bitte füllen Sie das Eingabefeld für den Kommentar aus.
+please_vote_for_one_answer#:#Bitte voten Sie für eine Antwort.

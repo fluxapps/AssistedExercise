@@ -46,7 +46,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
      */
     protected $xase_item;
 
-    public function __construct(ilObjAssistedExercise $assisted_exericse, xaseAnswerListGUI $parent_gui)
+    public function __construct(ilObjAssistedExercise $assisted_exericse, xaseAnswerListGUI $parent_gui, $xase_item)
     {
         global $DIC;
         $this->dic = $DIC;
@@ -57,7 +57,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         $this->pl = ilAssistedExercisePlugin::getInstance();
         $this->assisted_exercise = $assisted_exericse;
         $this->parent_gui = $parent_gui;
-        $this->xase_item = new xaseItem($_GET['item_id']);
+        $this->xase_item = $xase_item;
 
         $this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
         $this->initAnswerList();
@@ -65,9 +65,10 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         parent::__construct();
     }
 
-    protected function getAnswers() {
+    protected function getAnswersForVoting() {
         $answer_status[] = xaseAnswer::ANSWER_STATUS_SUBMITTED;
         $answer_status[] = xaseAnswer::ANSWER_STATUS_RATED;
+        $answer_status[] = xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED;
         //TODO abfangen dass nur bereits existerende angezeigt werden
         $answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId(), 'answer_status' => $answer_status), array('item_id' => '=', 'answer_status' => 'IN'))->get();
         return $answers;
@@ -103,6 +104,74 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         $this->setValuesByArray($array);
     }
 
+    /**
+     * @return bool|string
+     */
+    public function updateObject()
+    {
+        if (!$this->fillObject()) {
+            return false;
+        }
+        return true;
+    }
+
+    //TODO save comment data
+    public function fillObject()
+    {
+        if (!$this->checkInput()) {
+            return false;
+        }
+        foreach($_POST['answer'] as $id => $data) {
+            /*
+             * 1) check if the array key is voted by current user exists and if the user has voted for the answer
+             *  a) yes
+             *      -get answer id
+             *      -get the answer
+             *      -increase the number of upvotings
+             *      -store the answer object
+             *      -break out from loop
+             *  b) no
+             *      -if no continue loop
+             *
+             *
+             */
+            if(is_array($data)) {
+                if(array_key_exists('is_voted_by_current_user', $data) && $data['is_voted_by_current_user'] == 1) {
+                    $answer_id = $data['answer_id'];
+                    $answer = xaseAnswer::where(array('id' => $answer_id))->first();
+                    $answer->setNumberOfUpvotings($answer->getNumberOfUpvotings() + 1);
+                    $answer->store();
+                    if(!$this->hasVotedForAnswer($answer->getId())) {
+                        $xase_voting = new xaseVoting();
+                        $xase_voting->setAnswerId($answer->getId());
+                        $xase_voting->setUserId($this->dic->user()->getId());
+                        $xase_voting->store();
+                    }
+                    break;
+                }
+            }
+        }
+        if(!$this->hasUserVoted()) {
+            ilUtil::sendFailure($this->pl->txt("please_vote_for_one_answer"), true);
+        }
+        return true;
+    }
+
+    protected function resetPreviousVoting($item_id) {
+        $previousVoting= xaseVoting::where(array('user_id' => $this->dic->user()->getId()))->first();
+    }
+
+    protected function hasVotedForAnswer($answer_id)
+    {
+        $xaseVoting = xaseVoting::where(array('answer_id' => $answer_id, 'user_id' => $this->dic->user()->getId()))->first();
+        if (empty($xaseVoting)) {
+            return $hasVoted = false;
+        }
+        return $hasVoted = true;
+    }
+
+
+
     /*
      * Usage in: after answer update to check if the user gets redirected to the item table list gui or to the list of answers
      * Questions:
@@ -121,7 +190,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
     }
 
     protected function initAnswerList() {
-        $answers = $this->getAnswers();
+        $answers = $this->getAnswersForVoting();
         if(!empty($answers)) {
             $this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
             $this->setTarget('_top');
@@ -129,7 +198,9 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
             $header->setTitle($this->pl->txt('view_answers'));
             $this->addItem( $header );
 
-            ilUtil::sendInfo($this->pl->txt("pleas_vote_for_the_best_answer"));
+            if(!$this->hasUserVoted()) {
+                ilUtil::sendInfo($this->pl->txt("pleas_vote_for_the_best_answer"));
+            }
 
             foreach($answers as $answer) {
                 $answer_list_input_gui = new ilAnswerListInputGUI();

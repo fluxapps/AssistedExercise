@@ -14,6 +14,9 @@ class xaseSubmissionGUI
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
     const CMD_ADD_SUBMITTED_EXERCISE = "addSubmittedExercise";
+    const CMD_APPLY_FILTER = 'applyFilter';
+    const CMD_RESET_FILTER = 'resetFilter';
+
 
     /**
      * @var ilObjAssistedExercise
@@ -99,6 +102,8 @@ class xaseSubmissionGUI
                     break;
                 }
             case self::CMD_ADD_SUBMITTED_EXERCISE:
+            case self::CMD_APPLY_FILTER:
+            case self::CMD_RESET_FILTER:
                 if ($this->access->hasReadAccess()) {
                     $this->{$cmd}();
                     break;

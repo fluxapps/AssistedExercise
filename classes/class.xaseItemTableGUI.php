@@ -98,46 +98,7 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
         $this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
-        if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
-            //if(!$this->has_submitted_answers()) {
-                $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
-                $ilLinkButton = ilLinkButton::getInstance();
-                $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
-                $ilLinkButton->setUrl($new_item_link);
-                /** @var $ilToolbar ilToolbarGUI */
-                $DIC->toolbar()->addButtonInstance($ilLinkButton);
-            //}
-        }
-
-        if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
-            if ($this->hasUserFinishedExercise()) {
-                if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
-                    if(!$this->isDisposalDateExpired()) {
-                        if($this->mode_settings->getRateAnswers()) {
-                            if($this->xase_settings->getModus() == self::M3 && $this->hasUserVotedForAllItems()) {
-                                $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
-                                $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
-                                $submissionLinkButton = ilLinkButton::getInstance();
-                                $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
-                                $submissionLinkButton->setUrl($new_submission_link);
-                                /** @var $ilToolbar ilToolbarGUI */
-                                $DIC->toolbar()->addButtonInstance($submissionLinkButton);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if($this->xase_settings->getModus() == self::M2 ) {
-            if(!empty($this->getAnswersFromUser())) {
-                $new_release_answers_for_voting_link = $this->ctrl->getLinkTarget($this, $this->setAnswerStatusToCanBeVoted());
-                $releaseForVotingLinkButton = ilLinkButton::getInstance();
-                $releaseForVotingLinkButton->setCaption($this->pl->txt("release_answers_for_voting"), false);
-                $releaseForVotingLinkButton->setUrl($new_release_answers_for_voting_link);
-                /** @var $ilToolbar ilToolbarGUI */
-                $DIC->toolbar()->addButtonInstance($releaseForVotingLinkButton);
-            }
-        }
+        $this->initButtons($DIC);
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->parent_obj = $a_parent_obj;
@@ -161,13 +122,46 @@ class xaseItemTableGUI extends ilTable2GUI
         $this->parseData();
     }
 
-    protected function setAnswerStatusToCanBeVoted() {
-        $answers_from_user = $this->getAnswersFromUser();
-        if(!empty($answers_from_user)) {
-            foreach($answers_from_user as $answer) {
-                if($answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
-                    $answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED);
+    protected function initButtons($DIC) {
+
+        if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId()) || $this->xase_settings->getModus() == self::M2) {
+            //if(!$this->has_submitted_answers()) {
+            $new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
+            $ilLinkButton = ilLinkButton::getInstance();
+            $ilLinkButton->setCaption($this->pl->txt("add_task"), false);
+            $ilLinkButton->setUrl($new_item_link);
+            /** @var $ilToolbar ilToolbarGUI */
+            $DIC->toolbar()->addButtonInstance($ilLinkButton);
+            //}
+        }
+
+        if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
+            if ($this->hasUserFinishedExercise()) {
+                if(!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array('assisted_exercise_id' => $this->assisted_exercise->getId()))->get(), $this->dic, $this->dic->user()))) {
+                    if(!$this->isDisposalDateExpired()) {
+                        if($this->mode_settings->getRateAnswers()) {
+                            if($this->xase_settings->getModus() == self::M3 && $this->hasUserVotedForAllItems()) {
+                                $this->ctrl->setParameterByClass("xasesubmissiongui", xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
+                                $new_submission_link = $this->ctrl->getLinkTargetByClass("xaseSubmissionGUI", xaseSubmissionGUI::CMD_ADD_SUBMITTED_EXERCISE);
+                                $submissionLinkButton = ilLinkButton::getInstance();
+                                $submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
+                                $submissionLinkButton->setUrl($new_submission_link);
+                                /** @var $ilToolbar ilToolbarGUI */
+                                $DIC->toolbar()->addButtonInstance($submissionLinkButton);
+                            }
+                        }
+                    }
                 }
+            }
+        }
+        if($this->xase_settings->getModus() == self::M2 ) {
+            if(!empty($this->getAnswersFromUser($this->parent_obj, $this->dic))) {
+                $new_release_answers_for_voting_link = $this->ctrl->getLinkTarget($this->parent_obj, xaseItemGUI::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED);
+                $releaseForVotingLinkButton = ilLinkButton::getInstance();
+                $releaseForVotingLinkButton->setCaption($this->pl->txt("release_answers_for_voting"), false);
+                $releaseForVotingLinkButton->setUrl($new_release_answers_for_voting_link);
+                /** @var $ilToolbar ilToolbarGUI */
+                $DIC->toolbar()->addButtonInstance($releaseForVotingLinkButton);
             }
         }
     }
@@ -520,8 +514,8 @@ class xaseItemTableGUI extends ilTable2GUI
         return $max_achievable_points;
     }
 
-    protected function getAnswersFromUser() {
-        $items = xaseItem::where(array('assisted_exercise_id' => $this->parent_obj->object->getId()))->get();
+    public static function getAnswersFromUser($parent_object, $dic) {
+        $items = xaseItem::where(array('assisted_exercise_id' => $parent_object->object->getId()))->get();
         $item_ids = [];
         foreach($items as $item) {
             $item_ids[] = $item->getId();
@@ -529,12 +523,12 @@ class xaseItemTableGUI extends ilTable2GUI
         if(empty($item_ids)) {
             return null;
         } else {
-            return xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $item_ids), array('user_id' => '=', 'item_id' => 'IN'))->get();
+            return xaseAnswer::where(array('user_id' => $dic->user()->getId(), 'item_id' => $item_ids), array('user_id' => '=', 'item_id' => 'IN'))->get();
         }
     }
 
     protected function getMaxAchievedPoints() {
-        $answers_from_user = $this->getAnswersFromUser();
+        $answers_from_user = $this->getAnswersFromUser($this->parent_obj, $this->dic);
 
         if(empty($answers_from_user)) {
             return 0;
@@ -553,7 +547,7 @@ class xaseItemTableGUI extends ilTable2GUI
     }
 
     protected function getTotalUsedHints() {
-        $answers_from_user = $this->getAnswersFromUser();
+        $answers_from_user = $this->getAnswersFromUser($this->parent_obj, $this->dic);
         if(empty($answers_from_user)) {
             return 0;
         }

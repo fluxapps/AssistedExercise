@@ -21,6 +21,9 @@ class xaseItemGUI
     const CMD_CANCEL = 'cancel';
     const CMD_EDIT = 'edit';
     const CMD_UPDATE = 'update';
+    const CMD_APPLY_FILTER = 'applyFilter';
+    const CMD_RESET_FILTER = 'resetFilter';
+    const CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED = 'setAnswerStatusToCanBeVoted';
 
     /**
      * @var ilObjAssistedExercise
@@ -94,6 +97,9 @@ class xaseItemGUI
         switch ($cmd) {
             case self::CMD_STANDARD:
             case self::CMD_CANCEL:
+            case self::CMD_APPLY_FILTER:
+            case self::CMD_RESET_FILTER:
+            case self::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED:
                 if (xaseItemAccess::hasReadAccess($this->xase_settings, $this->xase_item)) {
                     $this->{$cmd}();
                     break;
@@ -165,6 +171,19 @@ class xaseItemGUI
     }
 
     protected function cancel() {
+        $this->ctrl->redirect($this, self::CMD_STANDARD);
+    }
+
+    protected function setAnswerStatusToCanBeVoted() {
+        $answers_from_user = xaseItemTableGUI::getAnswersFromUser($this, $this->dic);
+        if(!empty($answers_from_user)) {
+            foreach($answers_from_user as $answer) {
+                if($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_ANSWERED) {
+                    $answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED);
+                }
+                $answer->store();
+            }
+        }
         $this->ctrl->redirect($this, self::CMD_STANDARD);
     }
 

@@ -76,16 +76,9 @@ class xaseAnswerListGUI
     {
         $cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
         switch ($cmd) {
-            case self::CMD_STANDARD:
-            case self::CMD_UPDATE:
             case self::CMD_CANCEL:
-                if ($this->access->hasWriteAccess()) {
-                    $this->{$cmd}();
-                    break;
-                } else {
-                    ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-                    break;
-                }
+            case self::CMD_UPDATE:
+            case self::CMD_STANDARD:
             case self::CMD_COMMENT_ID:
             if ($this->access->hasReadAccess()) {
                 $this->{$cmd}();
@@ -101,7 +94,7 @@ class xaseAnswerListGUI
     {
         $this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
+        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this, $this->xase_item);
         $xaseAnswerFormListGUI->fillForm();
         $this->tpl->setContent($xaseAnswerFormListGUI->getHTML());
         $this->tpl->show();
@@ -111,7 +104,7 @@ class xaseAnswerListGUI
     {
         $this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
         $this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
+        $xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this, $this->xase_item);
         if ($xaseAnswerFormListGUI->updateObject()) {
             ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
             //TODO redirect nur ausführen wenn das votings ab Datum in den Modus Settings noch nicht erreicht wurde + wenn mindestens eine Antwort vorhanden ist für das Item und diese eingereicht wurde

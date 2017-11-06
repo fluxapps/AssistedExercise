@@ -1,6 +1,6 @@
 <div class="answer_form" id="{ANSWER_FORM_ID}">
-    <input type="hidden" name="answer[][is_voted_by_current_user]" value="{IS_VOTED}">
-    <input type="hidden" name="answer[][answer_id]" value="{ANSWER_ID}">
+    <input type="hidden" name="answer[{ANSWER_ID}][is_voted_by_current_user]" value="{IS_VOTED}">
+    <input type="hidden" name="answer[{ANSWER_ID}][answer_id]" value="{ANSWER_ID}">
 
     <!-- BEGIN item -->
     <div class="item-wrapper">
@@ -11,6 +11,7 @@
     </div>
     <!-- END item -->
 
+    <!-- BEGIN voting -->
         <div class="col-sm-3 vote">
             <!--<input type="hidden" name="_id_" value="27094913">-->
             <a class="vote-up-off" title="This answer is useful"></a>
@@ -18,8 +19,9 @@
             <span itemprop="upvoteCount" class="vote-count-post ">{NUMBEROFUPVOTINGS}</span>
             <!-- END number_of_up_votings -->
             <a class="vote-down-off" style="display: none" title="This answer is not useful"></a>
-            <span style="color:red; display:none" class="voting_error">{VOTE_ERROR_TEXT} Please first down vote the answer you upvoted previously.</span>
+            <span style="color:red; display:none" class="voting_error">{VOTE_ERROR_TEXT}</span>
         </div>
+    <!-- END voting -->
 
         <!-- BEGIN answer -->
         <div class="col-sm-9 bg-grey answer-wrapper">
@@ -44,22 +46,22 @@
             <!-- END comment -->
             </div>
             <div class="col-sm-9 create-comment-link">
-                <a href="#">Add comment{CREATE_COMMENT_LINK_TEXT}</a>
+                <a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
             </div>
             <div class="col-sm-9 comment-create-form" style="display: none">
                 <form>
                     <div class="form-group">
-                        <label for="comment">{CREATE_COMMENT_FORM_LABEL} Label Comment Create Form</label>
+                        <label for="comment">{CREATE_COMMENT_FORM_LABEL}</label>
                         <textarea class="form-control comment-textarea" rows="5" id="comment"></textarea>
                     </div>
                 </form>
             </div>
-            <span class="col-sm-9 col-sm-offset-3 comment-form-error-message" style="color:red; padding:0px; display: none">Fehlermeldung</span>
+            <span class="col-sm-9 col-sm-offset-3 comment-form-error-message" style="color:red; padding:0px; display: none">{CREATE_COMMENT_FORM_ERROR_MESSAGE}</span>
             <div class="col-sm-offset-3 col-sm-9 comment-links" style="display: none">
                 <a href="#" style="float: left;" class="save-link">{COMMENT_SAVE_TEXT}</a>
                 <a href="#" style="float: right;" class="discard-link">{COMMENT_DISCARD_TEXT}</a>
             </div>
-            <span class="new-comment-data" data-new-comments="{CONTENT}" ></span>
+            <span class="new-comment-data" data-new-comments="{CONTENT}"></span>
         </div>
         <!-- END comment_wrapper -->
         <!-- BEGIN create_comment_link -->
@@ -76,15 +78,15 @@
         <!-- END create_comment_form -->
 
     <!-- BEGIN existing_answer_data -->
-    <span class="existing-answer-data" data-answers="{CONTENT_ANSWER}"></span>
+    <!--<span class="existing-answer-data" data-answers="{CONTENT_ANSWER}"></span>-->
     <!-- END existing_answer_data -->
 
     <!-- BEGIN existing_voting_data -->
-    <span class="existing-voting-data" data-voting="{VOTING_DATA}"></span>
+    <!--<span class="existing-voting-data" data-voting="{VOTING_DATA}"></span>-->
     <!-- END existing_voting_data -->
 
     <!-- BEGIN existing_comment_data -->
-    <span class="existing-comment-data" data-comments="{CONTENT_COMMENT}"></span>
+    <!--<span class="existing-comment-data" data-comments="{CONTENT_COMMENT}"></span>-->
     <!-- END existing_comment_data -->
 
 </div>

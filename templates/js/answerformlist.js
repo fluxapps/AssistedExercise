@@ -71,7 +71,7 @@ $(document).ready(function() {
             number_of_comments = getNumberOfComments($(event.target));
             new_counter_text = old_counter_text.replace(/\d+/ ,number_of_comments);
 
-            if(number_of_comments = 2) {
+            if(number_of_comments == 2) {
                 var language = $('html').attr('lang');
                 if(language = 'en') {
                     new_counter_text = new_counter_text.replace('Comment', 'Comments');
@@ -99,7 +99,6 @@ $(document).ready(function() {
     function hasUserAlreadyVoted() {
         alreadyVoted = false;
         $('.answer_form').each(function (i, el) {
-            debugger;
             is_voted_by_current_user = $(el).children('input[name*="[is_voted_by_current_user]"]').val();
             if(is_voted_by_current_user == 1) {
                 $(el).find('.vote-down-off').css('display', '');

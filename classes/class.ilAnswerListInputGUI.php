@@ -147,12 +147,13 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
 
         $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
 
-            $tpl->setCurrentBlock("number_of_up_votings");
+            $tpl->setCurrentBlock("voting");
             if(!empty($this->xase_answer->getNumberOfUpvotings())) {
                 $tpl->setVariable("NUMBEROFUPVOTINGS", $this->xase_answer->getNumberOfUpvotings());
             } else {
                 $tpl->setVariable("NUMBEROFUPVOTINGS", 0);
             }
+            $tpl->setVariable("VOTE_ERROR_TEXT", $this->pl->txt("vote_error_text"));
             $tpl->parseCurrentBlock();
 
         $tpl->setCurrentBlock("answer");
@@ -169,13 +170,13 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         }
         $tpl->parseCurrentBlock();
 
+        $tpl->setCurrentBlock("comment_wrapper");
+
         if(empty($this->comments)) {
             $this->comment->setValue("");
             $tpl->setCurrentBlock("comment");
             $tpl->setVariable("COMMENT_ID", "1");
             $tpl->setVariable("COMMENT", $this->comment->render());
-            $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-            $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
             $tpl->parseCurrentBlock();
 
         } else {
@@ -185,14 +186,16 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl->setCurrentBlock("comment");
                 $tpl->setVariable("COMMENT_ID", $comment->getId());
                 $tpl->setVariable("COMMENT", $this->comment->render());
-                $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-                $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                 $tpl->parseCurrentBlock();
             }
         }
 
-        $tpl->setCurrentBlock("create_comment_link");
+        $tpl->setCurrentBlock("comment_wrapper");
         $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+        $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+        $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+        $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+        $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
         $tpl->parseCurrentBlock();
 
         if (!empty($this->getExistingAnswerData())) {
@@ -209,9 +212,9 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                     }
                 }
                 if(!empty($this->getExistingVotingData())) {
-                        foreach ($this->getExistingVotingData() as $voting) {
-                                $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
-                        }
+                    foreach ($this->getExistingVotingData() as $voting) {
+                            $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
+                    }
                 }
 
             }
@@ -260,21 +263,26 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                     }
                     $tpl->parseCurrentBlock();
 
+                    $tpl->setCurrentBlock("comment_wrapper");
+
                     foreach($this->comments as $comment) {
 
                         $this->comment->setValue($comment->getBody());
                         $tpl->setCurrentBlock("comment");
                         $tpl->setVariable("COMMENT_ID", $comment->getId());
                         $tpl->setVariable("COMMENT", $this->comment->render());
-                        $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-                        $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                         $tpl->parseCurrentBlock();
                     }
-                    $tpl->setCurrentBlock("create_comment_link");
+
+                    $tpl->setCurrentBlock("comment_wrapper");
                     $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+                    $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+                    $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+                    $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                    $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                     $tpl->parseCurrentBlock();
 
-                    if (!empty($this->getExistingAnswerData())) {
+/*                    if (!empty($this->getExistingAnswerData())) {
                         foreach ($this->getExistingAnswerData() as $answer_data) {
                             $tpl->setCurrentBlock("existing_answer_data");
                             $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
@@ -294,7 +302,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                             }
 
                         }
-                    }
+                    }*/
                 }
 
                 $a_tpl->setCurrentBlock("prop_generic");
