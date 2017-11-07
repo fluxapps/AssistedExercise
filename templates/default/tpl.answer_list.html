@@ -1,3 +1,39 @@
+<div class="row xase-answer-vote-form-element">
+    <div class="row xase-item">
+        <div class="col-sm-12">
+            Itemtext...
+        </div>
+    </div>
+    <!-- BEGIN answer_form -->
+    <div class="row xase-answer">
+        <div class="col-sm-3">
+            Voting
+        </div>
+        <div class="col-sm-9">
+            AnswerText
+        </div>
+    </div>
+    <div class="row xase-comments">
+        <div class="col-sm-12">
+            {COMMENT_FORM}
+            CommentForm
+
+            ...
+
+
+            ...
+            ...
+            ...
+            ...
+
+        </div>
+    </div>
+    <!-- END answer_form -->
+</div>
+
+
+
+<div class="row">
 <!-- BEGIN item -->
 <div class="item-wrapper">
     <label class="col-sm-3 control-label item-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span></label>
@@ -12,7 +48,6 @@
     <input type="hidden" name="answer[{ANSWER_ID}][is_voted_by_current_user]" value="{IS_VOTED}">
     <input type="hidden" name="answer[{ANSWER_ID}][answer_id]" value="{ANSWER_ID}">
 
-    <!-- BEGIN voting -->
         <div class="col-sm-3 vote">
             <!--<input type="hidden" name="_id_" value="27094913">-->
             <a class="vote-up-off" title="This answer is useful"></a>
@@ -22,19 +57,15 @@
             <a class="vote-down-off" style="display: none" title="This answer is not useful"></a>
             <span style="color:red; display:none" class="voting_error">{VOTE_ERROR_TEXT}</span>
         </div>
-    <!-- END voting -->
 
-        <!-- BEGIN answer -->
         <div class="col-sm-9 bg-grey answer-wrapper">
             {ANSWER}
         </div>
-        <!-- END answer -->
 
-        <!-- BEGIN comment_counter -->
+
         <div class="col-sm-9 comment-counter">
             <label class="control-label comment-counter-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span>{NUMBER_OF_COMMENTS} {COMMENT_TEXT}</label><a class="show-hide-comments" title="Show or hide comments"></a>
         </div>
-        <!-- END comment_counter -->
 
         <!-- TODO fill content in corresponding input gui and remove dummy data -->
         <!-- BEGIN comment_wrapper -->
@@ -65,30 +96,6 @@
             <span class="new-comment-data" data-new-comments="{CONTENT}"></span>
         </div>
         <!-- END comment_wrapper -->
-        <!-- BEGIN create_comment_link -->
-<!--        <div class="col-sm-9 create-comment-link">
-            <a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
-        </div>-->
-        <!-- END create_comment_link -->
-
-        <!-- BEGIN create_comment_form -->
-<!--        <div class="form-group" style="display: none">
-            <label for="comment">{CREATE_COMMENT_FORM_LABEL}</label>
-            <input type="text" class="form-control" id="comment" />
-        </div>-->
-        <!-- END create_comment_form -->
-
-    <!-- BEGIN existing_answer_data -->
-    <!--<span class="existing-answer-data" data-answers="{CONTENT_ANSWER}"></span>-->
-    <!-- END existing_answer_data -->
-
-    <!-- BEGIN existing_voting_data -->
-    <!--<span class="existing-voting-data" data-voting="{VOTING_DATA}"></span>-->
-    <!-- END existing_voting_data -->
-
-    <!-- BEGIN existing_comment_data -->
-    <!--<span class="existing-comment-data" data-comments="{CONTENT_COMMENT}"></span>-->
-    <!-- END existing_comment_data -->
-
 </div>
 <!-- END answer_form -->
+</div>
