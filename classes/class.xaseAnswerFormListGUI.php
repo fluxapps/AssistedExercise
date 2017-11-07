@@ -74,10 +74,11 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         return $answers;
     }
 
-    protected function getCommentsForAnswer($xase_answer) {
+    //TODO check if necessary
+/*    protected function getCommentsForAnswer($xase_answer) {
         $comments = xaseComment::where(array('answer_id' => $xase_answer->getId()))->get();
         return $comments;
-    }
+    }*/
 
     protected function hasUserVoted() {
         $answers_for_current_item = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
@@ -88,7 +89,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         }
         if(!empty($votings_from_current_user)) {
             foreach($votings_from_current_user as $voting) {
-                if(in_array($voting->getAnswerId(), $answers_for_current_item)) {
+                if(array_key_exists($voting->getAnswerId(), $answers_for_current_item)) {
                     return true;
                 }
             }
@@ -122,19 +123,6 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
             return false;
         }
         foreach($_POST['answer'] as $id => $data) {
-            /*
-             * 1) check if the array key is voted by current user exists and if the user has voted for the answer
-             *  a) yes
-             *      -get answer id
-             *      -get the answer
-             *      -increase the number of upvotings
-             *      -store the answer object
-             *      -break out from loop
-             *  b) no
-             *      -if no continue loop
-             *
-             *
-             */
             if(is_array($data)) {
                 if(array_key_exists('is_voted_by_current_user', $data) && $data['is_voted_by_current_user'] == 1) {
                     $answer_id = $data['answer_id'];
@@ -153,6 +141,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         }
         if(!$this->hasUserVoted()) {
             ilUtil::sendFailure($this->pl->txt("please_vote_for_one_answer"), true);
+            return false;
         }
         return true;
     }
@@ -169,8 +158,6 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
         }
         return $hasVoted = true;
     }
-
-
 
     /*
      * Usage in: after answer update to check if the user gets redirected to the item table list gui or to the list of answers
@@ -202,14 +189,19 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI
                 ilUtil::sendInfo($this->pl->txt("pleas_vote_for_the_best_answer"));
             }
 
-            foreach($answers as $answer) {
+            $answer_list_input_gui = new ilAnswerListInputGUI();
+            $answer_list_input_gui->setXaseItem($this->xase_item);
+            $answer_list_input_gui->setAnswers($answers);
+            $this->addItem($answer_list_input_gui);
+
+/*            foreach($answers as $answer) {
                 $answer_list_input_gui = new ilAnswerListInputGUI();
                 $answer_list_input_gui->setXaseItem($this->xase_item);
                 $answer_list_input_gui->setXaseAnswer($answer);
                 $comments_for_answer = $this->getCommentsForAnswer($answer);
                 $answer_list_input_gui->setComments($comments_for_answer);
                 $this->addItem($answer_list_input_gui);
-            }
+            }*/
 
             $this->addCommandButton(xaseAnswerListGUI::CMD_UPDATE, $this->pl->txt('save'));
             if($this->hasUserVoted()) {

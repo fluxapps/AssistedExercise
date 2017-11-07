@@ -44,8 +44,8 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
      * @var ilAssistedExercisePlugin
      */
     protected $pl;
-    protected $answer;
-    protected $comment;
+    protected $answer_non_editable_value_gui;
+    protected $comment_non_editable_value_gui;
     protected $comments = [];
     protected $values = [];
     protected $existing_answer_data = [];
@@ -54,6 +54,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     protected $total_upvotings;
     protected $votings = [];
     protected $upvotings = [];
+    protected $answers;
     //TODO check if necessary
     protected $number_of_comments;
 
@@ -68,8 +69,8 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         global $DIC;
         $this->dic = $DIC;
         $this->pl = ilAssistedExercisePlugin::getInstance();
-        $this->answer = new ilNonEditableValueGUI("", "answer[]");
-        $this->comment = new ilNonEditableValueGUI("", "comment[]");
+        $this->answer_non_editable_value_gui = new ilNonEditableValueGUI("", "answer[]");
+        $this->comment_non_editable_value_gui = new ilNonEditableValueGUI("", "comment[]");
 
         $DIC->ui()->mainTemplate()->addCss("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/default/less/answer_list.css");
 
@@ -111,16 +112,16 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         }
     }
 
-    function hasUserVotedForAnswer() {
-        $voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $this->xase_answer->getId()))->first();
+    function hasUserVotedForAnswer($answer) {
+        $voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $answer->getId()))->first();
         if(empty($voting)) {
             return false;
         }
         return true;
     }
 
-    function getCommentsForAnswer() {
-        $comments = xaseComment::where(array('answer_id' => $this->xase_answer->getId()))->get();
+    function getCommentsForAnswer($answer) {
+        $comments = xaseComment::where(array('answer_id' => $answer->getId()))->get();
         return $comments;
     }
 
@@ -129,8 +130,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
      */
     function insert($a_tpl) {
 
-        // hint[*id*][.....]
-
         $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
         $tpl->setCurrentBlock("item");
@@ -138,67 +137,73 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         $tpl->setVariable("ITEM", $this->xase_item->getTask());
         $tpl->parseCurrentBlock();
 
-        $tpl->setVariable("ANSWER_FORM_ID", $this->xase_answer->getId());
-        if($this->hasUserVotedForAnswer()) {
-            $tpl->setVariable("IS_VOTED", 1);
-        } else {
-            $tpl->setVariable("IS_VOTED", 0);
-        }
+        foreach($this->getAnswers() as $answer) {
 
-        $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
+            if($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+                $tpl->setCurrentBlock("answer_form");
+                $tpl->setVariable("ANSWER_ID", $answer->getId());
+                $tpl->setVariable("ANSWER_FORM_ID", $answer->getId());
+                if ($this->hasUserVotedForAnswer($answer)) {
+                    $tpl->setVariable("IS_VOTED", 1);
+                } else {
+                    $tpl->setVariable("IS_VOTED", 0);
+                }
 
-            $tpl->setCurrentBlock("voting");
-            if(!empty($this->xase_answer->getNumberOfUpvotings())) {
-                $tpl->setVariable("NUMBEROFUPVOTINGS", $this->xase_answer->getNumberOfUpvotings());
-            } else {
-                $tpl->setVariable("NUMBEROFUPVOTINGS", 0);
-            }
-            $tpl->setVariable("VOTE_ERROR_TEXT", $this->pl->txt("vote_error_text"));
-            $tpl->parseCurrentBlock();
+                $tpl->setCurrentBlock("voting");
+                if (!empty($answer->getNumberOfUpvotings())) {
+                    $tpl->setVariable("NUMBEROFUPVOTINGS", $answer->getNumberOfUpvotings());
+                } else {
+                    $tpl->setVariable("NUMBEROFUPVOTINGS", 0);
+                }
+                $tpl->setVariable("VOTE_ERROR_TEXT", $this->pl->txt("vote_error_text"));
+                $tpl->parseCurrentBlock();
 
-        $tpl->setCurrentBlock("answer");
-        $this->answer->setValue($this->xase_answer->getBody());
-        $tpl->setVariable("ANSWER", $this->answer->render());
-        $tpl->parseCurrentBlock();
+                $tpl->setCurrentBlock("answer");
+                $this->answer_non_editable_value_gui->setValue($answer->getBody());
+                $tpl->setVariable("ANSWER", $this->answer_non_editable_value_gui->render());
+                $tpl->parseCurrentBlock();
 
-        $tpl->setCurrentBlock("comment_counter");
-        $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
-        if(count($this->comments) >= 2) {
-            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
-        } else {
-            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
-        }
-        $tpl->parseCurrentBlock();
+                $this->setComments($this->getCommentsForAnswer($answer));
 
-        $tpl->setCurrentBlock("comment_wrapper");
+                $tpl->setCurrentBlock("comment_counter");
+                $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+                if (count($this->comments) >= 2) {
+                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
+                } else {
+                    $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
+                }
+                $tpl->parseCurrentBlock();
 
-        if(empty($this->comments)) {
-            $this->comment->setValue("");
-            $tpl->setCurrentBlock("comment");
-            $tpl->setVariable("COMMENT_ID", "1");
-            $tpl->setVariable("COMMENT", $this->comment->render());
-            $tpl->parseCurrentBlock();
+                $tpl->setCurrentBlock("comment_wrapper");
 
-        } else {
-            foreach($this->comments as $comment) {
+                if (empty($this->comments)) {
+                    $this->comment_non_editable_value_gui->setValue("");
+                    $tpl->setCurrentBlock("comment");
+                    $tpl->setVariable("COMMENT_ID", "1");
+                    $tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+                    $tpl->parseCurrentBlock();
 
-                $this->comment->setValue($comment->getBody());
-                $tpl->setCurrentBlock("comment");
-                $tpl->setVariable("COMMENT_ID", $comment->getId());
-                $tpl->setVariable("COMMENT", $this->comment->render());
+                } else {
+                    foreach ($this->comments as $comment) {
+                        $this->comment_non_editable_value_gui->setValue($comment->getBody());
+                        $tpl->setCurrentBlock("comment");
+                        $tpl->setVariable("COMMENT_ID", $comment->getId());
+                        $tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+                        $tpl->parseCurrentBlock();
+                    }
+                }
+                $tpl->setCurrentBlock("comment_wrapper");
+                $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+                $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+                $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+                $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
                 $tpl->parseCurrentBlock();
             }
+            $tpl->parseCurrentBlock('answer_form');
         }
 
-        $tpl->setCurrentBlock("comment_wrapper");
-        $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-        $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
-        $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
-        $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-        $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
-        $tpl->parseCurrentBlock();
-
-        if (!empty($this->getExistingAnswerData())) {
+        /*if (!empty($this->getExistingAnswerData())) {
             foreach ($this->getExistingAnswerData() as $answer_data) {
                 $tpl->setCurrentBlock("existing_answer_data");
                 $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
@@ -218,7 +223,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 }
 
             }
-        }
+        }*/
 
         $a_tpl->setCurrentBlock("prop_generic");
         //$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
@@ -228,9 +233,9 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
         if(!empty($_POST)) {
 
             foreach ($_POST['answer'] as $id => $data) {
-               if(!$this->checkInput()) {
-                   ilUtil::sendFailure($this->pl->txt("msg_vote_for_at_least_one_answer"));
-               }
+                if (!$this->checkInput()) {
+                    ilUtil::sendFailure($this->pl->txt("msg_vote_for_at_least_one_answer"));
+                }
 
                 $tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
@@ -239,71 +244,91 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
                 $tpl->setVariable("ITEM", $this->xase_item->getTask());
                 $tpl->parseCurrentBlock();
 
-                if($this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
-                    $tpl->setVariable("ANSWER_FORM_ID", $this->xase_answer->getId());
-                    if($this->hasUserVotedForAnswer()) {
-                        $tpl->setVariable("IS_VOTED", 1);
-                    } else {
-                        $tpl->setVariable("IS_VOTED", 0);
-                    }
+                foreach ($this->getAnswers() as $answer) {
+                    if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+                        $tpl->setVariable("ANSWER_FORM_ID", $answer->getId());
+                        if ($this->hasUserVotedForAnswer($answer)) {
+                            $tpl->setVariable("IS_VOTED", 1);
+                        } else {
+                            $tpl->setVariable("IS_VOTED", 0);
+                        }
 
-                    $tpl->setVariable("ANSWER_ID", $this->xase_answer->getId());
+                        $tpl->setVariable("ANSWER_ID", $answer->getId());
 
-                    $tpl->setCurrentBlock("answer");
-                    $this->answer->setValue($this->xase_answer->getBody());
-                    $tpl->setVariable("ANSWER", $this->answer->render());
-                    $tpl->parseCurrentBlock();
-
-                    $tpl->setCurrentBlock("comment_counter");
-                    $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
-                    if(count($this->comments) >= 2) {
-                        $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
-                    } else {
-                        $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
-                    }
-                    $tpl->parseCurrentBlock();
-
-                    $tpl->setCurrentBlock("comment_wrapper");
-
-                    foreach($this->comments as $comment) {
-
-                        $this->comment->setValue($comment->getBody());
-                        $tpl->setCurrentBlock("comment");
-                        $tpl->setVariable("COMMENT_ID", $comment->getId());
-                        $tpl->setVariable("COMMENT", $this->comment->render());
+                        $tpl->setCurrentBlock("voting");
+                        if (!empty($answer->getNumberOfUpvotings())) {
+                            $tpl->setVariable("NUMBEROFUPVOTINGS", $answer->getNumberOfUpvotings());
+                        } else {
+                            $tpl->setVariable("NUMBEROFUPVOTINGS", 0);
+                        }
+                        $tpl->setVariable("VOTE_ERROR_TEXT", $this->pl->txt("vote_error_text"));
                         $tpl->parseCurrentBlock();
-                    }
 
-                    $tpl->setCurrentBlock("comment_wrapper");
-                    $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-                    $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
-                    $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
-                    $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-                    $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
-                    $tpl->parseCurrentBlock();
+                        $tpl->setCurrentBlock("answer");
+                        $this->answer_non_editable_value_gui->setValue($answer->getBody());
+                        $tpl->setVariable("ANSWER", $this->answer_non_editable_value_gui->render());
+                        $tpl->parseCurrentBlock();
 
-/*                    if (!empty($this->getExistingAnswerData())) {
-                        foreach ($this->getExistingAnswerData() as $answer_data) {
-                            $tpl->setCurrentBlock("existing_answer_data");
-                            $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
+                        $this->setComments($this->getCommentsForAnswer($answer));
+
+                        $tpl->setCurrentBlock("comment_counter");
+                        $tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+                        if (count($this->comments) >= 2) {
+                            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
+                        } else {
+                            $tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
+                        }
+                        $tpl->parseCurrentBlock();
+
+                        $tpl->setCurrentBlock("comment_wrapper");
+
+                        if (empty($this->comments)) {
+                            $this->comment_non_editable_value_gui->setValue("");
+                            $tpl->setCurrentBlock("comment");
+                            $tpl->setVariable("COMMENT_ID", "1");
+                            $tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
                             $tpl->parseCurrentBlock();
 
-                            if (!empty($this->getExistingCommentData())) {
-                                foreach ($this->getExistingCommentData() as $comment_data) {
+                        } else {
+                            foreach ($this->comments as $comment) {
+                                $this->comment_non_editable_value_gui->setValue($comment->getBody());
+                                $tpl->setCurrentBlock("comment");
+                                $tpl->setVariable("COMMENT_ID", $comment->getId());
+                                $tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+                                $tpl->parseCurrentBlock();
+                            }
+                        }
+                        $tpl->setCurrentBlock("comment_wrapper");
+                        $tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+                        $tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+                        $tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+                        $tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+                        $tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+                        $tpl->parseCurrentBlock();
+                    }
+                }
+
+                /*if (!empty($this->getExistingAnswerData())) {
+                    foreach ($this->getExistingAnswerData() as $answer_data) {
+                        $tpl->setCurrentBlock("existing_answer_data");
+                        $tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
+                        $tpl->parseCurrentBlock();
+
+                        if (!empty($this->getExistingCommentData())) {
+                            foreach ($this->getExistingCommentData() as $comment_data) {
                                     $tpl->setCurrentBlock("existing_comment_data");
                                     $tpl->setVariable("CONTENT_COMMENT", htmlentities(json_encode($comment_data, JSON_UNESCAPED_UNICODE)));
                                     $tpl->parseCurrentBlock();
-                                }
                             }
-                            if(!empty($this->getExistingVotingData())) {
-                                foreach ($this->getExistingVotingData() as $voting) {
-                                    $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
-                                }
-                            }
-
                         }
-                    }*/
-                }
+                        if(!empty($this->getExistingVotingData())) {
+                            foreach ($this->getExistingVotingData() as $voting) {
+                                    $tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
+                            }
+                        }
+
+                    }
+                }*/
 
                 $a_tpl->setCurrentBlock("prop_generic");
                 //$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
@@ -332,33 +357,33 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     /**
      * @return ilNonEditableValueGUI
      */
-    public function getAnswer()
+    public function getAnswerNoneditablevaluegui()
     {
-        return $this->answer;
+        return $this->answer_non_editable_value_gui;
     }
 
     /**
-     * @param ilNonEditableValueGUI $answer
+     * @param ilNonEditableValueGUI $answer_non_editable_value_gui
      */
-    public function setAnswer($answer)
+    public function setAnswerNoneditablevaluegui($answer_non_editable_value_gui)
     {
-        $this->answer = $answer;
+        $this->answer_non_editable_value_gui = $answer_non_editable_value_gui;
     }
 
     /**
      * @return ilNonEditableValueGUI
      */
-    public function getComment()
+    public function getCommentNoneditablevaluegui()
     {
-        return $this->comment;
+        return $this->comment_non_editable_value_gui;
     }
 
     /**
-     * @param ilNonEditableValueGUI $comment
+     * @param ilNonEditableValueGUI $comment_non_editable_value_gui
      */
-    public function setComment($comment)
+    public function setCommentNoneditablevaluegui($comment_non_editable_value_gui)
     {
-        $this->comment = $comment;
+        $this->comment_non_editable_value_gui = $comment_non_editable_value_gui;
     }
 
     /**
@@ -535,6 +560,22 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI
     public function setNumberOfComments($number_of_comments)
     {
         $this->number_of_comments = $number_of_comments;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAnswers()
+    {
+        return $this->answers;
+    }
+
+    /**
+     * @param array $answers
+     */
+    public function setAnswers($answers)
+    {
+        $this->answers = $answers;
     }
 
 }

@@ -1,15 +1,16 @@
+<!-- BEGIN item -->
+<div class="item-wrapper">
+    <label class="col-sm-3 control-label item-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span></label>
+    <div class="col-sm-9 item">
+        {ITEM}
+    </div>
+</div>
+<!-- END item -->
+
+<!-- BEGIN answer_form -->
 <div class="answer_form" id="{ANSWER_FORM_ID}">
     <input type="hidden" name="answer[{ANSWER_ID}][is_voted_by_current_user]" value="{IS_VOTED}">
     <input type="hidden" name="answer[{ANSWER_ID}][answer_id]" value="{ANSWER_ID}">
-
-    <!-- BEGIN item -->
-    <div class="item-wrapper">
-        <label class="col-sm-3 control-label item-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span></label>
-        <div class="col-sm-9 item">
-            {ITEM}
-        </div>
-    </div>
-    <!-- END item -->
 
     <!-- BEGIN voting -->
         <div class="col-sm-3 vote">
@@ -90,3 +91,4 @@
     <!-- END existing_comment_data -->
 
 </div>
+<!-- END answer_form -->

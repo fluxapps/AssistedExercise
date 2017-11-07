@@ -94,6 +94,30 @@ $(document).ready(function() {
         $(event.target).parent('.comment-links').siblings(".create-comment-link").children('a').css({ display: 'block' });
     });
 
+    function showDownVotingArrowOnVotedAnswer() {
+        $('.answer_form').each(function (i, el) {
+            is_voted_by_current_user = $(el).children('input[name*="[is_voted_by_current_user]"]').val();
+            if(is_voted_by_current_user == 1) {
+                $(el).find('.vote-down-off').css('display', '');
+            }
+        });
+    }
+
+/*    function hidePreviousErrorMessage(target_error_message) {
+        /!*target_error_message = $(event.target).siblings('.voting_error');*!/
+        $('.voting_error').each(function (i, el) {
+            if(!$(el).is(target_error_message)) {
+                $(el).css('display', 'none');
+            }
+        })
+    }*/
+
+    function hideAllErrorMessages() {
+        /*target_error_message = $(event.target).siblings('.voting_error');*/
+        $('.voting_error').each(function (i, el) {
+            $(el).css('display', 'none');
+        })
+    }
 
 
     function hasUserAlreadyVoted() {
@@ -123,7 +147,9 @@ $(document).ready(function() {
 
     $('.vote-up-off').click(function(event) {
         if(hasUserAlreadyVoted()) {
-            $(event.target).siblings('.voting_error').css('display', '');
+            target_error_message = $(event.target).siblings('.voting_error');
+            //hidePreviousErrorMessage(target_error_message);
+            target_error_message.css('display', '');
         } else {
             resetPreviousUpvotings();
             $(event.target).closest('.answer_form').children('input[name*="[is_voted_by_current_user]"]').val(1);
@@ -136,6 +162,7 @@ $(document).ready(function() {
 
     $('.vote-down-off').click(function(event) {
         resetPreviousUpvotings();
+        hideAllErrorMessages();
         $(event.target).siblings('.vote-down-off').css('display', 'none');
         counter_value = $(event.target).siblings('.vote-count-post').text();
         new_counter_value = --counter_value;
@@ -151,4 +178,6 @@ $(document).ready(function() {
     $("input[name='cmd\[update\]']").on("click", function (e) {
 
     });
+
+    showDownVotingArrowOnVotedAnswer();
 });
