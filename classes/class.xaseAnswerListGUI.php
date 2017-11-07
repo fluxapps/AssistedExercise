@@ -90,11 +90,10 @@ class xaseAnswerListGUI {
 		}
 	}
 
-
 	public function edit() {
-		$this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
+		$this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
 		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-		$xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this, $this->xase_item);
+		$xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
 		$xaseAnswerFormListGUI->fillForm();
 		$this->tpl->setContent($xaseAnswerFormListGUI->getHTML());
 		$this->tpl->show();
@@ -102,9 +101,9 @@ class xaseAnswerListGUI {
 
 
 	public function update() {
-		$this->ctrl->saveParameterByClass(xaseAnswerFormListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
+		$this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
 		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-		$xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this, $this->xase_item);
+		$xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
 		if ($xaseAnswerFormListGUI->updateObject()) {
 			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
 			//TODO redirect nur ausführen wenn das votings ab Datum in den Modus Settings noch nicht erreicht wurde + wenn mindestens eine Antwort vorhanden ist für das Item und diese eingereicht wurde

@@ -47,7 +47,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 	protected $xase_item;
 
 
-	public function __construct(ilObjAssistedExercise $assisted_exericse, xaseAnswerListGUI $parent_gui, $xase_item) {
+	public function __construct(ilObjAssistedExercise $assisted_exericse, xaseAnswerListGUI $parent_gui) {
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
@@ -57,7 +57,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->assisted_exercise = $assisted_exericse;
 		$this->parent_gui = $parent_gui;
-		$this->xase_item = $xase_item;
+		$this->xase_item = new xaseItem($_GET['item_id']);
 
 		$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
 		$this->initAnswerList();
@@ -121,20 +121,23 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 		return true;
 	}
 
+	protected function has_current_user_voted_for_answer($answer) {
+		if(!empty(xaseVoting::where(array('answer_id' => $answer->getId(), 'user_id' => $this->dic->user()->getId())))) {
+			return true;
+		}
+		return false;
+	}
 
 	//TODO save comment data
 	public function fillObject() {
-		if (!$this->checkInput()) {
-			return false;
-		}
 		foreach ($_POST['answer'] as $id => $data) {
 			if (is_array($data)) {
 				if (array_key_exists('is_voted_by_current_user', $data) && $data['is_voted_by_current_user'] == 1) {
 					$answer_id = $data['answer_id'];
 					$answer = xaseAnswer::where(array( 'id' => $answer_id ))->first();
-					$answer->setNumberOfUpvotings($answer->getNumberOfUpvotings() + 1);
-					$answer->store();
 					if (!$this->hasVotedForAnswer($answer->getId())) {
+						$answer->setNumberOfUpvotings($answer->getNumberOfUpvotings() + 1);
+						$answer->store();
 						$xase_voting = new xaseVoting();
 						$xase_voting->setAnswerId($answer->getId());
 						$xase_voting->setUserId($this->dic->user()->getId());

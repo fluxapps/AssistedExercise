@@ -2,11 +2,16 @@ textarea {
     resize: none;
 }
 
-.col-sm-9 .answer-wrapper {
+.col-xs-9 .comment-links {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.col-xs-9 .answer-wrapper {
     padding-left: 0px;
 }
 
-.col-sm-9 .item {
+.col-xs-offset-3 .item p {
     font-weight: bold;
     margin-bottom: 20px;
     padding-left: 0px;
@@ -16,18 +21,22 @@ textarea {
     margin-bottom: 10px;
 }
 
+.xase-answer-vote-form-element > .xase-answer {
+    margin-top: 20px;
+}
+
 .comment-wrapper {
     /*display: none;*/
     margin-top: 5px;
     margin-bottom: 2px;
 }
 
-.comment-wrapper>.comments>.comment-content, .col-sm-9.comment-create-form, .col-sm-offset-3.col-sm-9.comment-links {
+.comment-wrapper>.comments>.comment-content, .col-xs-9.comment-create-form, .col-xs-offset-3.col-xs-9.comment-links {
     padding: 0px;
     display: block;
 }
 
-.col-sm-9.comment-create-form>.form-group {
+.col-xs-9.comment-create-form>.form-group {
     margin-top: 0px;
 }
 
@@ -39,11 +48,11 @@ textarea {
     border: 1px solid lightgrey;
 }
 
-.comment-counter {
+.xase-comment-counter {
     padding-left: 0px !important;
 }
 
-.col-sm-9.create-comment-link {
+.col-xs-9.create-comment-link {
     padding-left: 0px;
 }
 

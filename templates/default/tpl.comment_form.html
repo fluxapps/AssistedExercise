@@ -1,0 +1,28 @@
+<!-- BEGIN comment_wrapper -->
+<div class="comment-wrapper" data-answer-id="{ANSWER_ID}">
+	<div class="comments">
+		<!-- BEGIN comment -->
+		<div class="col-xs-9 comment-content" style="display: none" id="{COMMENT_ID}">
+			{COMMENT}
+		</div>
+		<!-- END comment -->
+	</div>
+	<div class="col-xs-9 create-comment-link">
+		<a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
+	</div>
+	<div class="col-xs-9 comment-create-form" style="display: none">
+		<form>
+			<div class="form-group">
+				<label for="comment">{CREATE_COMMENT_FORM_LABEL}</label>
+				<textarea class="form-control comment-textarea" rows="5" id="comment"></textarea>
+			</div>
+		</form>
+	</div>
+	<span class="col-xs-9 comment-form-error-message" style="color:red; padding:0px; display: none">{CREATE_COMMENT_FORM_ERROR_MESSAGE}</span>
+	<div class="col-xs-9 comment-links" style="display: none; padding:0px">
+		<a href="#" style="float: left;" class="save-link">{COMMENT_SAVE_TEXT}</a>
+		<a href="#" style="float: right;" class="discard-link">{COMMENT_DISCARD_TEXT}</a>
+	</div>
+	<span class="new-comment-data" data-new-comments="{CONTENT}"></span>
+</div>
+<!-- END comment_wrapper -->

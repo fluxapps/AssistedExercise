@@ -82,16 +82,15 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	 * @return bool
 	 */
 	public function checkInput() {
-		$has_voted = false;
+/*		$has_voted = false;
 		foreach ($_POST['answer']['is_voted_by_current_user'] as $data) {
 
 			if ($data == 1) {
 				$has_voted = true;
 				continue;
 			}
-		}
-
-		return $has_voted;
+		}*/
+		//return $has_voted;
 	}
 
 
@@ -130,7 +129,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 		return $comments;
 	}
 
-
 	/**
 	 * @param $a_tpl
 	 */
@@ -138,10 +136,10 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 		$tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-		$tpl->setCurrentBlock("item");
+		//$tpl->setCurrentBlock("item");
 		//$tpl->setVariable("ITEM_LABEL", $this->pl->txt("task_label"));
 		$tpl->setVariable("ITEM", $this->xase_item->getTask());
-		$tpl->parseCurrentBlock();
+		//$tpl->parseCurrentBlock();
 
 		foreach ($this->getAnswers() as $answer) {
 			if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
@@ -154,7 +152,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 				} else {
 					$tpl->setVariable("IS_VOTED", 0);
 				}
-
 				if (!empty($answer->getNumberOfUpvotings())) {
 					$tpl->setVariable("NUMBEROFUPVOTINGS", $answer->getNumberOfUpvotings());
 				} else {
@@ -167,9 +164,48 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 				$this->setComments($this->getCommentsForAnswer($answer));
 
-				$tpl_comment_form = new ilTemplate(...);
+				$tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
+				if (count($this->comments) >= 2) {
+					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
+				} else {
+					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
+				}
+
+				$tpl_comment_form = new ilTemplate("tpl.comment_form.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
+
+				$tpl_comment_form->setCurrentBlock("comment_wrapper");
+
+				$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
+
+				if (empty($this->comments)) {
+					$this->comment_non_editable_value_gui->setValue("");
+					$tpl_comment_form->setCurrentBlock("comment");
+					$tpl_comment_form->setVariable("COMMENT_ID", "1");
+					$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+					$tpl_comment_form->parseCurrentBlock();
+
+				} else {
+					foreach ($this->comments as $comment) {
+						$this->comment_non_editable_value_gui->setValue($comment->getBody());
+						$tpl_comment_form->setCurrentBlock("comment");
+						$tpl_comment_form->setVariable("COMMENT_ID", $comment->getId());
+						$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+						$tpl_comment_form->parseCurrentBlock();
+					}
+				}
+				$tpl_comment_form->setCurrentBlock("comment_wrapper");
+				$tpl_comment_form->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+				$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+				$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+				$tpl_comment_form->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+				$tpl_comment_form->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+				$tpl_comment_form->parseCurrentBlock();
+
+				$tpl_comment_form->parseCurrentBlock();
 
 				$tpl->setVariable("COMMENT_FORM", $tpl_comment_form->get());
+
+
 				/*$tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
 				if (count($this->comments) >= 2) {
 					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
@@ -205,28 +241,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 			}
 			$tpl->parseCurrentBlock('answer_form');
 		}
-
-		/*if (!empty($this->getExistingAnswerData())) {
-			foreach ($this->getExistingAnswerData() as $answer_data) {
-				$tpl->setCurrentBlock("existing_answer_data");
-				$tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
-				$tpl->parseCurrentBlock();
-
-				if (!empty($this->getExistingCommentData())) {
-					foreach ($this->getExistingCommentData() as $comment_data) {
-							$tpl->setCurrentBlock("existing_comment_data");
-							$tpl->setVariable("CONTENT_COMMENT", htmlentities(json_encode($comment_data, JSON_UNESCAPED_UNICODE)));
-							$tpl->parseCurrentBlock();
-					}
-				}
-				if(!empty($this->getExistingVotingData())) {
-					foreach ($this->getExistingVotingData() as $voting) {
-							$tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
-					}
-				}
-
-			}
-		}*/
 
 		$a_tpl->setCurrentBlock("prop_generic");
 		//$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
@@ -311,28 +325,6 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 						$tpl->parseCurrentBlock();
 					}
 				}
-
-				/*if (!empty($this->getExistingAnswerData())) {
-					foreach ($this->getExistingAnswerData() as $answer_data) {
-						$tpl->setCurrentBlock("existing_answer_data");
-						$tpl->setVariable("CONTENT_ANSWER", htmlentities(json_encode($answer_data, JSON_UNESCAPED_UNICODE)));
-						$tpl->parseCurrentBlock();
-
-						if (!empty($this->getExistingCommentData())) {
-							foreach ($this->getExistingCommentData() as $comment_data) {
-									$tpl->setCurrentBlock("existing_comment_data");
-									$tpl->setVariable("CONTENT_COMMENT", htmlentities(json_encode($comment_data, JSON_UNESCAPED_UNICODE)));
-									$tpl->parseCurrentBlock();
-							}
-						}
-						if(!empty($this->getExistingVotingData())) {
-							foreach ($this->getExistingVotingData() as $voting) {
-									$tpl->setVariable("VOTING_DATA", htmlentities(json_encode($voting, JSON_UNESCAPED_UNICODE)));
-							}
-						}
-
-					}
-				}*/
 
 				$a_tpl->setCurrentBlock("prop_generic");
 				//$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
