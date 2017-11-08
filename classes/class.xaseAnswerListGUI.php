@@ -7,6 +7,7 @@
 
 class xaseAnswerListGUI {
 
+	const CMD_VIEW = 'view';
 	const CMD_STANDARD = 'edit';
 	const CMD_UPDATE = 'update';
 	const CMD_CANCEL = 'cancel';
@@ -57,8 +58,6 @@ class xaseAnswerListGUI {
 		$this->xase_item = new xaseItem($_GET['item_id']);
 
 		$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
-		//$this->initAnswerList();
-
 		//parent::__construct();
 	}
 
@@ -90,8 +89,10 @@ class xaseAnswerListGUI {
 		}
 	}
 
+
 	public function edit() {
 		$this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
+		$callHistory = $this->ctrl->getCallHistory();
 		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 		$xaseAnswerFormListGUI = new xaseAnswerFormListGUI($this->assisted_exercise, $this);
 		$xaseAnswerFormListGUI->fillForm();

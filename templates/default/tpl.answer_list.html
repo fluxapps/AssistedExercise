@@ -3,6 +3,7 @@
         <div class="col-xs-offset-3 item">
             <!--Itemtext...-->
             <p style="font-weight: bold">{ITEM}</p>
+            <p style="color: grey" class="item-creator">{ITEM_CREATOR}</p>
         </div>
     </div>
     <!-- BEGIN answer_form -->
@@ -19,6 +20,7 @@
         <div class="col-xs-9 answer-wrapper" style="padding-left: 0px">
             <!--AnswerText-->
             {ANSWER}
+            <p style="color: grey" class="item-creator">{ANSWER_CREATOR}</p>
         </div>
     </div>
     <div class="row xase-comment-counter">
@@ -36,72 +38,3 @@
     </div>
     <!-- END answer_form -->
 </div>
-
-
-
-<!--<div class="row">-->
-<!-- BEGIN item -->
-<!--<div class="item-wrapper">
-    <label class="col-xs-3 control-label item-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span></label>
-    <div class="col-xs-9 item">
-        {ITEM}
-    </div>
-</div>-->
-<!-- END item -->
-
-<!-- BEGIN answer_form -->
-<!--<div class="answer_form" id="{ANSWER_FORM_ID}">
-    <input type="hidden" name="answer[{ANSWER_ID}][is_voted_by_current_user]" value="{IS_VOTED}">
-    <input type="hidden" name="answer[{ANSWER_ID}][answer_id]" value="{ANSWER_ID}">
-
-        <div class="col-xs-3 vote">
-            &lt;!&ndash;<input type="hidden" name="_id_" value="27094913">&ndash;&gt;
-            <a class="vote-up-off" title="This answer is useful"></a>
-            &lt;!&ndash; BEGIN number_of_up_votings &ndash;&gt;
-            <span itemprop="upvoteCount" class="vote-count-post ">{NUMBEROFUPVOTINGS}</span>
-            &lt;!&ndash; END number_of_up_votings &ndash;&gt;
-            <a class="vote-down-off" style="display: none" title="This answer is not useful"></a>
-            <span style="color:red; display:none" class="voting_error">{VOTE_ERROR_TEXT}</span>
-        </div>
-
-        <div class="col-xs-9 bg-grey answer-wrapper">
-            {ANSWER}
-        </div>-->
-
-
-<!--        <div class="col-xs-9 comment-counter">
-            <label class="control-label comment-counter-label"><span class="ilAccHeadingHidden">{PHID_TITLE}</span>{NUMBER_OF_COMMENTS} {COMMENT_TEXT}</label><a class="show-hide-comments" title="Show or hide comments"></a>
-        </div>-->
-
-        <!-- BEGIN comment_wrapper -->
-        <!--<div class="comment-wrapper">
-            <div class="comments">
-            &lt;!&ndash; BEGIN comment &ndash;&gt;
-                <div class="col-xs-9 comment-content" style="display: none" id="{COMMENT_ID}">
-                    {COMMENT}
-                </div>
-            &lt;!&ndash; END comment &ndash;&gt;
-            </div>
-            <div class="col-xs-9 create-comment-link">
-                <a href="#">{CREATE_COMMENT_LINK_TEXT}</a>
-            </div>
-            <div class="col-xs-9 comment-create-form" style="display: none">
-                <form>
-                    <div class="form-group">
-                        <label for="comment">{CREATE_COMMENT_FORM_LABEL}</label>
-                        <textarea class="form-control comment-textarea" rows="5" id="comment"></textarea>
-                    </div>
-                </form>
-            </div>
-            <span class="col-xs-9 col-xs-offset-3 comment-form-error-message" style="color:red; padding:0px; display: none">{CREATE_COMMENT_FORM_ERROR_MESSAGE}</span>
-            <div class="col-xs-offset-3 col-xs-9 comment-links" style="display: none">
-                <a href="#" style="float: left;" class="save-link">{COMMENT_SAVE_TEXT}</a>
-                <a href="#" style="float: right;" class="discard-link">{COMMENT_DISCARD_TEXT}</a>
-            </div>
-            <span class="new-comment-data" data-new-comments="{CONTENT}"></span>
-        </div>-->
-        <!-- END comment_wrapper -->
-<!--
-</div>
-&lt;!&ndash; END answer_form &ndash;&gt;
-</div>-->

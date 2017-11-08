@@ -4,7 +4,6 @@
  * Class xaseItemTableGUI
  *
  * @author            Benjamin Seglias <bs@studer-raimann.ch>
- * @ilCtrl_Calls      xaseItemTableGUI: xaseAnswerGUI
  */
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
@@ -105,10 +104,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->setExternalSegmentation(true);
 		$this->setEnableHeader(true);
 
-		if ($this->xase_settings->getModus() != self::M2) {
-			$list = $this->createListing();
-			$this->tpl->setVariable('LIST', $list);
-		}
 
 		$this->initColums();
 		$this->addFilterItems();
@@ -150,8 +145,8 @@ class xaseItemTableGUI extends ilTable2GUI {
 				}
 			}
 		}
-		if ($this->xase_settings->getModus() == self::M2) {
-			if (!empty($this->getAnswersFromUser($this->parent_obj, $this->dic))) {
+		if ($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
+			if (!empty(self::getAnswersFromUser($this->parent_obj->object, $this->dic))) {
 				$new_release_answers_for_voting_link = $this->ctrl->getLinkTarget($this->parent_obj, xaseItemGUI::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED);
 				$releaseForVotingLinkButton = ilLinkButton::getInstance();
 				$releaseForVotingLinkButton->setCaption($this->pl->txt("release_answers_for_voting"), false);
@@ -164,7 +159,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 
 	//TODO evtl. In Antwort Assisted Exercise Id speichern und mit count Function arbeiten
-	protected function has_submitted_answers() {
+	protected function has_answers() {
 		$all_items = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 		foreach ($all_items as $item) {
 			$answer_array = xaseAnswer::where(array( 'item_id' => $item->getId() ))->get();
@@ -172,7 +167,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -186,7 +180,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$option[1] = $this->pl->txt('answered');
 		$option[2] = $this->pl->txt('submitted');
 		$option[3] = $this->pl->txt('rated');
-		if ($this->xase_settings->getModus() == self::M2) {
+		if ($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
 			$option[4] = $this->pl->txt('can_be_voted');
 		}
 		$status = new ilSelectInputGUI($this->pl->txt("status"), "answer_status");
@@ -248,7 +242,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 				$this->tpl->setVariable('STATUS', $this->pl->txt('submitted'));
 			} elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED) {
 				$this->tpl->setVariable('STATUS', $this->pl->txt('rated'));
-			} elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+			} elseif ($xaseAnswer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 				$this->tpl->setVariable('STATUS', $this->pl->txt('can_be_voted'));
 			}
 			$this->tpl->parseCurrentBlock();
@@ -354,7 +348,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 			}
 			if ($this->isColumnSelected('number_of_upvotings')) {
 				$this->tpl->setCurrentBlock("NUMBEROFUPVOTINGS");
-				if (!empty($xaseAnswer->getNumberOfUpvotings())) {
+				if (!empty($xaseAnswer) && !empty($xaseAnswer->getNumberOfUpvotings())) {
 					$this->tpl->setVariable('NUMBEROFUPVOTINGS', $xaseAnswer->getNumberOfUpvotings());
 				} else {
 					$this->tpl->setVariable('NUMBEROFUPVOTINGS', 0);
@@ -365,16 +359,22 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->addActionMenu($xaseItem);
 	}
 
-
 	protected function initColums() {
 		$all_cols = $this->getSelectableColumns();
+		$number_of_columns = count($this->getSelectedColumns());
+		$column_width = 100 / $number_of_columns;
 		foreach ($this->getSelectedColumns() as $col) {
-			$this->addColumn($all_cols[$col]['txt'], $col, '16.66666666667%');
+			$this->addColumn($all_cols[$col]['txt'], $col, $column_width);
 		}
-		$this->addColumn($this->pl->txt('common_actions'), '', '16.66666666667%');
+		$this->addColumn($this->pl->txt('common_actions'), '', $column_width);
 	}
 
 
+	/**
+	 * @param $item_id
+	 *
+	 * @return xaseAnswer
+	 */
 	protected function getUserAnswerByItemId($item_id) {
 		$xase_answer = xaseAnswer::where(array( 'item_id' => $item_id, 'user_id' => $this->dic->user()->getId() ))->first();
 
@@ -395,9 +395,16 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseItemDeleteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+		$this->ctrl->setParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
 		$current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
 		$xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
+
+		if(!empty($xase_answer)) {
+			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
+			}
+		}
 
 		if (!empty($xase_answer) && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
 			&& $this->xase_settings->getModus() != self::M2) {
@@ -409,7 +416,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 
 		if (xaseItemAccess::hasWriteAccess($this->xase_settings, $xaseItem)) {
-			if (!$this->has_submitted_answers()) {
+			if (!$this->has_answers()) {
 				$current_selection_list->addItem($this->pl->txt('edit_task'), xaseItemGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseitemgui', xaseItemGUI::CMD_EDIT));
 			}
 		}
@@ -417,13 +424,11 @@ class xaseItemTableGUI extends ilTable2GUI {
 		if (xaseItemAccess::hasDeleteAccess($this->xase_settings, $xaseItem)) {
 			$current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
 		}
-
 		/*        if ($this->access->hasWriteAccess()) {
 					$current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
 				}*/
 		$this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
 	}
-
 
 	protected function parseData() {
 		$this->determineOffsetAndOrder();
@@ -527,13 +532,11 @@ class xaseItemTableGUI extends ilTable2GUI {
 				}
 			}
 		}
-
 		return $max_achievable_points;
 	}
 
-
-	public static function getAnswersFromUser($parent_object, $dic) {
-		$items = xaseItem::where(array( 'assisted_exercise_id' => $parent_object->object->getId() ))->get();
+	public static function getAnswersFromUser($assisted_exercise_object, $dic) {
+		$items = xaseItem::where(array( 'assisted_exercise_id' => $assisted_exercise_object->getId() ))->get();
 		$item_ids = [];
 		foreach ($items as $item) {
 			$item_ids[] = $item->getId();
@@ -547,66 +550,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 			))->get();
 		}
 	}
-
-
-	protected function getMaxAchievedPoints() {
-		$answers_from_user = $this->getAnswersFromUser($this->parent_obj, $this->dic);
-
-		if (empty($answers_from_user)) {
-			return 0;
-		}
-		/*        if($this->xase_settings->getModus() == self::M1) {
-					$funcname = 'getPointsTeacher';
-				} elseif($this->xase_settings->getModus() == self::M3) {
-					$funcname = 'getTotalPoints';
-				}*/
-		$max_achieved_points = 0;
-		foreach ($answers_from_user as $answer) {
-			$xasePoint = xasePoint::where(array( 'id' => $answer->getPointId() ))->first();
-			$max_achieved_points += $xasePoint->getTotalPoints();
-		}
-
-		return $max_achieved_points;
-	}
-
-
-	protected function getTotalUsedHints() {
-		$answers_from_user = $this->getAnswersFromUser($this->parent_obj, $this->dic);
-		if (empty($answers_from_user)) {
-			return 0;
-		}
-		$total_used_hints = 0;
-		foreach ($answers_from_user as $answer) {
-			$total_used_hints += $answer->getNumberOfUsedHints();
-		}
-
-		return $total_used_hints;
-	}
-
-
-	protected function getDisposalDate() {
-		if ($this->mode_settings->getDisposalDate() == "0000-00-00 00:00:00" || empty($this->mode_settings->getDisposalDate())) {
-			return $this->pl->txt('no_disposal_date');
-		} else {
-			return $this->mode_settings->getDisposalDate();
-		}
-	}
-
-
-	public function createListing() {
-		$f = $this->dic->ui()->factory();
-		$renderer = $this->dic->ui()->renderer();
-
-		$unordered = $f->listing()->descriptive(array(
-				$this->pl->txt('max_achievable_points') => strval(self::getMaxAchievablePoints($this->parent_obj->object->getId(), $this->xase_settings->getModus())),
-				$this->pl->txt('max_achieved_points') => strval($this->getMaxAchievedPoints()),
-				$this->pl->txt('total_used_hints') => strval($this->getTotalUsedHints()),
-				$this->pl->txt('disposal_date') => $this->getDisposalDate(),
-			));
-
-		return $renderer->render($unordered);
-	}
-
 
 	static function getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $dic, $user) {
 		foreach ($all_items_assisted_exercise as $item_assisted_exercise) {
@@ -698,7 +641,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$current_date = date('Y-m-d h:i:s', time());
 		$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
 		$disposal_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $this->mode_settings->getDisposalDate());
-		if (!($disposal_date_datetime->getTimestamp() < $current_date_datetime->getTimestamp())
+		if (($disposal_date_datetime->getTimestamp() < $current_date_datetime->getTimestamp())
 			|| $this->mode_settings->getDisposalDate() == "0000-00-00 00:00:00") {
 			return false;
 		} else {
@@ -782,7 +725,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 		if (!empty($votings_from_current_user)) {
 			foreach ($votings_from_current_user as $voting) {
-				if (in_array($voting->getAnswerId(), $answers_for_current_item)) {
+				if (array_key_exists($voting->getAnswerId(), $answers_for_current_item)) {
 					return true;
 				}
 			}

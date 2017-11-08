@@ -4,6 +4,7 @@
 		<!-- BEGIN comment -->
 		<div class="col-xs-9 comment-content" style="display: none" id="{COMMENT_ID}">
 			{COMMENT}
+			<p style="color: grey" class="item-creator">{COMMENT_CREATOR}</p>
 		</div>
 		<!-- END comment -->
 	</div>
@@ -23,6 +24,6 @@
 		<a href="#" style="float: left;" class="save-link">{COMMENT_SAVE_TEXT}</a>
 		<a href="#" style="float: right;" class="discard-link">{COMMENT_DISCARD_TEXT}</a>
 	</div>
-	<span class="new-comment-data" data-new-comments="{CONTENT}"></span>
+	<input type="hidden" class="new-comment-data" name="comment_data[{ANSWER_ID}][comments]" value="{CONTENT}"></input>
 </div>
 <!-- END comment_wrapper -->

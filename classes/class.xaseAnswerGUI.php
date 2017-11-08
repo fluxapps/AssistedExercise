@@ -144,13 +144,13 @@ class xaseAnswerGUI {
 		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
 		if ($xaseAnswerFormGUI->updateObject()) {
 			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-			if ($this->xase_settings->getModus() == 2
+			if ($this->xase_settings->getModus() == 2 || $this->xase_settings->getModus() == 3
 				&& xaseAnswer::where(array(
 					'item_id' => $this->xase_item->getId(),
 					'answer_status' => [
 						xaseAnswer::ANSWER_STATUS_SUBMITTED,
 						xaseAnswer::ANSWER_STATUS_RATED,
-						xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED
+						xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED
 					]
 				), array( 'item_id' => '=', 'answer_status' => 'IN' ))->hasSets()
 				&& $this->canVote()) {

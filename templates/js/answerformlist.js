@@ -1,7 +1,6 @@
 $(document).ready(function() {
 
     $('.show-hide-comments').click(function(event) {
-	    debugger;
         if ( $(event.target).css('background-image').indexOf('downarrow') >= 0) {
             uparrow_value = $(event.target).css('background-image').replace('downarrow', 'uparrow');
             $(event.target).css('background-image', uparrow_value);
@@ -16,7 +15,6 @@ $(document).ready(function() {
     $('.create-comment-link').click(function(event) {
         $(event.target).css({ display: 'none' });
         $(event.target).closest(".comment-wrapper").children(".comment-content").css({ display: 'block' });
-        console.log($(event.target));
         $(event.target).parent(".create-comment-link").siblings(".comment-create-form").css({ display: 'block' });
         $(event.target).parent(".create-comment-link").siblings(".comment-links").css({ display: 'block' });
     });
@@ -44,7 +42,6 @@ $(document).ready(function() {
 				number_of_comments++;
 		    }
 	    });
-
         //return event_target.parent('.comment-links').siblings('.comments').children('.comment-content').length;
         return number_of_comments;
     }
@@ -55,10 +52,24 @@ $(document).ready(function() {
 	        $(event.target).parent('.comment-links').siblings('.comment-form-error-message').css({ display: 'block' });
         } else {
             comment_as_json_string = get_comment_as_json_string(textarea_value, $(event.target).closest('.comment-wrapper').attr('data-answer-id'));
-	        $(event.target).parent('.comment-links').siblings('.new-comment-data').attr('data-new-comments', comment_as_json_string);
-            //$(".new-comment-data").attr('data-new-comments', comment_as_json_string);
+            existing_new_comment_data = $(event.target).parent('.comment-links').siblings('.new-comment-data').attr('value');
+            if(existing_new_comment_data.trim()) {
+	            existing_new_comment_data = $.parseJSON(existing_new_comment_data);
+	            if(!Array.isArray(existing_new_comment_data)) {
+	                existing_new_comment_data_array = [];
+                    existing_new_comment_data_array.push(existing_new_comment_data);
+		            existing_new_comment_data_array.push($.parseJSON(comment_as_json_string));
+		            new_comment_data = existing_new_comment_data_array
 
-	        debugger;
+                } else {
+		            existing_new_comment_data.push($.parseJSON(comment_as_json_string));
+		            new_comment_data = existing_new_comment_data;
+                }
+	            $(event.target).parent('.comment-links').siblings('.new-comment-data').attr('value', JSON.stringify(new_comment_data));
+            } else {
+	            $(event.target).parent('.comment-links').siblings('.new-comment-data').attr('value', comment_as_json_string);
+            }
+
             new_comment = $(event.target).parent('.comment-links').siblings('.comments').children('.comment-content:last-child').clone(true);
             var promise = getNextAvailableCommentId();
             promise.success(function (data) {

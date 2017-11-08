@@ -128,3 +128,6 @@ vote_error_text#:#Bitte down voten Sie die zuvor upgevotete Antwort.
 add_new_comment#:#Neuen Kommentar hinzufügen
 create_comment_form_error_message#:#Bitte füllen Sie das Eingabefeld für den Kommentar aus.
 please_vote_for_one_answer#:#Bitte voten Sie für eine Antwort.
+additional_points_voting#:#Zusätzliche Punkte durch Voting
+total_points#:#Total Punkte
+view_answers#:#Antworten einsehen

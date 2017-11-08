@@ -56,6 +56,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	protected $answers;
 	//TODO check if necessary
 	protected $number_of_comments;
+	protected $modus;
 
 
 	/**
@@ -64,12 +65,13 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	 * @param    string $a_title Title
 	 * @param    string $a_postvar Post Variable
 	 */
-	function __construct($a_title = "", $a_postvar = "") {
+	function __construct($a_title = "", $a_postvar = "", $modus) {
 		global $DIC;
 		$this->dic = $DIC;
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->answer_non_editable_value_gui = new ilNonEditableValueGUI("", "answer[]");
 		$this->comment_non_editable_value_gui = new ilNonEditableValueGUI("", "comment[]");
+		$this->modus = $modus;
 
 		$DIC->ui()->mainTemplate()
 			->addCss("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/default/less/answer_list.css");
@@ -82,15 +84,14 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	 * @return bool
 	 */
 	public function checkInput() {
-/*		$has_voted = false;
-		foreach ($_POST['answer']['is_voted_by_current_user'] as $data) {
-
-			if ($data == 1) {
-				$has_voted = true;
-				continue;
+		foreach ($_POST['answer'] as $id => $data) {
+			if(is_array($data)) {
+				if ($data['is_voted_by_current_user'] == 1 || $this->hasUserVotedForOneAnswer()) {
+					return true;
+				}
 			}
-		}*/
-		//return $has_voted;
+		}
+		return false;
 	}
 
 
@@ -100,25 +101,37 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	 * @param    array $a_values value array
 	 */
 	function setValueByArray($a_values) {
-		if (is_array($a_values['answer'])) {
+		if (is_array($a_values['answer']) && !empty($a_values['answer'])) {
 			foreach ($a_values['answer'] as $id => $data) {
-				$this->values[$id]['is_template'] = $data["is_template"];
-				$this->values[$id]['label'] = $data["label"];
-				$this->values[$id]['lvl_1_hint'] = $data["lvl_1_hint"];
-				$this->values[$id]['lvl_1_minus_points'] = $data["lvl_1_minus_points"];
-				$this->values[$id]['lvl_2_hint'] = $data["lvl_2_hint"];
-				$this->values[$id]['lvl_2_minus_points'] = $data["lvl_2_minus_points"];
+				if(is_array($data)) {
+					$this->values[$id]['is_voted_by_current_user'] = $data["is_voted_by_current_user"];
+					$this->values[$id]['answer_id'] = $data["answer_id"];
+				}
+			}
+		}
+		if($this->getModus() == 2) {
+			if(is_array($a_values['comment_data']) && !empty($a_values['comment_data'])) {
+				foreach ($a_values['comment_data'] as $answer_id => $data) {
+					$this->values[$answer_id]['comments'] = $data["comments"];
+				}
 			}
 		}
 	}
 
-
-	function hasUserVotedForAnswer($answer) {
-		$voting = xaseVoting::where(array( 'user_id' => $this->dic->user()->getId(), 'answer_id' => $answer->getId() ))->first();
+	function hasUserVotedForOneAnswer() {
+		$voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->first();
 		if (empty($voting)) {
 			return false;
 		}
+		return true;
+	}
 
+
+	function hasUserVotedForAnswer($answer) {
+		$voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $answer->getId()))->first();
+		if (empty($voting)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -136,14 +149,13 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 		$tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-		//$tpl->setCurrentBlock("item");
-		//$tpl->setVariable("ITEM_LABEL", $this->pl->txt("task_label"));
 		$tpl->setVariable("ITEM", $this->xase_item->getTask());
-		//$tpl->parseCurrentBlock();
+		$item_creator = arUser::where(array('user_id' => $this->xase_item->getId()))->first();
+		$tpl->setVariable("ITEM_CREATOR", $item_creator->getFirstname() . " " . $item_creator->getLastname());
 
 		foreach ($this->getAnswers() as $answer) {
 			if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
-				|| $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+				|| $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 				$tpl->setCurrentBlock("answer_form");
 				$tpl->setVariable("ANSWER_ID", $answer->getId());
 				$tpl->setVariable("ANSWER_FORM_ID", $answer->getId());
@@ -161,6 +173,10 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 				$this->answer_non_editable_value_gui->setValue($answer->getBody());
 				$tpl->setVariable("ANSWER", $this->answer_non_editable_value_gui->render());
+				$answer_creator = arUser::where(array('user_id' => $answer->getId()))->first();
+				$tpl->setVariable("ANSWER_CREATOR", $answer_creator->getFirstname() . " " . $answer_creator->getLastname());
+
+//				if($this->getModus()!= 3) {
 
 				$this->setComments($this->getCommentsForAnswer($answer));
 
@@ -171,73 +187,41 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
 				}
 
-				$tpl_comment_form = new ilTemplate("tpl.comment_form.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
+					$tpl_comment_form = new ilTemplate("tpl.comment_form.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-				$tpl_comment_form->setCurrentBlock("comment_wrapper");
+					$tpl_comment_form->setCurrentBlock("comment_wrapper");
 
-				$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
+					$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
 
-				if (empty($this->comments)) {
-					$this->comment_non_editable_value_gui->setValue("");
-					$tpl_comment_form->setCurrentBlock("comment");
-					$tpl_comment_form->setVariable("COMMENT_ID", "1");
-					$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
-					$tpl_comment_form->parseCurrentBlock();
-
-				} else {
-					foreach ($this->comments as $comment) {
-						$this->comment_non_editable_value_gui->setValue($comment->getBody());
+					if (empty($this->comments)) {
+						$this->comment_non_editable_value_gui->setValue("");
 						$tpl_comment_form->setCurrentBlock("comment");
-						$tpl_comment_form->setVariable("COMMENT_ID", $comment->getId());
+						$tpl_comment_form->setVariable("COMMENT_ID", "1");
 						$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
 						$tpl_comment_form->parseCurrentBlock();
+
+					} else {
+						foreach ($this->comments as $comment) {
+							$this->comment_non_editable_value_gui->setValue($comment->getBody());
+							$tpl_comment_form->setCurrentBlock("comment");
+							$tpl_comment_form->setVariable("COMMENT_ID", $comment->getId());
+							$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+							$tpl_comment_form->parseCurrentBlock();
+						}
 					}
-				}
-				$tpl_comment_form->setCurrentBlock("comment_wrapper");
-				$tpl_comment_form->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-				$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
-				$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
-				$tpl_comment_form->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-				$tpl_comment_form->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
-				$tpl_comment_form->parseCurrentBlock();
+					$tpl_comment_form->setCurrentBlock("comment_wrapper");
+					$tpl_comment_form->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+					$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+					$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+					$tpl_comment_form->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+					$tpl_comment_form->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+					$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
+					$tpl_comment_form->parseCurrentBlock();
 
-				$tpl_comment_form->parseCurrentBlock();
+					$tpl_comment_form->parseCurrentBlock();
 
-				$tpl->setVariable("COMMENT_FORM", $tpl_comment_form->get());
-
-
-				/*$tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
-				if (count($this->comments) >= 2) {
-					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
-				} else {
-					$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
-				}
-
-				$tpl->setCurrentBlock("comment_wrapper");
-
-				if (empty($this->comments)) {
-					$this->comment_non_editable_value_gui->setValue("");
-					$tpl->setCurrentBlock("comment");
-					$tpl->setVariable("COMMENT_ID", "1");
-					$tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
-					$tpl->parseCurrentBlock();
-
-				} else {
-					foreach ($this->comments as $comment) {
-						$this->comment_non_editable_value_gui->setValue($comment->getBody());
-						$tpl->setCurrentBlock("comment");
-						$tpl->setVariable("COMMENT_ID", $comment->getId());
-						$tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
-						$tpl->parseCurrentBlock();
-					}
-				}
-				$tpl->setCurrentBlock("comment_wrapper");
-				$tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-				$tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
-				$tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
-				$tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-				$tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
-				$tpl->parseCurrentBlock();*/
+					$tpl->setVariable("COMMENT_FORM", $tpl_comment_form->get());
+//				}
 			}
 			$tpl->parseCurrentBlock('answer_form');
 		}
@@ -256,74 +240,78 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 				$tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-				$tpl->setCurrentBlock("item");
-				//$tpl->setVariable("ITEM_LABEL", $this->pl->txt("task_label"));
 				$tpl->setVariable("ITEM", $this->xase_item->getTask());
-				$tpl->parseCurrentBlock();
+				$tpl->setVariable("ITEM_CREATOR", arUser::where(array('user_id' => $this->xase_item->getId())));
 
 				foreach ($this->getAnswers() as $answer) {
-					if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED
-						|| $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
-						|| $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+					if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
+						|| $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+						$tpl->setCurrentBlock("answer_form");
+						$tpl->setVariable("ANSWER_ID", $answer->getId());
 						$tpl->setVariable("ANSWER_FORM_ID", $answer->getId());
 						if ($this->hasUserVotedForAnswer($answer)) {
 							$tpl->setVariable("IS_VOTED", 1);
 						} else {
 							$tpl->setVariable("IS_VOTED", 0);
 						}
-
-						$tpl->setVariable("ANSWER_ID", $answer->getId());
-
-						$tpl->setCurrentBlock("voting");
 						if (!empty($answer->getNumberOfUpvotings())) {
 							$tpl->setVariable("NUMBEROFUPVOTINGS", $answer->getNumberOfUpvotings());
 						} else {
 							$tpl->setVariable("NUMBEROFUPVOTINGS", 0);
 						}
 						$tpl->setVariable("VOTE_ERROR_TEXT", $this->pl->txt("vote_error_text"));
-						$tpl->parseCurrentBlock();
 
-						$tpl->setCurrentBlock("answer");
 						$this->answer_non_editable_value_gui->setValue($answer->getBody());
 						$tpl->setVariable("ANSWER", $this->answer_non_editable_value_gui->render());
-						$tpl->parseCurrentBlock();
+
+//						if($this->getModus() != 3) {
 
 						$this->setComments($this->getCommentsForAnswer($answer));
 
-						$tpl->setCurrentBlock("comment_counter");
 						$tpl->setVariable("NUMBER_OF_COMMENTS", count($this->comments));
 						if (count($this->comments) >= 2) {
 							$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comments'));
 						} else {
 							$tpl->setVariable("COMMENT_TEXT", $this->pl->txt('comment'));
 						}
-						$tpl->parseCurrentBlock();
 
-						$tpl->setCurrentBlock("comment_wrapper");
+							$tpl_comment_form = new ilTemplate("tpl.comment_form.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-						if (empty($this->comments)) {
-							$this->comment_non_editable_value_gui->setValue("");
-							$tpl->setCurrentBlock("comment");
-							$tpl->setVariable("COMMENT_ID", "1");
-							$tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
-							$tpl->parseCurrentBlock();
-						} else {
-							foreach ($this->comments as $comment) {
-								$this->comment_non_editable_value_gui->setValue($comment->getBody());
-								$tpl->setCurrentBlock("comment");
-								$tpl->setVariable("COMMENT_ID", $comment->getId());
-								$tpl->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
-								$tpl->parseCurrentBlock();
+							$tpl_comment_form->setCurrentBlock("comment_wrapper");
+
+							$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
+
+							if (empty($this->comments)) {
+								$this->comment_non_editable_value_gui->setValue("");
+								$tpl_comment_form->setCurrentBlock("comment");
+								$tpl_comment_form->setVariable("COMMENT_ID", "1");
+								$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+								$tpl_comment_form->parseCurrentBlock();
+
+							} else {
+								foreach ($this->comments as $comment) {
+									$this->comment_non_editable_value_gui->setValue($comment->getBody());
+									$tpl_comment_form->setCurrentBlock("comment");
+									$tpl_comment_form->setVariable("COMMENT_ID", $comment->getId());
+									$tpl_comment_form->setVariable("COMMENT", $this->comment_non_editable_value_gui->render());
+									$tpl_comment_form->parseCurrentBlock();
+								}
 							}
-						}
-						$tpl->setCurrentBlock("comment_wrapper");
-						$tpl->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
-						$tpl->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
-						$tpl->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
-						$tpl->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
-						$tpl->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
-						$tpl->parseCurrentBlock();
+							$tpl_comment_form->setCurrentBlock("comment_wrapper");
+							$tpl_comment_form->setVariable("CREATE_COMMENT_LINK_TEXT", $this->pl->txt('add_comment'));
+							$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_LABEL", $this->pl->txt('add_new_comment'));
+							$tpl_comment_form->setVariable("CREATE_COMMENT_FORM_ERROR_MESSAGE", $this->pl->txt('create_comment_form_error_message'));
+							$tpl_comment_form->setVariable("COMMENT_SAVE_TEXT", $this->pl->txt('save'));
+							$tpl_comment_form->setVariable("COMMENT_DISCARD_TEXT", $this->pl->txt('discard_comment'));
+							$tpl_comment_form->setVariable("ANSWER_ID", $answer->getId());
+							$tpl_comment_form->parseCurrentBlock();
+
+							$tpl_comment_form->parseCurrentBlock();
+
+							$tpl->setVariable("COMMENT_FORM", $tpl_comment_form->get());
+//						}
 					}
+					$tpl->parseCurrentBlock('answer_form');
 				}
 
 				$a_tpl->setCurrentBlock("prop_generic");
@@ -573,4 +561,22 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 	public function setAnswers($answers) {
 		$this->answers = $answers;
 	}
+
+
+	/**
+	 * @return mixed
+	 */
+	public function getModus() {
+		return $this->modus;
+	}
+
+
+	/**
+	 * @param mixed $modus
+	 */
+	public function setModus($modus) {
+		$this->modus = $modus;
+	}
+
+
 }

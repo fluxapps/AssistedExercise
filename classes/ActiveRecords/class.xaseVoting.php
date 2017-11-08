@@ -33,6 +33,15 @@ class xaseVoting extends ActiveRecord {
 	 * @db_length     4
 	 * @db_is_notnull true
 	 */
+	protected $item_id;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
 	protected $user_id;
 	/**
 	 * @var int
@@ -67,4 +76,38 @@ class xaseVoting extends ActiveRecord {
 	public function setAnswerId($answer_id) {
 		$this->answer_id = $answer_id;
 	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getItemId() {
+		return $this->item_id;
+	}
+
+
+	/**
+	 * @param int $item_id
+	 */
+	public function setItemId($item_id) {
+		$this->item_id = $item_id;
+	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getUserId() {
+		return $this->user_id;
+	}
+
+
+	/**
+	 * @param int $user_id
+	 */
+	public function setUserId($user_id) {
+		$this->user_id = $user_id;
+	}
+
+
 }

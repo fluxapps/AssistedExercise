@@ -11,7 +11,7 @@ class xaseAnswer extends ActiveRecord {
 	const ANSWER_STATUS_ANSWERED = 1;
 	const ANSWER_STATUS_SUBMITTED = 2;
 	const ANSWER_STATUS_RATED = 3;
-	const ANSWER_STATUS_M2_CAN_BE_VOTED = 4;
+	const ANSWER_STATUS_CAN_BE_VOTED = 4;
 
 
 	/**

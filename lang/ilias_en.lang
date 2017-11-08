@@ -124,3 +124,6 @@ vote_error_text#:#Please first down vote the answer you upvoted previously.
 add_new_comment#:#Add new comment
 create_comment_form_error_message#:#Please fill out the input for the comment.
 please_vote_for_one_answer#:#Please vote for one answer.
+additional_points_voting#:#Additional points voting
+total_points#:#Total points
+view_answers#:#view_answers

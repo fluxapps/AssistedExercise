@@ -481,20 +481,25 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 		} elseif ($chosen_mode != self::M3 && xaseSettingsM3::where([ 'settings_id' => $this->object->getId() ])->hasSets()) {
 			$xaseSettingsM3 = xaseSettingsM3::where([ 'settings_id' => $this->object->getId() ])->first();
 			$xaseSettingsM3->delete();
+			if($chosen_mode != self::M2) {
+				$this->resetVotingSpecificStatusToAnswerd();
+			}
 		} elseif ($chosen_mode != self::M2 && xaseSettingsM2::where([ 'settings_id' => $this->object->getId() ])->hasSets()) {
 			$xaseSettingsM2 = xaseSettingsM2::where([ 'settings_id' => $this->object->getId() ])->first();
 			$xaseSettingsM2->delete();
-			$this->resetModus2SpecificStatusToAnswerd();
+			if($chosen_mode != self::M3) {
+				$this->resetVotingSpecificStatusToAnswerd();
+			}
 		}
 
 		return;
 	}
 
 
-	protected function resetModus2SpecificStatusToAnswerd() {
+	protected function resetVotingSpecificStatusToAnswerd() {
 		$all_answers = xaseAnswer::get();
 		foreach ($all_answers as $answer) {
-			if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_M2_CAN_BE_VOTED) {
+			if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 				$answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
 			}
 		}

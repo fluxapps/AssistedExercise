@@ -140,7 +140,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 
 		//$this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
 		$this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
-		$this->setFormAction($this->ctrl->getFormAction($this));
+		$this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
 	}
 
 

@@ -429,7 +429,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 				"default" => true
 			);
 			$cols["additional_points"] = array(
-				"txt" => $this->pl->txt("additional_points"),
+				"txt" => $this->pl->txt("additional_points_voting"),
 				"default" => true
 			);
 			$cols["points"] = array(

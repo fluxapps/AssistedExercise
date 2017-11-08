@@ -122,7 +122,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 		}
 
 		$next_class = $this->dic->ctrl()->getNextClass($this);
-		//die(var_dump($next_class));
+
 		$this->dic->ctrl()->getCmd(self::CMD_STANDARD);
 
 		switch ($next_class) {
