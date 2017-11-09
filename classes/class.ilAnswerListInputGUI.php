@@ -150,7 +150,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 		$tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
 		$tpl->setVariable("ITEM", $this->xase_item->getTask());
-		$item_creator = arUser::where(array('user_id' => $this->xase_item->getId()))->first();
+		$item_creator = xaseilUser::where(array('user_id' => $this->xase_item->getId()))->first();
 		$tpl->setVariable("ITEM_CREATOR", $item_creator->getFirstname() . " " . $item_creator->getLastname());
 
 		foreach ($this->getAnswers() as $answer) {
@@ -173,7 +173,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 
 				$this->answer_non_editable_value_gui->setValue($answer->getBody());
 				$tpl->setVariable("ANSWER", $this->answer_non_editable_value_gui->render());
-				$answer_creator = arUser::where(array('user_id' => $answer->getId()))->first();
+				$answer_creator = xaseilUser::where(array('user_id' => $answer->getId()))->first();
 				$tpl->setVariable("ANSWER_CREATOR", $answer_creator->getFirstname() . " " . $answer_creator->getLastname());
 
 //				if($this->getModus()!= 3) {
@@ -241,7 +241,7 @@ class ilAnswerListInputGUI extends ilFormPropertyGUI {
 				$tpl = new ilTemplate("tpl.answer_list.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
 				$tpl->setVariable("ITEM", $this->xase_item->getTask());
-				$tpl->setVariable("ITEM_CREATOR", arUser::where(array('user_id' => $this->xase_item->getId())));
+				$tpl->setVariable("ITEM_CREATOR", xaseilUser::where(array('user_id' => $this->xase_item->getId())));
 
 				foreach ($this->getAnswers() as $answer) {
 					if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED

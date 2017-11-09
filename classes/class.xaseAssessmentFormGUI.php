@@ -414,7 +414,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 
 	protected function getStudentUser() {
-		return arUser::where(array( 'usr_id' => $this->xase_answer->getUserId() ))->first();
+		return xaseilUser::where(array( 'usr_id' => $this->xase_answer->getUserId() ))->first();
 	}
 
 
