@@ -12,6 +12,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseilUser.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseUpvotingsGUI.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
@@ -19,6 +20,10 @@ require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 class xaseSubmissionTableGUI extends ilTable2GUI {
 
 	const TBL_ID = 'tbl_xase_submissions';
+	const M1 = 1;
+	const M2 = 2;
+	const M3 = 3;
+
 	/**
 	 * @var \ILIAS\DI\Container
 	 */
@@ -43,6 +48,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	 * @var xaseSettings
 	 */
 	public $xase_settings;
+	/**
+	 * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
+	 */
+	protected $mode_settings;
 	/**
 	 * @var xaseItem
 	 */
@@ -82,6 +91,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->assisted_exercise = $assisted_exercise;
 		//$this->xase_answer = $this->getSubmittedAnswers();
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $assisted_exercise->getId() ])->first();
+		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		//$this->xase_item = $xase_item;
 
 		parent::__construct($a_parent_obj, $a_parent_cmd);
@@ -187,10 +197,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		/*
 		 * @var xaseItem $item
 		 */
-		$item = xaseItem::where(array( 'id' => $xaseAnswer->getItemId() ))->first();
+		$xaseItem = xaseItem::where(array( 'id' => $xaseAnswer->getItemId() ))->first();
 		if ($this->isColumnSelected('item_title')) {
 			$this->tpl->setCurrentBlock('itemtitle');
-			$this->tpl->setVariable('ITEMTITLE', $item->getItemTitle());
+			$this->tpl->setVariable('ITEMTITLE', $xaseItem->getItemTitle());
 			$this->tpl->parseCurrentBlock();
 		}
 		if ($this->isColumnSelected('is_assessed')) {
@@ -259,8 +269,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		 */
 		if ($this->xase_settings->getModus() == 3 && $this->isColumnSelected('number_of_upvotings')) {
 			$this->tpl->setCurrentBlock("number_up_votings");
-			if (!empty($xaseVoting)) {
-				$this->tpl->setVariable('NUMBERUPVOTINGS', $xaseVoting->getNumberOfUpvotings());
+			if (!empty($xaseAnswer)) {
+				$this->tpl->setVariable('NUMBERUPVOTINGS', $xaseAnswer->getNumberOfUpvotings());
 			} else {
 				$this->tpl->setVariable('NUMBERUPVOTINGS', 0);
 			}
@@ -269,7 +279,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 		$xaseAssessment = $this->getAssessment($xaseAnswer->getId());
 
-		$this->addActionMenu($xaseAnswer, $xaseAssessment);
+		$this->addActionMenu($xaseAnswer, $xaseAssessment, $xaseItem);
 	}
 
 
@@ -291,7 +301,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	/**
 	 * @param xaseItem $xaseItem
 	 */
-	protected function addActionMenu(xaseAnswer $xaseAnswer, xaseAssessment $xaseAssessment) {
+	protected function addActionMenu(xaseAnswer $xaseAnswer, xaseAssessment $xaseAssessment, xaseItem $xaseItem) {
 		$current_selection_list = new ilAdvancedSelectionListGUI();
 		$current_selection_list->setListTitle($this->pl->txt('common_actions'));
 		$current_selection_list->setId('answer_actions' . $xaseAnswer->getId());
@@ -300,19 +310,20 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseAnswer->getId());
 		$this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
 		$this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
+		$this->ctrl->setParameterByClass(xaseUpvotingsGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+		$this->ctrl->setParameterByClass(xaseUpvotingsGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
 		//TODO xase_item setzen
 		//$this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
-		if ($this->access->hasWriteAccess()) {
+		if ($this->access->hasWriteAccess() && xaseSubmissionGUI::isDisposalDateExpired($this->mode_settings)) {
 			$current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
 		}
 		if ($this->xase_settings->getModus() == 3) {
 			if ($this->access->hasWriteAccess()) {
-				$current_selection_list->addItem($this->pl->txt('show_upvotings'), xaseVotingGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xasevotinggui', xaseVotingGUI::CMD_STANDARD));
+				$current_selection_list->addItem($this->pl->txt('show_upvotings'), xaseUpvotingsGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseUpvotingsGUI::class, xaseUpvotingsGUI::CMD_STANDARD));
 			}
 		}
 		$this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
 	}
-
 
 	protected function getItemIdsFromThisExercise() {
 		$items = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
@@ -320,10 +331,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		foreach ($items as $item) {
 			$item_ids[] = $item->getId();
 		}
-
 		return $item_ids;
 	}
-
 
 	protected function parseData() {
 		$this->determineOffsetAndOrder();
@@ -507,5 +516,15 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			));
 
 		return $renderer->render($unordered);
+	}
+
+	protected function getModeSettings($mode) {
+		if ($mode == self::M1) {
+			return xaseSettingsM1::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} elseif ($mode == self::M3) {
+			return xaseSettingsM3::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} else {
+			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		}
 	}
 }

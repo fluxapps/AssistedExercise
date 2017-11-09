@@ -376,6 +376,10 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 		if (!$this->checkInput()) {
 			return false;
 		}
+		if ($this->getInput('rate_answers' . $this->object->getModus()) && empty($this->getInput('disposals_until' . (int)$this->object->getModus()))) {
+			ilUtil::sendFailure($this->pl->txt('msg_input_please_chose_disposal_date'));
+			return false;
+		}
 		$this->assisted_exercise->setTitle($this->getInput('title'));
 		$this->assisted_exercise->setDescription($this->getInput('desc'));
 		$this->object->setAssistedExerciseObjectId($this->assisted_exercise->getId());

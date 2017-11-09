@@ -46,6 +46,10 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 	 */
 	public $xase_settings;
 	/**
+	 * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
+	 */
+	protected $mode_settings;
+	/**
 	 * @var xaseAssessmentGUI
 	 */
 	protected $parent_gui;
@@ -116,6 +120,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$this->parent_gui = $xase_assessment_gui;
 		$this->is_student = $is_student;
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
+		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		$this->https = $this->dic['https'];
 		$this->ilias = $this->dic['ilias'];
 		parent::__construct();
@@ -366,6 +371,81 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		);
 		$this->setValuesByArray($array, true);
 	}
+	/*
+	 * 1) get voting from user for the current item
+	 * 2) get all answers for the current item
+	 * 3) save the id of the answer which got the highest points from teacher
+	 * 4) check if the id is equal to the id which the user voted for
+	 *  a) if yes
+	 *      -get max points for the item
+	 *      -get in the mode 3 settings the number of percentage
+	 *      -calculate additional points
+	 *      -return the additional points
+	 *  b) if no
+	 *      -return 0
+	 */
+	protected function getAdditionalPoints() {
+
+	}
+
+	/* 1) get all answers for the current item
+	 * 2) save the id of the answer which got the highest points from teacher
+	 * 3) loop through each votings for the current item
+	 * 3) if the answer id from the votings record is equal to the answer id which has the highest points from teacher
+	 *  a) yes
+	 *      -get max points for the item
+	 *      -get in the mode 3 settings the number of percentage
+	 *      -calculate additional points
+	 *      -get answer from user
+ *          -get corresponding points entry
+	 *      -set the calculated additional points
+	 *      -save object
+	 *  b) no
+	 *      -get answer from user
+	 *      -set the calculated additional points with value 0
+	 *      -save object
+	 */
+	protected function setAdditionalPointsForStudents() {
+		$answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
+		$answer_id_highest_teacher_points = 0;
+		foreach($answers as $key => $answer) {
+			$points_user_answer = xasePoint::where(array('id' => $answer->getPointId()))->first();
+			if(prev($answers)) {
+				$previous_answer = prev($answers);
+				$points_previous_user_answer = xasePoint::where(array('id' => $previous_answer->getPointId()))->first();
+				if($points_previous_user_answer->getPointsTeacher() < $points_user_answer->getPointsTeacher()) {
+					$answer_id_highest_teacher_points = $answer->getId();
+				}
+			} else {
+				$answer_id_highest_teacher_points = $answer->getId();
+			}
+		}
+		$votings = xaseVoting::where(array('item_id' => $this->xase_item->getId()))->get();
+		foreach($votings as $voting) {
+			$user_answer = xaseAnswer::where(array('user_id' => $voting->getUserId()))->first();
+			$points_user_answer = xasePoint::where(array('id' => $user_answer->getPointId()))->first();
+			if($voting->getAnswerId() == $answer_id_highest_teacher_points) {
+				$xasePoint = xasePoint::where(array('item_id' => $this->xase_item->getId()))->first();
+				$max_points_for_item = $xasePoint->getMaxPoints();
+				$percentage_additiona_points = $this->mode_settings->getVotingPointsPercentage();
+				$additional_points = $max_points_for_item * ($percentage_additiona_points / 100);
+				$points_user_answer->setAdditionalPoints($additional_points);
+			} else {
+				$points_user_answer->setAdditionalPoints(0);
+			}
+			$points_user_answer->store();
+		}
+	}
+
+	protected function getModeSettings($mode) {
+		if ($mode == self::M1) {
+			return xaseSettingsM1::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} elseif ($mode == self::M3) {
+			return xaseSettingsM3::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} else {
+			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		}
+	}
 
 
 	public function fillObject() {
@@ -389,6 +469,8 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			if ($this->xase_settings->getModus() == self::M1) {
 				$this->xase_point->setTotalPoints($this->getInput('points'));
 			} elseif ($this->xase_settings->getModus() == self::M3) {
+				//$this->xase_point->setAdditionalPoints($this->getAdditionalPoints());
+				$this->setAdditionalPointsForStudents();
 				$this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
 			}
 			$this->xase_point->setPointsTeacher($this->getInput('points'));

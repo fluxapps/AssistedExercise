@@ -17,6 +17,9 @@ class xaseSubmissionGUI {
 	const CMD_ADD_SUBMITTED_EXERCISE = "addSubmittedExercise";
 	const CMD_APPLY_FILTER = 'applyFilter';
 	const CMD_RESET_FILTER = 'resetFilter';
+	const M1 = 1;
+	const M2 = 2;
+	const M3 = 3;
 	/**
 	 * @var ilObjAssistedExercise
 	 */
@@ -33,6 +36,10 @@ class xaseSubmissionGUI {
 	 * @var xaseSettings
 	 */
 	public $xase_settings;
+	/**
+	 * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
+	 */
+	protected $mode_settings;
 	/**
 	 * @var \ILIAS\DI\Container
 	 */
@@ -69,6 +76,7 @@ class xaseSubmissionGUI {
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->assisted_exercise = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
+		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		//TODO set item_id Parameter
 		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 	}
@@ -148,9 +156,12 @@ class xaseSubmissionGUI {
 		if (!$this->access->hasWriteAccess()) {
 			ilUtil::sendFailure($this->pl->txt('permission_denied'), true);
 		}
-
 		$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
-		$this->tpl->setContent($xaseSubmissionTableGUI->getHTML());
+		if(self::isDisposalDateExpired($this->mode_settings)) {
+			$this->tpl->setContent($xaseSubmissionTableGUI->getHTML());
+		} else {
+			$this->tpl->setContent($this->info_panel_disposal_date() . $xaseSubmissionTableGUI->getHTML());
+		}
 		$this->tpl->show();
 	}
 
@@ -169,8 +180,42 @@ class xaseSubmissionGUI {
 		$this->ctrl->redirect($this, self::CMD_STANDARD);
 	}
 
-
 	protected function cancel() {
 		$this->ctrl->redirect($this, self::CMD_STANDARD);
+	}
+
+	protected function getModeSettings($mode) {
+		if ($mode == self::M1) {
+			return xaseSettingsM1::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} elseif ($mode == self::M3) {
+			return xaseSettingsM3::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		} else {
+			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		}
+	}
+
+	public static function isDisposalDateExpired($mode_settings) {
+		$current_date = date('Y-m-d h:i:s', time());
+		$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+		$disposal_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $mode_settings->getDisposalDate());
+		if (($disposal_date_datetime->getTimestamp() > $current_date_datetime->getTimestamp())
+			|| $mode_settings->getDisposalDate() == "0000-00-00 00:00:00") {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	protected function info_panel_disposal_date() {
+		global $DIC;
+		$f = $DIC->ui()->factory();
+		$renderer = $DIC->ui()->renderer();
+
+		$panel = $f->panel()->standard(
+			$this->pl->txt("info_regarding_disposal_date"),
+			$f->legacy($this->pl->txt("assessment_can_be_done_after_the_defined_disposal_date"))
+		);
+
+		return $renderer->render($panel);
 	}
 }
