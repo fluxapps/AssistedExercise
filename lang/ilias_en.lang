@@ -126,4 +126,11 @@ create_comment_form_error_message#:#Please fill out the input for the comment.
 please_vote_for_one_answer#:#Please vote for one answer.
 additional_points_voting#:#Additional points voting
 total_points#:#Total points
-view_answers#:#view_answers
+view_answers#:#view answers
+back#:#Back
+show_upvotings#:#Show upvotings
+upvoters_for_answer_from#:#Upvoters for answer from
+on_the_question#:#on the question
+msg_input_please_chose_disposal_date#:#Please chose a disposal date.
+info_regarding_disposal_date#:#Information regarding disposal date
+assessment_can_be_done_after_the_defined_disposal_date#:#Assessment can be done after the defined disposal date
