@@ -43,6 +43,15 @@ class xaseComment extends ActiveRecord {
 	 * @db_is_notnull       true
 	 */
 	protected $body;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
+	protected $user_id;
 
 
 	/**
@@ -83,4 +92,21 @@ class xaseComment extends ActiveRecord {
 	public function setBody($body) {
 		$this->body = $body;
 	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getUserId() {
+		return $this->user_id;
+	}
+
+
+	/**
+	 * @param int $user_id
+	 */
+	public function setUserId($user_id) {
+		$this->user_id = $user_id;
+	}
+
 }

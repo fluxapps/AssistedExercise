@@ -130,4 +130,10 @@ create_comment_form_error_message#:#Bitte füllen Sie das Eingabefeld für den K
 please_vote_for_one_answer#:#Bitte voten Sie für eine Antwort.
 additional_points_voting#:#Zusätzliche Punkte durch Voting
 total_points#:#Total Punkte
-view_answers#:#Antworten einsehen
+back#:#Zurück
+show_upvotings#:#Upvotings anzeigen
+upvoters_for_answer_from#:#Upvoters auf die Antwort von
+on_the_question#:#auf die Frage
+msg_input_please_chose_disposal_date#:#Bitte geben Sie ein Abgabedatum an.
+info_regarding_disposal_date#:#Information betreffend Abgabedatum
+assessment_can_be_done_after_the_defined_disposal_date#:#Bewertungen erst können nach dem definierten Abgabedatum vorgenommen werden.
