@@ -376,7 +376,9 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 		if (!$this->checkInput()) {
 			return false;
 		}
-		if ($this->getInput('rate_answers' . $this->object->getModus()) && empty($this->getInput('disposals_until' . (int)$this->object->getModus()))) {
+
+
+		if ($this->getInput('rate_answers' . $this->getInput('mode')) && empty($this->getInput('disposals_until' . (int)$this->getInput('mode')))) {
 			ilUtil::sendFailure($this->pl->txt('msg_input_please_chose_disposal_date'));
 			return false;
 		}

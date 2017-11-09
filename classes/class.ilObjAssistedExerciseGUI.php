@@ -319,7 +319,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 
 	public function update() {
 		$this->tabs->activateTab(self::CMD_EDIT);
-		$xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $this->xase_settings->getModus());
+		$xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $_POST['mode']);
 		if ($xaseSettingsFormGUI->updateObject() && $this->object->update()) {
 			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
 		}
