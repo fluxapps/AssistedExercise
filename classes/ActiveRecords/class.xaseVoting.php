@@ -7,6 +7,9 @@
 
 class xaseVoting extends ActiveRecord {
 
+	const VOTING_TYPE_UP = 1;
+	const VOTING_TYPE_DOWN = 2;
+
 	/**
 	 * @return string
 	 */
@@ -52,6 +55,24 @@ class xaseVoting extends ActiveRecord {
 	 * @db_is_notnull true
 	 */
 	protected $answer_id;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
+	protected $voting_type;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
+	protected $comp_answer_id;
 
 
 	/**
@@ -110,4 +131,34 @@ class xaseVoting extends ActiveRecord {
 	}
 
 
+	/**
+	 * @return int
+	 */
+	public function getVotingType() {
+		return $this->voting_type;
+	}
+
+
+	/**
+	 * @param int $voting_type
+	 */
+	public function setVotingType($voting_type) {
+		$this->voting_type = $voting_type;
+	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getCompAnswerId() {
+		return $this->comp_answer_id;
+	}
+
+
+	/**
+	 * @param int $comp_answer_id
+	 */
+	public function setCompAnswerId($comp_answer_id) {
+		$this->comp_answer_id = $comp_answer_id;
+	}
 }

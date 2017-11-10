@@ -129,6 +129,11 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 			$this->initHiddenUsedHintsInput();
 		}
 
+		if (($this->mode == 2 || $this->mode == 3)
+			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->pl->txt('can_be_voted'));
+		}
+
 		if ($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED
 			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED
 			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
@@ -364,14 +369,14 @@ EOT;
 	/**
 	 * @return bool
 	 */
-	public function fillObject() {
+	public function fillObject($status) {
 		if (!$this->checkInput()) {
 			return false;
 		}
 		$this->xase_answer->setUserId($this->dic->user()->getId());
 		$this->xase_answer->setItemId($this->xase_item->getId());
 		$this->xase_answer->setShowHints($this->getInput('show_hints'));
-		$this->xase_answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
+		$this->xase_answer->setAnswerStatus($status);
 
 		if (empty($this->xase_answer->getUsedHints())) {
 			$used_hints = $this->getInput('used_hints');
@@ -447,8 +452,8 @@ EOT;
 	/**
 	 * @return bool|string
 	 */
-	public function updateObject() {
-		if (!$this->fillObject()) {
+	public function updateObject($status = xaseAnswer::ANSWER_STATUS_ANSWERED) {
+		if (!$this->fillObject($status)) {
 			return false;
 		}
 

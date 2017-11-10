@@ -135,6 +135,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 			$this->initHintForm();
 		}
 
+
 		$this->addCommandButton(xaseItemGUI::CMD_UPDATE, $this->pl->txt('save'));
 		$this->addCommandButton(xaseItemGUI::CMD_CANCEL, $this->pl->txt("cancel"));
 

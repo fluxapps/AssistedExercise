@@ -9,7 +9,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAssessment.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php');
-require_once('./Services/ActiveRecord/_Examples/Message/class.arUser.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseilUser.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseUpvotingsGUI.php');
@@ -162,7 +162,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 
 	protected function getUserObject($xase_answer) {
-		return arUser::where(array( 'usr_id' => $xase_answer->getUserId() ))->first();
+		return xaseilUser::where(array( 'usr_id' => $xase_answer->getUserId() ))->first();
 	}
 
 
@@ -370,7 +370,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			'minus_points'
 		));
 
-		$collection->leftjoin(arUser::returnDbTableName(), 'user_id', 'usr_id', array( 'firstname', 'lastname' ));
+		$collection->leftjoin(xaseilUser::returnDbTableName(), 'user_id', 'usr_id', array( 'firstname', 'lastname' ));
 
 		$collection->leftjoin(xaseItem::returnDbTableName(), 'item_id', 'id', array( 'item_title' ));
 
