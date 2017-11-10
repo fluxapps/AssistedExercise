@@ -1,24 +1,31 @@
 <?php
 
 /**
- * Class xaseAnswerGUI
+ * Class xaseVoteGUI
  *
- * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ * @author  Martin Studer <ms@studer-raimann.ch>
  */
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormGUI.php');
+require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Vote/class.xaseVoteFormGUI.php';
+require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVotings.php';
+
+/*require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormListGUI.php');
+*/
 
-class xaseAnswerGUI {
+class xaseVoteGUI {
 
-	const M1 = "1";
+	const CMD_STANDARD = 'compare';
+	const CMD_UPDATE = 'update';
+
+	/*const M1 = "1";
 	const M2 = "2";
 	const M3 = "3";
 	const ANSWER_IDENTIFIER = 'answer_id';
 	const CMD_STANDARD = 'edit';
-	const CMD_UPDATE = 'update';
+
 	const CMD_UPDATE_AND_SET_STATUS_TO_VOTE = 'upadteAndSetStatusToVote';
-	const CMD_CANCEL = 'cancel';
+	const CMD_CANCEL = 'cancel';*/
 	/**
 	 * @var ilObjAssistedExercise
 	 */
@@ -63,17 +70,19 @@ class xaseAnswerGUI {
 
 	public function __construct(ilObjAssistedExercise $assisted_exericse) {
 		global $DIC;
+
+
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
-		$this->tabs = $DIC->tabs();
+		//$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
 		$this->access = new ilObjAssistedExerciseAccess();
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->assisted_exercise = $assisted_exericse;
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
-		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
-		$this->xase_item = new xaseItem($_GET['item_id']);
-		$this->xase_answer = $this->getAnswer();
+		//$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
+		//$this->xase_item = new xaseItem($_GET['item_id']);
+		//$this->xase_answer = $this->getAnswer();
 		//parent::__construct();
 	}
 
@@ -82,7 +91,7 @@ class xaseAnswerGUI {
 		$nextClass = $this->ctrl->getNextClass();
 		switch ($nextClass) {
 			default:
-				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+				//$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 				$this->performCommand();
 		}
 	}
@@ -93,8 +102,6 @@ class xaseAnswerGUI {
 		switch ($cmd) {
 			case self::CMD_STANDARD:
 			case self::CMD_UPDATE:
-			case self::CMD_CANCEL:
-			case self::CMD_UPDATE_AND_SET_STATUS_TO_VOTE:
 				if ($this->access->hasReadAccess()) {
 					$this->{$cmd}();
 					break;
@@ -105,7 +112,40 @@ class xaseAnswerGUI {
 		}
 	}
 
+	protected function compare() {
 
+		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+
+		$answer_top = NULL;
+		$answer_bottom = NULL;
+
+		if(is_object($arr_answers[0])) {
+			$answer_top = $arr_answers[0];
+		}
+		if(is_object($best_answer)) {
+			$answer_top = $best_answer;
+		}
+
+		if(is_object($arr_answers[1])) {
+			$answer_bottom = $arr_answers[1];
+		}
+
+		$arr_answers = array($answer_top,$answer_bottom);
+
+		if($answer_top) {
+
+			$xaseVoteFormGUI = new xaseVoteFormGUI($arr_answers, $this);
+			$xaseVoteFormGUI->fillForm();
+			$this->tpl->setContent($xaseVoteFormGUI->getHTML());
+			$this->tpl->show();
+		}
+
+
+
+	}
+
+/*
 	protected function getAnswer() {
 		$xaseAnswer = xaseAnswer::where(array(
 			'item_id' => $this->xase_item->getId(),
@@ -117,8 +157,9 @@ class xaseAnswerGUI {
 
 		return $xaseAnswer;
 	}
+*/
 
-
+/*
 	protected function canVote() {
 		$current_date = date('Y-m-d h:i:s', time());
 		$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
@@ -130,8 +171,9 @@ class xaseAnswerGUI {
 			return true;
 		}
 	}
+*/
 
-
+/*
 	public function edit() {
 		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
@@ -139,14 +181,57 @@ class xaseAnswerGUI {
 		$this->tpl->setContent($xaseAnswerFormGUI->getHTML());
 		$this->tpl->show();
 	}
+*/
 
+	/*
 	public function upadteAndSetStatusToVote() {
 		$this->update(xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED);
-	}
+	}*/
 
 
 	public function update($status = xaseAnswer::ANSWER_STATUS_ANSWERED) {
-		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+
+
+		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+
+		$answer_top = NULL;
+		$answer_bottom = NULL;
+
+		if(is_object($arr_answers[0])) {
+			$answer_top = $arr_answers[0];
+		}
+		if(is_object($best_answer)) {
+			$answer_top = $best_answer;
+		}
+
+		if(is_object($arr_answers[1])) {
+			$answer_bottom = $arr_answers[1];
+		}
+
+		$arr_answers = array($answer_top,$answer_bottom);
+
+		if($answer_top) {
+
+			$xaseVoteFormGUI = new xaseVoteFormGUI($arr_answers, $this);
+
+			if ($xaseVoteFormGUI->updateObject()) {
+				ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
+				$this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
+			} else {
+				$xaseVoteFormGUI->setValuesByPost();
+
+				$this->tpl->setContent($xaseVoteFormGUI->getHTML());
+				$this->tpl->show();
+			}
+
+			$xaseVoteFormGUI->fillForm();
+			$this->tpl->setContent($xaseVoteFormGUI->getHTML());
+			$this->tpl->show();
+		}
+
+
+		//$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
 		if ($xaseAnswerFormGUI->updateObject($status)) {
 			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
@@ -164,7 +249,7 @@ class xaseAnswerGUI {
 		$this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_CANCEL);
 	}
 
-
+/*
 	protected function getModeSettings($mode) {
 		if ($mode == self::M1) {
 			return xaseSettingsM1::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
@@ -174,4 +259,5 @@ class xaseAnswerGUI {
 			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
 		}
 	}
+*/
 }

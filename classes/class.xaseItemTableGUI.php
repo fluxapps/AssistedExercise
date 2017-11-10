@@ -13,6 +13,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSampleSolutionGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Vote/class.xaseVoteGUI.php');
 require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php');
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
@@ -145,6 +146,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 				}
 			}
 		}
+		/*
 		if ($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
 			if (!empty(self::getAnswersFromUser($this->parent_obj->object, $this->dic))) {
 				$new_release_answers_for_voting_link = $this->ctrl->getLinkTarget($this->parent_obj, xaseItemGUI::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED);
@@ -152,9 +154,9 @@ class xaseItemTableGUI extends ilTable2GUI {
 				$releaseForVotingLinkButton->setCaption($this->pl->txt("release_answers_for_voting"), false);
 				$releaseForVotingLinkButton->setUrl($new_release_answers_for_voting_link);
 				/** @var $ilToolbar ilToolbarGUI */
-				$DIC->toolbar()->addButtonInstance($releaseForVotingLinkButton);
-			}
-		}
+				//$DIC->toolbar()->addButtonInstance($releaseForVotingLinkButton);
+			//}
+		//}
 	}
 
 
@@ -402,7 +404,8 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 		if(!empty($xase_answer)) {
 			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
-				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
+				//$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
+				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
 			}
 		}
 

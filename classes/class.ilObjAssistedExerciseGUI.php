@@ -18,6 +18,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSampleSolutionFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseUpvotingsGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerListGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Vote/class.xaseVoteGUI.php');
 require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
 
@@ -52,6 +53,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSampleSolutionGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerListGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseUpvotingsGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseVoteGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 
@@ -212,6 +214,12 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 				$this->tpl->getStandardTemplate();
 				$xaseAnswerListGUI = new xaseAnswerListGUI($this->object);
 				$this->ctrl->forwardCommand($xaseAnswerListGUI);
+				break;
+
+			case 'xasevotegui':
+				$this->tpl->getStandardTemplate();
+				$xaseVoteGUI = new xaseVoteGUI($this->object);
+				$this->ctrl->forwardCommand($xaseVoteGUI);
 				break;
 
 			default:

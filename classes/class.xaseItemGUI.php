@@ -17,7 +17,7 @@ class xaseItemGUI {
 	const CMD_UPDATE = 'update';
 	const CMD_APPLY_FILTER = 'applyFilter';
 	const CMD_RESET_FILTER = 'resetFilter';
-	const CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED = 'setAnswerStatusToCanBeVoted';
+	//const CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED = 'setAnswerStatusToCanBeVoted';
 	const M1 = "1";
 	const M2 = "2";
 	const M3 = "3";
@@ -97,7 +97,7 @@ class xaseItemGUI {
 			case self::CMD_CANCEL:
 			case self::CMD_APPLY_FILTER:
 			case self::CMD_RESET_FILTER:
-			case self::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED:
+			//case self::CMD_SET_ANSWER_STATUS_TO_CAN_BE_VOTED:
 				if (xaseItemAccess::hasReadAccess($this->xase_settings, $this->xase_item)) {
 					$this->{$cmd}();
 					break;
@@ -179,6 +179,7 @@ class xaseItemGUI {
 	}
 
 
+	/*
 	protected function setAnswerStatusToCanBeVoted() {
 		$answers_from_user = xaseItemTableGUI::getAnswersFromUser($this->object, $this->dic);
 		if (!empty($answers_from_user)) {
@@ -190,7 +191,7 @@ class xaseItemGUI {
 			}
 		}
 		$this->ctrl->redirect($this, self::CMD_STANDARD);
-	}
+	}*/
 
 
 	protected function getMaxAchievedPoints() {
