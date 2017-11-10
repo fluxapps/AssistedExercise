@@ -91,6 +91,9 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 
+		$this->voted_answers = xaseVotings::getVotedAnswersOfUserByItemId($this->assisted_exercise->getId(),$this->dic->user()->getId());
+
+
 		$this->initButtons($DIC);
 
 		parent::__construct($a_parent_obj, $a_parent_cmd);
@@ -366,7 +369,9 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$number_of_columns = count($this->getSelectedColumns());
 		$column_width = 100 / $number_of_columns;
 		foreach ($this->getSelectedColumns() as $col) {
-			$this->addColumn($all_cols[$col]['txt'], $col, $column_width);
+
+			$this->addColumn($all_cols[$col]['txt'], "", $column_width);
+
 		}
 		$this->addColumn($this->pl->txt('common_actions'), '', $column_width);
 	}
@@ -398,6 +403,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseItemDeleteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+		$this->ctrl->setParameterByClass(xaseVoteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
 		$current_selection_list->addItem($this->pl->txt('answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
 		$xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
@@ -405,7 +411,13 @@ class xaseItemTableGUI extends ilTable2GUI {
 		if(!empty($xase_answer)) {
 			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 				//$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
-				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
+				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseVoteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
+
+
+				if($this->voted_answers[$xaseItem->getId()] > 0) {
+					$current_selection_list->addItem($this->pl->txt('delete_my_votings'), xaseVoteGUI::CMD_DELETE_USERS_VOTINGS, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_DELETE_USERS_VOTINGS));
+				}
+
 			}
 		}
 
@@ -437,6 +449,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->determineOffsetAndOrder();
 		$this->determineLimit();
 
+		//TODO Refactor -> new Class xaseItems; the query should also contain an attribute hase voting yes/false
 		$collection = xaseItem::getCollection();
 		$collection->where(array( 'assisted_exercise_id' => $this->parent_obj->object->getId() ));
 

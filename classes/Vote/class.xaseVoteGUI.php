@@ -18,6 +18,8 @@ class xaseVoteGUI {
 	const CMD_STANDARD = 'compare';
 	const CMD_UPDATE = 'update';
 
+	const CMD_DELETE_USERS_VOTINGS = 'deleteUsersVotingsOfItem';
+
 	/*const M1 = "1";
 	const M2 = "2";
 	const M3 = "3";
@@ -102,6 +104,7 @@ class xaseVoteGUI {
 		switch ($cmd) {
 			case self::CMD_STANDARD:
 			case self::CMD_UPDATE:
+			case self::CMD_DELETE_USERS_VOTINGS:
 				if ($this->access->hasReadAccess()) {
 					$this->{$cmd}();
 					break;
@@ -260,4 +263,11 @@ class xaseVoteGUI {
 		}
 	}
 */
+
+	public function deleteUsersVotingsOfItem() {
+
+		xaseVotings::deleteVotingsOfUserByItemId($this->dic->user()->getId(),$_GET['item_id']);
+
+		$this->ctrl->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xaseitemgui' ), xaseItemGUI::CMD_STANDARD);
+	}
 }

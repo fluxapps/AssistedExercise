@@ -1,4 +1,8 @@
 <?php
+require_once "./Services/Object/classes/class.ilCommonActionDispatcherGUI.php";
+require_once "./Services/Form/classes/class.ilLinkInputGUI.php";
+require_once "./Services/Notes/classes/class.ilNoteGUI.php";
+
 /*
 require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilAnswerListInputGUI.php");
 require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php");
@@ -193,6 +197,61 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$item = new ilHiddenInputGUI('answer_1');
 		$item->setValue($this->arr_answers[0]->getId());
 		$this->addItem($item);
+
+		//$notesGUI = new ilNoteGUI($this->parent_gui->assisted_exercise->getId(), $this->arr_answers[0]->getId());
+		//$notesGUI->enablePublicNotes(true);
+		//$notesGUI->enablePublicNotesDeletion(true);
+		//$notesGUI->activateComments();
+
+		//$this->ctrl->setParameterByClass("ilnotegui", "record_id", $this->parent_gui->assisted_exercise->getId());
+		//$this->ctrl->setParameterByClass("ilnotegui", "rep_id", $this->arr_answers[0]->getId());
+
+		ilNote::activateComments($this->parent_gui->assisted_exercise->getId(), $this->arr_answers[0]->getId(), 'answer', true);
+
+		//echo $notesGUI->getOnlyCommentsHtml(); exit;
+
+
+		$ajaxHash = ilCommonActionDispatcherGUI::buildAjaxHash(ilCommonActionDispatcherGUI::TYPE_REPOSITORY, $this->parent_gui->assisted_exercise->getRefId(), $this->pl->getPrefix(), $this->parent_gui->assisted_exercise->getId(),'answer',$this->arr_answers[0]->getId());
+
+		//echo $ajaxHash; exit;
+
+		$redraw_js = "il.Object.redrawListItem(".$this->parent_gui->assisted_exercise->getRefId().")";
+
+
+
+		ilNoteGUI::initJavascript($this->ctrl->getLinkTargetByClass(array(
+			"ilcommonactiondispatchergui",
+			"ilnotegui"
+		), "", "", true, false));
+
+		//$item = new ilLinkInputGUI('comment', $ajaxHash);
+		//$this->addItem($item);
+
+		//$link = "<a href='#' onclick=\\">comment</a>";
+
+		//http://172.28.128.4/ilias.php?ref_id=1&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=1b&baseClass=ilRepositoryGUI#
+
+
+
+		$button = ilLinkButton::getInstance();
+		$button->setUrl('#');
+		$button->setOnClick("return ".ilNoteGUI::getListCommentsJSCall($ajaxHash, $redraw_js));
+		$button->setCaption('asdfsdf');
+
+		$item = new ilCustomInputGUI('');
+		$item->setHtml($button->getToolbarHTML());
+
+		$this->addItem($item);
+
+			/*
+
+
+		$item->setli
+
+$props[] = array("alert" => false,
+			"property" => 'lng comment',
+			"value" =>
+			"newline" => $nl);*/
 
 		$item = new ilHiddenInputGUI('answer_2');
 		$item->setValue($this->arr_answers[1]->getId());
