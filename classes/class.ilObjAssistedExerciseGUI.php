@@ -220,6 +220,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 				$this->tpl->getStandardTemplate();
 				$xaseVoteGUI = new xaseVoteGUI($this->object);
 				$this->ctrl->forwardCommand($xaseVoteGUI);
+				$this->tpl->show();
 				break;
 
 			default:

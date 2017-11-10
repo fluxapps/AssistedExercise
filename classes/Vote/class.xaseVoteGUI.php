@@ -9,23 +9,12 @@
 require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Vote/class.xaseVoteFormGUI.php';
 require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVotings.php';
 
-/*require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerFormListGUI.php');
-*/
-
 class xaseVoteGUI {
 
 	const CMD_STANDARD = 'compare';
 	const CMD_UPDATE = 'update';
+	const CMD_CANCEL = 'cancel';
 
-	/*const M1 = "1";
-	const M2 = "2";
-	const M3 = "3";
-	const ANSWER_IDENTIFIER = 'answer_id';
-	const CMD_STANDARD = 'edit';
-
-	const CMD_UPDATE_AND_SET_STATUS_TO_VOTE = 'upadteAndSetStatusToVote';
-	const CMD_CANCEL = 'cancel';*/
 	/**
 	 * @var ilObjAssistedExercise
 	 */
@@ -74,16 +63,15 @@ class xaseVoteGUI {
 
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
-		//$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
 		$this->access = new ilObjAssistedExerciseAccess();
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->assisted_exercise = $assisted_exericse;
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
+		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 		//$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		//$this->xase_item = new xaseItem($_GET['item_id']);
 		//$this->xase_answer = $this->getAnswer();
-		//parent::__construct();
 	}
 
 
@@ -91,7 +79,6 @@ class xaseVoteGUI {
 		$nextClass = $this->ctrl->getNextClass();
 		switch ($nextClass) {
 			default:
-				//$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 				$this->performCommand();
 		}
 	}
@@ -102,6 +89,7 @@ class xaseVoteGUI {
 		switch ($cmd) {
 			case self::CMD_STANDARD:
 			case self::CMD_UPDATE:
+			case self::CMD_CANCEL:
 				if ($this->access->hasReadAccess()) {
 					$this->{$cmd}();
 					break;
@@ -114,8 +102,10 @@ class xaseVoteGUI {
 
 	protected function compare() {
 
-		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
-		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+		$this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
+
+		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId(), $this->xase_item->getId());
+		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId(), $this->xase_item->getId());
 
 		$answer_top = NULL;
 		$answer_bottom = NULL;
@@ -131,6 +121,10 @@ class xaseVoteGUI {
 			$answer_bottom = $arr_answers[1];
 		}
 
+		if(!is_object($arr_answers[1]) && is_object($arr_answers[0])) {
+			$answer_bottom = $arr_answers[0];
+		}
+
 		$arr_answers = array($answer_top,$answer_bottom);
 
 		if($answer_top) {
@@ -138,11 +132,7 @@ class xaseVoteGUI {
 			$xaseVoteFormGUI = new xaseVoteFormGUI($arr_answers, $this);
 			$xaseVoteFormGUI->fillForm();
 			$this->tpl->setContent($xaseVoteFormGUI->getHTML());
-			$this->tpl->show();
 		}
-
-
-
 	}
 
 /*
@@ -191,9 +181,10 @@ class xaseVoteGUI {
 
 	public function update($status = xaseAnswer::ANSWER_STATUS_ANSWERED) {
 
+		$this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
 
-		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
-		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId());
+		$arr_answers = xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId(), $this->xase_item->getId());
+		$best_answer = xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(),$this->dic->user()->getId(), $this->xase_item->getId());
 
 		$answer_top = NULL;
 		$answer_bottom = NULL;
@@ -209,38 +200,29 @@ class xaseVoteGUI {
 			$answer_bottom = $arr_answers[1];
 		}
 
+		if(empty($arr_answers[1]) && !empty($arr_answers[0] && is_object($best_answer))) {
+			$answer_bottom = $arr_answers[0];
+		}
+
 		$arr_answers = array($answer_top,$answer_bottom);
 
 		if($answer_top) {
 
 			$xaseVoteFormGUI = new xaseVoteFormGUI($arr_answers, $this);
-
 			if ($xaseVoteFormGUI->updateObject()) {
 				ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-				$this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
+				if(!empty(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $this->xase_item->getId()))) {
+					$this->ctrl->redirectByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD);
+				} else {
+					$this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
+				}
+
 			} else {
 				$xaseVoteFormGUI->setValuesByPost();
-
-				$this->tpl->setContent($xaseVoteFormGUI->getHTML());
-				$this->tpl->show();
 			}
 
 			$xaseVoteFormGUI->fillForm();
 			$this->tpl->setContent($xaseVoteFormGUI->getHTML());
-			$this->tpl->show();
-		}
-
-
-		//$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
-		if ($xaseAnswerFormGUI->updateObject($status)) {
-			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-			$this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
-		} else {
-			$xaseAnswerFormGUI->setValuesByPost();
-			$xaseAnswerFormGUI->fillTaskInput();
-			$this->tpl->setContent($xaseAnswerFormGUI->getHTML());
-			$this->tpl->show();
 		}
 	}
 
