@@ -172,12 +172,12 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$this->addAndReadFilterItem($title);
 
 		include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
-		$option[0] = $this->pl->txt('open');
-		$option[1] = $this->pl->txt('answered');
-		$option[2] = $this->pl->txt('submitted');
-		$option[3] = $this->pl->txt('rated');
+		$option[1] = $this->pl->txt('open');
+		$option[2] = $this->pl->txt('answered');
+		$option[3] = $this->pl->txt('submitted');
+		$option[4] = $this->pl->txt('rated');
 		if ($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
-			$option[4] = $this->pl->txt('can_be_voted');
+			$option[5] = $this->pl->txt('can_be_voted');
 		}
 		$status = new ilSelectInputGUI($this->pl->txt("status"), "answer_status");
 		$status->setOptions($option);
@@ -287,7 +287,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 					$this->tpl->parseCurrentBlock();
 				}
 
-				if ($this->isColumnSelected('additional_points_voting')) {
+				if ($this->isColumnSelected('additional_points')) {
 					$this->tpl->setCurrentBlock("ADDITIONALPOINTSVOTING");
 					if (!empty($xasePointAnswer->getAdditionalPoints())) {
 						$this->tpl->setVariable('ADDITIONALPOINTSVOTING', $xasePointAnswer->getAdditionalPoints());
@@ -359,12 +359,15 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$number_of_columns = count($this->getSelectedColumns());
 		$column_width = 100 / $number_of_columns;
 		foreach ($this->getSelectedColumns() as $col) {
-			$this->addColumn($all_cols[$col]['txt'], $col, $column_width);
+			if($all_cols[$col]['sort_field']) {
+				$this->addColumn($all_cols[$col]['txt'], $col, $column_width);
+			} else {
+				$this->addColumn($all_cols[$col]['txt'], "", $column_width);
+			}
 		}
 		$this->addColumn($this->pl->txt('common_actions'), '', $column_width);
 	}
-
-
+	
 	/**
 	 * @param $item_id
 	 *
@@ -449,7 +452,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 					break;
 				case 'answer_status':
 					if (!empty($filter_value)) {
-						$collection->where(array( xaseAnswer::returnDbTableName() . '.' . $filter_key => '%' . $filter_value . '%' ), 'LIKE');
+						$collection->where(array( xaseAnswer::returnDbTableName() . '.' . $filter_key =>  $filter_value  ), '=');
 						break;
 					}
 			}
@@ -461,49 +464,59 @@ class xaseItemTableGUI extends ilTable2GUI {
 	public function getSelectableColumns() {
 		$cols["item_title"] = array(
 			"txt" => $this->pl->txt("title"),
-			"default" => true
+			"default" => true,
+			"sort_field" => true
 		);
 		$cols["answer_status"] = array(
 			"txt" => $this->pl->txt("status"),
-			"default" => true
+			"default" => true,
+			"sort_field" => true
 		);
 		if ($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
 			$cols["max_points"] = array(
 				"txt" => $this->pl->txt("max_points"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 			$cols["number_of_used_hints"] = array(
 				"txt" => $this->pl->txt("number_of_used_hints"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 		}
 		if ($this->xase_settings->getModus() == self::M1) {
 			$cols["points_teacher"] = array(
 				"txt" => $this->pl->txt("points"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 		} elseif ($this->xase_settings->getModus() == self::M3) {
 			$cols["points_teacher"] = array(
 				"txt" => $this->pl->txt("points_teacher"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
-			$cols["additional_points_voting"] = array(
+			$cols["additional_points"] = array(
 				"txt" => $this->pl->txt("additional_points_voting"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 			$cols["total_points"] = array(
 				"txt" => $this->pl->txt("total_points"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 		}
 		if ($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3) {
 			$cols["is_voted"] = array(
 				"txt" => $this->pl->txt("is_voted"),
-				"default" => true
+				"default" => true,
+				"sort_field" => false
 			);
 			$cols["number_of_upvotings"] = array(
 				"txt" => $this->pl->txt("number_of_upvotings"),
-				"default" => true
+				"default" => true,
+				"sort_field" => true
 			);
 		}
 
