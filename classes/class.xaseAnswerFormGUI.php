@@ -166,28 +166,6 @@ EOT;
 		return $task_text_with_glyphicons_cleaned;
 	}
 
-
-	/*
-	 * //TODO check if this method is necessary
-	 * this method is used after data is sent via post
-	 */
-	public function replace_gaps_with_glyphs() {
-		preg_match_all('/h(\d+)/g', $this->xase_item->getTask(), $hint_matches);
-
-		$hint_numbers = $hint_matches[1];
-
-		$replacement_array = [];
-		foreach ($hint_numbers as $hint_number) {
-			$replacement_array[] = <<<EOT
- <a href="#" data-hint-id="{$hint_number}" class="hint-popover-link"><span class="glyphicon glyphicon-exclamation-sign"></span></a> 
-EOT;
-		}
-		$task_text_with_glyphicons = preg_replace('[\s]', $replacement_array, $this->xase_item->getTask(), 1);
-
-		return $task_text_with_glyphicons;
-	}
-
-
 	protected function initTaskInput() {
 		$ta = new ilNonEditableValueGUI($this->pl->txt('task'), 'task', true);
 
@@ -230,7 +208,6 @@ EOT;
 				$hint_array['label'] = $hint->getLabel();
 
 				$tpl->setVariable("CONTENT", htmlentities(json_encode($hint_array, JSON_UNESCAPED_UNICODE)));
-				//$tpl->setVariable("HINT_ID", $hint_array['id']);
 
 				$levels_array = $this->getLevelsByHintId($hint_array['id']);
 
@@ -381,7 +358,6 @@ EOT;
 			}
 			$xase_point = $this->getTotalMinusPoints($this->dic->user()->getId(), $this->xase_item->getId());
 
-			//if the user has already answered the item but has not used any hints don't create a new entry in the db
 			if (empty($xase_point)) {
 				$xase_point = new xasePoint();
 				$xase_point->setUserId($this->dic->user()->getId());

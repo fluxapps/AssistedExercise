@@ -42,7 +42,6 @@ $(document).ready(function() {
 				number_of_comments++;
 		    }
 	    });
-        //return event_target.parent('.comment-links').siblings('.comments').children('.comment-content').length;
         return number_of_comments;
     }
 
@@ -100,7 +99,6 @@ $(document).ready(function() {
             }
 	        $(event.target).closest('.xase-comments').prevAll('.xase-comment-counter:first').find('.comment-counter-label').text(new_counter_text);
 
-            //after the comment was safed empty the textarea
 	        $(event.target).parent('.comment-links').siblings('.comment-create-form').find('.form-group').children('.comment-textarea').val('');
 
         }
@@ -122,17 +120,7 @@ $(document).ready(function() {
         });
     }
 
-/*    function hidePreviousErrorMessage(target_error_message) {
-        /!*target_error_message = $(event.target).siblings('.voting_error');*!/
-        $('.voting_error').each(function (i, el) {
-            if(!$(el).is(target_error_message)) {
-                $(el).css('display', 'none');
-            }
-        })
-    }*/
-
     function hideAllErrorMessages() {
-        /*target_error_message = $(event.target).siblings('.voting_error');*/
         $('.voting_error').each(function (i, el) {
             $(el).css('display', 'none');
         })
@@ -167,7 +155,6 @@ $(document).ready(function() {
     $('.vote-up-off').click(function(event) {
         if(hasUserAlreadyVoted()) {
             target_error_message = $(event.target).siblings('.voting_error');
-            //hidePreviousErrorMessage(target_error_message);
             target_error_message.css('display', '');
         } else {
             resetPreviousUpvotings();
@@ -187,15 +174,6 @@ $(document).ready(function() {
         new_counter_value = --counter_value;
         $(event.target).siblings('.vote-count-post').text(new_counter_value);
         $(event.target).siblings('.voting_error').css('display', 'none');
-    });
-
-    /*
-    execute function on initialisation and if the user clicks the upvoting and downvoting arrow
-    Disable submit btn if the user has not already voted for an answer
-    enable submit btn if the user has voted for an answer
-     */
-    $("input[name='cmd\[update\]']").on("click", function (e) {
-
     });
 
     showDownVotingArrowOnVotedAnswer();

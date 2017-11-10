@@ -94,11 +94,10 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 
 		$this->xase_settings = $xaseSettings;
 		$this->mode = $xaseSettings->getModus();
-		//$this->xase_settings = xaseSettings::where(['assisted_exercise_object_id' => $this->object->getId()])->first();
 		if ($this->xase_settings->getModus() == self::M1) {
-			$this->mode_settings = $this->getModusSettings(xaseSettingsM1::class);//xaseSettingsM1::where(['settings_id' => $this->xase_settings->getId()])->first();
+			$this->mode_settings = $this->getModusSettings(xaseSettingsM1::class);
 		} elseif ($this->xase_settings->getModus() == self::M3) {
-			$this->mode_settings = $this->getModusSettings(xaseSettingsM3::class);//xaseSettingsM3::where(['settings_id' => $this->xase_settings->getId()])->first();
+			$this->mode_settings = $this->getModusSettings(xaseSettingsM3::class);
 		} else {
 			$this->mode_settings = $this->getModusSettings(xaseSettingsM2::class);
 		}
@@ -138,7 +137,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 		$this->addCommandButton(xaseItemGUI::CMD_UPDATE, $this->pl->txt('save'));
 		$this->addCommandButton(xaseItemGUI::CMD_CANCEL, $this->pl->txt("cancel"));
 
-		//$this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $this->object->getId());
 		$this->ctrl->setParameter($this->parent_gui, xaseItemGUI::ITEM_IDENTIFIER, $_GET['item_id']);
 		$this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
 	}
@@ -147,7 +145,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 	public function initM1andM3Form() {
 		$this->initAddHintBtn();
 
-		//TODO Decide based on Modus wether this input is required or not
 		$sol = new ilTextAreaInputGUI($this->pl->txt('sample_solution'), 'sample_solution');
 
 		if ($this->xase_settings->getModus() === '1') {
@@ -252,19 +249,17 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 			/**
 			 * @var xaseSampleSolution $xaseSampleSolution
 			 */
-			/*            $xaseSampleSolution = xaseSampleSolution::where(array('id' => $this->object->getSampleSolutionId()))->get();*/
 			if ($this->xase_sample_solution) {
 				$array["sample_solution"] = $this->xase_sample_solution->getSolution();
 			}
 			/**
 			 * @var xasePoint $xasePoints
 			 */
-			/*$xasePoints = xasePoint::where(array('id' => $this->object->getPointId()))->get();*/
 
 			if ($this->xase_point) {
 				$array["max_points"] = $this->xase_point->getMaxPoints();
 			}
-			//TODO finish fillForm
+
 			/**
 			 * @var $hint xaseHint
 			 */
@@ -275,9 +270,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 				$hint_array['hint_number'] = $hint->getHintNumber();
 				$hint_array['is_template'] = $hint->getisTemplate();
 				$hint_array['label'] = $hint->getLabel();
-
-				/*                $json_encoded_hint = json_encode($hint_array);
-								$json_hints[] = $json_encoded_hint;*/
 
 				$hints[] = $hint_array;
 
@@ -293,9 +285,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 					$level_array['hint_level'] = $level->getHintLevel();
 					$level_array['hint'] = $level->getHint();
 
-					/*                    $json_encoded_level = json_encode($level_array);
-										$json_levels[] = $json_encoded_level;*/
-
 					$levels[] = $level_array;
 
 					$point = xasePoint::where(array( 'id' => $level->getPointId() ))->first();
@@ -307,7 +296,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 						$point_array['id'] = $point->getId();
 						$point_array['minus_points'] = $point->getMinusPoints();
 
-						//$json_encoded_point = json_encode($point_array);
 						$points[] = $point_array;
 					}
 				}
@@ -362,27 +350,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 				->quote($item_id, "integer"));
 	}
 
-	/*
-	 * store hint number in hint table
-	 * 1) get hint numbers from task text
-	 * 2) check if a hint for this item with the corresponding hint number already exists
-	 *  a) yes
-	 *      update hint
-	 *  b) no
-	 *      create new hint
-	 * store the hint information from post with the right index in the corresponding hint
-	 */
-
-	/**
-	 * wenn hint bereits existiert id von hint geben statt 0, 1, 2, 3...
-	 */
 	protected function fillHintObjects() {
-		$task = $this->object->getTask();
-		/*        preg_match_all('(\d+)', $task, $matches);
-				$matches = array_unique($matches);
-				for ($i = 0; $i < count($matches); $i++) {
-
-				}*/
 
 		$max_hint_number = $this->getMaxHintNumber($this->object->getId());
 
@@ -443,23 +411,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 					/**
 					 * @var xaseLevel $level
 					 */
-					/*                    foreach($levels as $level) {
-											$level->setHintLevel(1);
-											$level->setHint($data["lvl_1_hint"]);
-											$level->set
-										}*/
-					//TODO store points in points table and save hint_id
-					/*                    $levels[0]['hint_level'] = 1;
-										$levels[0]['lvl_1_hint'] = $data["lvl_1_hint"];
-										$levels[0]['lvl_1_minus_points'] = $data["lvl_1_minus_points"];
-
-										$levels[1]['hint_level'] = 2;
-										$levels[1]['lvl_2_hint'] = $data["lvl_2_hint"];
-										$levels[1]['lvl_2_minus_points'] = $data["lvl_2_minus_points"];*/
-
-					/**
-					 * @var xaseLevel $level
-					 */
 					foreach ($levels as $level) {
 
 						$level->store();
@@ -479,7 +430,6 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 		if (!$this->fillObject()) {
 			return false;
 		}
-		//        $this->object->store();
 
 		if ($this->xase_settings->getModus() != self::M2) {
 			if (!$this->fillHintObjects()) {

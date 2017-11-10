@@ -115,14 +115,12 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 		if (ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId())
 			|| $this->xase_settings->getModus() == self::M2) {
-			//if(!$this->has_submitted_answers()) {
 			$new_item_link = $this->ctrl->getLinkTargetByClass("xaseItemGUI", xaseItemGUI::CMD_EDIT);
 			$ilLinkButton = ilLinkButton::getInstance();
 			$ilLinkButton->setCaption($this->pl->txt("add_task"), false);
 			$ilLinkButton->setUrl($new_item_link);
 			/** @var $ilToolbar ilToolbarGUI */
 			$DIC->toolbar()->addButtonInstance($ilLinkButton);
-			//}
 		}
 
 		if ($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
@@ -157,8 +155,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 	}
 
-
-	//TODO evtl. In Antwort Assisted Exercise Id speichern und mit count Function arbeiten
 	protected function has_answers() {
 		$all_items = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 		foreach ($all_items as $item) {
@@ -223,7 +219,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		/**
 		 * @var $xaseItem xaseItem
 		 */
-		//$a_set contains the items
 		$xaseItem = xaseItem::find($a_set['id']);
 		if ($this->isColumnSelected('item_title')) {
 			$this->tpl->setCurrentBlock("TITLE");
@@ -424,9 +419,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		if (xaseItemAccess::hasDeleteAccess($this->xase_settings, $xaseItem)) {
 			$current_selection_list->addItem($this->pl->txt('delete_task'), xaseItemDeleteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseitemdeletegui', xaseItemDeleteGUI::CMD_STANDARD));
 		}
-		/*        if ($this->access->hasWriteAccess()) {
-					$current_selection_list->addItem($this->pl->txt('edit_answer'), xaseAnswerGUI::CMD_EDIT, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_EDIT));
-				}*/
 		$this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
 	}
 
@@ -449,8 +441,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 		$collection->orderBy($sorting_column, $sorting_direction);
 		$collection->limit($offset, $num);
-
-		//$collection->debug();
 
 		foreach ($this->filter as $filter_key => $filter_value) {
 			switch ($filter_key) {
@@ -570,23 +560,13 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 
 	protected function hasUserFinishedExercise() {
-		/*
-		 * 1) retrieve all items from the current assisted exercise
-		 * 2) retrieve all answers from the currently logged in user
-		 * 3) save all the item ids from the answers
-		 * 4) check with the item id if the user has answered all items of the exercise
-		 *      a) yes
-		 *          return true (afterwards: show a Button Submit for assessment in the list gui)
-		 *      b) no
-		 *          return false
-		 */
+
 		$all_items_assisted_exercise = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 
 		if (empty($all_items_assisted_exercise)) {
 			return false;
 		}
 
-		//$answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->get();
 		$answers_from_current_user = self::getAllUserAnswersFromAssistedExercise($all_items_assisted_exercise, $this->dic, $this->dic->user());
 
 		foreach ($all_items_assisted_exercise as $item) {
@@ -613,13 +593,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 	}
 
-
-	/*
-	 * 1) create answer objects inside of the foreach loop
-	 * 2) check if the answer status is submitted
-	 * 3) if the status of one of the answers is submitted
-	 * 4)   return false, since the answers can only be submitted all together
-	 */
 	protected function checkIfAnswersAlreadySubmitted($answers_from_current_user) {
 		foreach ($answers_from_current_user as $answer) {
 			if (is_array($answer)) {
@@ -649,15 +622,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 	}
 
-
-	/*
-	 * 1) Mode 1
-	 *  a)Nach Abschluss der Übung
-	 *  b)Ab definiertem Datum
-	 * 2) Mode 2 keine Musterlösung
-	 * 3) Mode 3
-	 *      die Schüler haben die Musterlösung sobald Sie das Voting abgegeben haben
-	 */
 	protected function isSampleSolutionAvailable($mode, $xase_item) {
 
 		$xase_sample_solution = xaseSampleSolution::where(array( 'id' => $xase_item->getSampleSolutionId() ))->first();
@@ -695,7 +659,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 	}
 
-
 	protected function hasUserVotedForAllItems() {
 		$items = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 		foreach ($items as $item) {
@@ -707,15 +670,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 		return true;
 	}
 
-
-	/*
-	 * 1) get all Answers from the current item
-	 * 2) get all the votings from the current user
-	 * 3) check if the user has voted for one of the answers
-	 *      -check if the answer_id from the current voting in the loop iteration is in the array of answer ids (all Answers from the current item)
-	 *  a) yes -> sample solution available
-	 *  b) no -> sample solution not available
-	 */
 	protected function hasUserVotedForItem(xaseItem $xaseItem) {
 		$answers_for_current_item = xaseAnswer::where(array( 'item_id' => $xaseItem->getId() ))->get();
 		$votings_from_current_user = xaseVoting::where(array( 'user_id' => $this->dic->user()->getId() ))->get();
@@ -733,7 +687,6 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 		return false;
 	}
-
 
 	protected function getModeSettings($mode) {
 		if ($mode == self::M1) {

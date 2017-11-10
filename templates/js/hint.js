@@ -1,11 +1,8 @@
 $(document).ready(function() {
 
-    //TODO: Handle document.selection and else hint_trigger_text click cases
-
     var task = $('#task')[0];
     var counter = 0;
 
-    // boolean argument number_only is optional. If it is set the function returns only the counter.
     function increase_counter(number_only) {
         if(number_only) {
             return counter;
@@ -49,7 +46,6 @@ $(document).ready(function() {
     function initaliseNameAttributes() {
         $('.hint_form').each(function (i) {
             var hint_index = i;
-            //TODO handle hidden input
             $( this ).find('input').each(function (i, el) {
                 var input_jquery_object = $(el);
                 var name_attr = input_jquery_object.attr('name');
@@ -77,7 +73,6 @@ $(document).ready(function() {
         })
     }
 
-    //TEST not pre increment i
     function initaliseRemoveBtnIds() {
         $('.remove_hint_btn').each(function(i) {
             $( this ).attr('id', 'remove_hint_'+  i);
@@ -193,24 +188,6 @@ $(document).ready(function() {
         }
     }
 
-    function prependToHintFormWrapper() {
-
-        var hint_form = $(".hint_form");
-        var hidden_form = hint_form.filter(function() {
-            return $(this).css('display') == 'none';
-        });
-
-        var visible_hint_form = hint_form.filter(function() {
-            return $(this).css('display') == 'inline-block';
-        });
-
-        var prepend_target = hidden_form.closest('.col-sm-9');
-
-        for(i = visible_hint_form.length -1; i >= 0; i--) {
-            prepend_target.prepend(visible_hint_form[i]);
-        }
-    }
-
     function loadExistingHintData() {
         var existing_hint_data = $('.existing-hint-data');
         if(existing_hint_data.length) {
@@ -319,8 +296,6 @@ $(document).ready(function() {
                 return $(this).css('display') == 'none';
             });
 
-            //append_target is the wrapper for the hint forms
-
             var append_target = hidden_form.closest('.col-sm-9');
             var new_hint_form = hidden_form.clone(true);
 
@@ -358,7 +333,6 @@ $(document).ready(function() {
             $( event.target ).closest( ".hint_form" ).remove();
             decrease_counter();
 
-            //the id of the not displayed hint form remove hint button has to be changed as well as the name attribute
             hidden_form = $('.hint_form').filter(function() {
                 return $(this).css('display') == 'none';
             });

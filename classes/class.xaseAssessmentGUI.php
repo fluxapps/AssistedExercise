@@ -98,26 +98,6 @@ class xaseAssessmentGUI {
 		}
 	}
 
-
-	protected function isStudent() {
-		if ($this->access->hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId())) {
-			$this->is_student = false;
-		} else {
-			$this->is_student = true;
-		}
-	}
-
-
-	public function view_assessment() {
-		$this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
-		$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
-		$xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, true);
-		$xaseAssessmentFormGUI->fillForm();
-		$this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
-		$this->tpl->show();
-	}
-
-
 	public function edit() {
 		$this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
 		$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
@@ -126,7 +106,6 @@ class xaseAssessmentGUI {
 		$this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
 		$this->tpl->show();
 	}
-
 
 	public function update() {
 		$this->ctrl->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
@@ -141,7 +120,6 @@ class xaseAssessmentGUI {
 		$this->tpl->setContent($xaseAssessmentFormGUI->getHTML());
 		$this->tpl->show();
 	}
-
 
 	public function cancel() {
 		if (!ilObjAssistedExerciseAccess::hasWriteAccess($_GET['ref_id'], $this->dic->user()->getId())) {

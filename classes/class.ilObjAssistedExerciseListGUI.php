@@ -31,8 +31,6 @@ class ilObjAssistedExerciseListGUI extends ilObjectPluginListGUI {
 		$this->link_enabled = false;
 		$this->info_screen_enabled = true;
 		$this->delete_enabled = true;
-
-		// Should be overwritten according to status
 		$this->cut_enabled = false;
 		$this->copy_enabled = false;
 

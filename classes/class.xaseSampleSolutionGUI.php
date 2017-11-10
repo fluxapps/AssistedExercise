@@ -8,7 +8,6 @@
 
 class xaseSampleSolutionGUI {
 
-	const ITEM_IDENTIFIER = 'item_id';
 	const CMD_STANDARD = 'show_sample_solution';
 	const CMD_CANCEL = 'cancel';
 	/**
@@ -59,8 +58,7 @@ class xaseSampleSolutionGUI {
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->object->getId() ])->first();
-		//TODO set item_id Parameter
-		$this->xase_item = new xaseItem($_GET[self::ITEM_IDENTIFIER]);
+		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 	}
 
 
@@ -69,8 +67,6 @@ class xaseSampleSolutionGUI {
 		$nextClass = $this->ctrl->getNextClass();
 		switch ($nextClass) {
 			case 'xaseitemgui':
-				//has to be called because in this case parent::executeCommand is not executed(contains getStandardTempplate and Show)
-				//Show Method has to be called in the corresponding methods
 				$xaseItemGUI = new xaseItemGUI();
 				$this->ctrl->forwardCommand($xaseItemGUI);
 				break;
@@ -99,7 +95,7 @@ class xaseSampleSolutionGUI {
 
 
 	public function show_sample_solution() {
-		$this->ctrl->saveParameter($this, self::ITEM_IDENTIFIER);
+		$this->ctrl->saveParameter($this, xaseItemGUI::ITEM_IDENTIFIER);
 		$this->tabs->activateTab(self::CMD_STANDARD);
 		$xaseSampleSolutionFormGUI = new xaseSampleSolutionFormGUI($this, $this->xase_item);
 		$xaseSampleSolutionFormGUI->show_sample_solution();

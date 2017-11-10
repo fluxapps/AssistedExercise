@@ -77,7 +77,6 @@ class xaseSubmissionGUI {
 		$this->assisted_exercise = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
-		//TODO set item_id Parameter
 		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
 	}
 
@@ -119,9 +118,6 @@ class xaseSubmissionGUI {
 
 
 	public function addSubmittedExercise() {
-		//get only the answers from the items from the current exercise
-
-		//$answers_from_current_user = xaseAnswer::where(array('user_id' => $this->dic->user()->getId(), 'item_id' => $this->xase_item->getId()))->get();
 
 		$all_items_assisted_exercise = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 
@@ -130,7 +126,6 @@ class xaseSubmissionGUI {
 		/*
 		 * @var xaseAnswer $answers_from_current_user
 		 */
-		//TODO test it with multiple answers to see what the variables contains in this case
 		foreach ($answers_from_current_user as $answer_from_current_user) {
 			if (is_array($answers_from_current_user)) {
 				$answer_from_current_user_object = xaseAnswer::where(array( 'id' => $answer_from_current_user['id'] ))->first();

@@ -114,25 +114,21 @@ class xaseUpvotingsGUI {
 		$votings_for_answer = xaseVoting::where(array('answer_id' => $this->xase_answer->getId()))->get();
 		$users = [];
 		foreach($votings_for_answer as $voting) {
-			$users[] = arUser::where(array('usr_id' => $voting->getUserId()))->first();
+			$users[] = xaseUser::where(array('usr_id' => $voting->getUserId()))->first();
 		}
 		return $users;
 	}
 
-/*	protected function getUserWhoAnsweredItem() {
-		return arUser::where(array('id' => $this->xase_answer->getUserId()))->first();
-	}*/
-
 	public function createListing($voters_array) {
 		$tpl = new ilTemplate("tpl.upvoters.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-		$user_who_answered_item = arUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
+		$user_who_answered_item = xaseUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
 
 		$tpl->setVariable("META_INFO", $this->pl->txt("upvoters_for_answer_from") . " " . $user_who_answered_item->getFirstname() . " " . $user_who_answered_item->getLastname() . " " . $this->pl->txt("on_the_question") . " " . $this->xase_item->getItemTitle());
 
 		$tpl->setCurrentBlock("LIST");
 		/**
-		 * @var $voter arUser
+		 * @var $voter xaseUser
 		 */
 		foreach($voters_array as $voter) {
 			$tpl->setVariable("LIST_ITEM", $voter->getFirstname() . " " . $voter->getLastname());

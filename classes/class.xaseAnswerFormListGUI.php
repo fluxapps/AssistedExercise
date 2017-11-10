@@ -118,13 +118,6 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 		return true;
 	}
 
-	protected function has_current_user_voted_for_answer($answer) {
-		if(!empty(xaseVoting::where(array('answer_id' => $answer->getId(), 'user_id' => $this->dic->user()->getId())))) {
-			return true;
-		}
-		return false;
-	}
-
 	public function fillObject() {
 		foreach ($_POST['answer'] as $id => $data) {
 			if (is_array($data)) {
@@ -191,16 +184,6 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 		}
 
 		return $hasVoted = true;
-	}
-
-	//TODO check if used
-	protected function is_already_answered_by_user() {
-		$user_answers = xaseAnswer::where(array( 'item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId() ))->get();
-		if (count($user_answers) > 0) {
-			return true;
-		}
-
-		return false;
 	}
 
 	protected function initAnswerList() {

@@ -140,8 +140,6 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 				$this->setTabs();
 				$this->setLocator();
 				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-				//has to be called because in this case parent::executeCommand is not executed(contains getStandardTempplate and Show)
-				//Show Method has to be called in the corresponding methods
 				$this->tpl->getStandardTemplate();
 				$xaseItemGUI = new xaseItemGUI();
 				$this->ctrl->forwardCommand($xaseItemGUI);

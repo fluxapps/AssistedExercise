@@ -96,9 +96,6 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 		return $ilAccess->checkAccessOfUser($user_id, $permission, '', $ref_id);
 	}
 
-	// TODO implement this method correctly
-
-
 	/**
 	 * @param $a_id
 	 *
@@ -106,7 +103,6 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 	 */
 	public static function checkOnline($a_id) {
 		global $ilDB;
-		//return true;
 		$set = $ilDB->query('SELECT is_online FROM rep_robj_xase_settings WHERE id = ' . $ilDB->quote($a_id, 'integer'));
 		$rec = $ilDB->fetchAssoc($set);
 

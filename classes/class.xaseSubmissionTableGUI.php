@@ -9,7 +9,7 @@ require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAssessment.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php');
-require_once('./Services/ActiveRecord/_Examples/Message/class.arUser.php');
+require_once('./Services/ActiveRecord/_Examples/Message/class.xaseUser.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseUpvotingsGUI.php');
@@ -89,10 +89,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->setFormName(self::TBL_ID);
 		$this->ctrl->saveParameter($a_parent_obj, $this->getNavParameter());
 		$this->assisted_exercise = $assisted_exercise;
-		//$this->xase_answer = $this->getSubmittedAnswers();
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $assisted_exercise->getId() ])->first();
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
-		//$this->xase_item = $xase_item;
 
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 		$this->parent_obj = $a_parent_obj;
@@ -127,7 +125,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$item = new ilTextInputGUI($this->pl->txt('task_title'), 'title');
 		$this->addAndReadFilterItem($item);
 
-		//TODO handle Status
 		include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
 		$option[0] = $this->pl->txt('no');
 		$option[1] = $this->pl->txt('yes');
@@ -162,7 +159,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 
 	protected function getUserObject($xase_answer) {
-		return arUser::where(array( 'usr_id' => $xase_answer->getUserId() ))->first();
+		return xaseUser::where(array( 'usr_id' => $xase_answer->getUserId() ))->first();
 	}
 
 
@@ -173,7 +170,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		/**
 		 * @var $xaseAnswer xaseAnswer
 		 */
-		//$a_set contains the items
 		$xaseAnswer = xaseAnswer::find($a_set['id']);
 
 		$user = $this->getUserObject($xaseAnswer);
@@ -285,7 +281,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 	protected function initColums() {
 		$number_of_selected_columns = count($this->getSelectedColumns());
-		//add one to the number of columns for the action
 		$number_of_selected_columns ++;
 		$column_width = 100 / $number_of_selected_columns . '%';
 
@@ -312,8 +307,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
 		$this->ctrl->setParameterByClass(xaseUpvotingsGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseUpvotingsGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
-		//TODO xase_item setzen
-		//$this->ctrl->setParameterByClass(xaseAssessmentGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $this->xase_item->getId());
+
 		if ($this->access->hasWriteAccess() && xaseSubmissionGUI::isDisposalDateExpired($this->mode_settings)) {
 			$current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
 		}
@@ -338,17 +332,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->determineOffsetAndOrder();
 		$this->determineLimit();
 
-		/*
-		 * 1) Nur Antworten auf Items des entsprechenden assisted exercise anzeigen
-		 * 2) get all items from assisted exericse
-		 * 3) get all answers from current user
-		 * 4)save item ids from this assisted exercise in an array
-		 * 5) loop through answers
-		 * 6) if item_id is in items array
-		 *      a) add the id of the answer to the answers id array
-		 * 7) return array with answer ids
-		 * 8) check in id of answer in parseData is in the answer id array
-		 */
 		$collection = xaseAnswer::getCollection();
 		$item_ids = $this->getItemIdsFromThisExercise();
 
@@ -370,7 +353,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			'minus_points'
 		));
 
-		$collection->leftjoin(arUser::returnDbTableName(), 'user_id', 'usr_id', array( 'firstname', 'lastname' ));
+		$collection->leftjoin(xaseUser::returnDbTableName(), 'user_id', 'usr_id', array( 'firstname', 'lastname' ));
 
 		$collection->leftjoin(xaseItem::returnDbTableName(), 'item_id', 'id', array( 'item_title' ));
 
@@ -461,17 +444,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		return $cols;
 	}
 
-
-	/*
-	 * 1) get all items from this exercise
-	 * 2) loop through items
-	 * 3) get answers for this item (from all users)
-	 * 4) loop through answers
-	 * 5) save the total points from each answer in a variable
-	 * 6) save the number of answers in a variable ( count() )
-	 * 7) divide total points from all answers by the number of answers
-	 * 8) return the result of the division
-	 */
 	protected function getAverageAchievedPoints() {
 		$items = xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
 		$total_points = 0;

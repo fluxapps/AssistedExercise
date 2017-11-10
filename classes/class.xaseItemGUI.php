@@ -74,7 +74,6 @@ class xaseItemGUI {
 		$this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->object->getId() ])->first();
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
-		//TODO set item_id Parameter
 		$this->xase_item = new xaseItem($_GET[self::ITEM_IDENTIFIER]);
 	}
 
@@ -123,7 +122,6 @@ class xaseItemGUI {
 		$this->tabs->activateTab(self::CMD_STANDARD);
 		$xaseItemFormGUI = new xaseItemFormGUI($this, $this->xase_item, $this->xase_settings);
 		$xaseItemFormGUI->fillForm();
-		//echo $xaseItemFormGUI->getHTML(); exit();
 		$this->tpl->setContent($xaseItemFormGUI->getHTML());
 		$this->tpl->show();
 	}
@@ -177,21 +175,6 @@ class xaseItemGUI {
 	protected function cancel() {
 		$this->ctrl->redirect($this, self::CMD_STANDARD);
 	}
-
-
-	protected function setAnswerStatusToCanBeVoted() {
-		$answers_from_user = xaseItemTableGUI::getAnswersFromUser($this->object, $this->dic);
-		if (!empty($answers_from_user)) {
-			foreach ($answers_from_user as $answer) {
-				if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_ANSWERED) {
-					$answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED);
-				}
-				$answer->store();
-			}
-		}
-		$this->ctrl->redirect($this, self::CMD_STANDARD);
-	}
-
 
 	protected function getMaxAchievedPoints() {
 		$answers_from_user = xaseItemTableGUI::getAnswersFromUser($this->object, $this->dic);

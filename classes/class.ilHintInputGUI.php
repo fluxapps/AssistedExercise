@@ -43,11 +43,9 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 	protected $lvl_2_minus_points;
 	protected $remove_hint_btn;
 	protected $hint_to_label;
-	//saves the values for the different hints
 	protected $values = [];
 	protected $existing_hint_data = [];
 	protected $existing_level_data = [];
-	//TODO rename to toal_minus_points and with local history add minus points and getters & setters again
 	protected $total_minus_points;
 	protected $minus_points = [];
 	/**
@@ -93,7 +91,6 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 	 * @return bool
 	 */
 	public function checkInput() {
-		// Wenn inputbenennung wie folgt: name="hint[1][lvl_1_minus_points]"
 		foreach ($_POST['hint'] as $id => $data) {
 
 			$data["is_template"] = ilUtil::stripSlashes($data["is_template"]);
@@ -101,7 +98,6 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 			$data["lvl_1_minus_points"] = ilUtil::stripSlashes($data["lvl_1_minus_points"]);
 			$data["lvl_2_hint"] = ilUtil::stripSlashes($data["lvl_2_hint"]);
 			$data["lvl_2_minus_points"] = ilUtil::stripSlashes($data["lvl_2_minus_points"]);
-			//don't check hidden input
 			if ($data['is_template'] == 0) {
 				continue;
 			}
@@ -303,15 +299,10 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 		}
 	}
 
-	//TODO SET HINT ID VARIABLE
-
-
 	/**
 	 * Insert property html
 	 */
 	function insert($a_tpl) {
-
-		// hint[*id*][.....]
 
 		$tpl = new ilTemplate("tpl.prop_hint.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
@@ -384,7 +375,6 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 		}
 
 		$a_tpl->setCurrentBlock("prop_generic");
-		//$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
 		$a_tpl->setVariable("PROP_GENERIC", $tpl->get());
 		$a_tpl->parseCurrentBlock();
 
@@ -482,7 +472,6 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 					}
 				}
 				$a_tpl->setCurrentBlock("prop_generic");
-				//$a_tpl->setVariable("PROP_GENERIC", $tpl->get().$tpl->get().$tpl->get().$tpl->get());
 				$a_tpl->setVariable("PROP_GENERIC", $tpl->get());
 				$a_tpl->parseCurrentBlock();
 			}

@@ -129,20 +129,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$this->initForm();
 	}
 
-
-	protected function getAnswer() {
-		$xaseAnswer = xaseAnswer::where(array(
-			'item_id' => $this->xase_item->getId(),
-			'user_id' => $this->dic->user()->getId()
-		), array( 'item_id' => '=', 'user_id' => '=' ))->first();
-		if (empty($xaseAnswer)) {
-			$xaseAnswer = new xaseAnswer();
-		}
-
-		return $xaseAnswer;
-	}
-
-
 	protected function getItem() {
 		$xase_item = xaseItem::where(array( 'id' => $this->xase_answer->getItemId() ))->first();
 
@@ -326,17 +312,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			$hint_object = xaseHint::where([ 'id' => $hint_id ])->first();
 			$hint_objects[] = $hint_object;
 		}
-		/*
-		 * 1) loop through hint objects
-		 * 2) set the hint label as text for the listing
-		 * 3) get the hint array in the used_hints array with the id of the hint object of the current iteration
-		 * 4) check which data level the hint is
-		 * 5) save in a variable if it is level 1 or level 2 hint
-		 * 6) retrieve the corresponding level db record with the hint id and the level number
-		 * 7) set the actual hint content as text for the listing
-		 * 8) retrieve the corresponding points db entry
-		 * 9) set the minus points, with a short text, next to the corresponding level hint
-		 */
 		$listing_array = [];
 		if (is_array($hint_objects)) {
 			foreach ($hint_objects as $hint_object) {
@@ -370,22 +345,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			'points' => $this->xase_point->getPointsTeacher()
 		);
 		$this->setValuesByArray($array, true);
-	}
-	/*
-	 * 1) get voting from user for the current item
-	 * 2) get all answers for the current item
-	 * 3) save the id of the answer which got the highest points from teacher
-	 * 4) check if the id is equal to the id which the user voted for
-	 *  a) if yes
-	 *      -get max points for the item
-	 *      -get in the mode 3 settings the number of percentage
-	 *      -calculate additional points
-	 *      -return the additional points
-	 *  b) if no
-	 *      -return 0
-	 */
-	protected function getAdditionalPoints() {
-
 	}
 
 	/* 1) get all answers for the current item
@@ -469,7 +428,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			if ($this->xase_settings->getModus() == self::M1) {
 				$this->xase_point->setTotalPoints($this->getInput('points'));
 			} elseif ($this->xase_settings->getModus() == self::M3) {
-				//$this->xase_point->setAdditionalPoints($this->getAdditionalPoints());
 				$this->setAdditionalPointsForStudents();
 				$this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
 			}
@@ -496,7 +454,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 
 	protected function getStudentUser() {
-		return arUser::where(array( 'usr_id' => $this->xase_answer->getUserId() ))->first();
+		return xaseUser::where(array( 'usr_id' => $this->xase_answer->getUserId() ))->first();
 	}
 
 
@@ -512,23 +470,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$mm->To($this->getStudentUser()->getEmail());
 
 		$assessment_url = ilLink::_getStaticLink($_GET['ref_id'], 'xase', true);
-
-		/*        $mm->Body
-				(
-					str_replace
-					(
-						array("\\n", "\\t"),
-						array("\n", "\t"),
-						sprintf
-						(
-							$this->pl->txt('pleas_click_on_the_following_link_to_view_the_assessment'),
-							$assessment_url,
-							$server_url,
-							$_SERVER['REMOTE_ADDR'],
-							'mailto:' . $contact_address[0]
-						)
-					)
-				);*/
 
 		$body = $this->pl->txt('the_following_link_leads_to_the_list_view_of_the_items') . "\n" . $assessment_url . "\n"
 			. $this->pl->txt('click_on_actions_view_assessment');

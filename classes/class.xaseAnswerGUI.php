@@ -73,7 +73,6 @@ class xaseAnswerGUI {
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		$this->xase_item = new xaseItem($_GET['item_id']);
 		$this->xase_answer = $this->getAnswer();
-		//parent::__construct();
 	}
 
 
@@ -157,7 +156,6 @@ class xaseAnswerGUI {
 				$this->ctrl->saveParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER);
 				$this->ctrl->redirectByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD);
 			} else {
-				//$this->ctrl->redirect($this, self::CMD_STANDARD);
 				$this->ctrl->redirectByClass(xaseItemGUI::class, xaseItemGUI::CMD_STANDARD);
 			}
 		} else {
