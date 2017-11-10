@@ -79,7 +79,14 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 
 
 	public function fillForm() {
-		$array = array();
+		$array = array(
+			'answer_1_id' => $this->arr_answers[0]->getId(),
+			'answer_2_id' => $this->arr_answers[1]->getId(),
+			'answer_1' => $this->arr_answers[0]->getBody(),
+			'answer_2' => $this->arr_answers[1]->getBody(),
+			'item_id' => $this->arr_answers[0]->getItemId(),
+		);
+		//$this->setValuesByArray($array, true);
 		$this->setValuesByArray($array);
 	}
 
@@ -109,21 +116,31 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		}
 
 
-		//Up Vote / Down Vote
-		if($this->getInput('answer_id') == $this->getInput('answer_1')) {
-			$upvote = $this->getInput('answer_1');
-			$downvote = $this->getInput('answer_2');
+		if(empty($this->getInput('answer_id'))) {
+			ilUtil::sendFailure($this->pl->txt("please_choose_an_answer"), true);
+			return false;
 		}
 
-		if($this->getInput('answer_id') == $this->getInput('answer_2')) {
-			$upvote = $this->getInput('answer_2');
-			$downvote = $this->getInput('answer_1');
+
+		//Up Vote / Down Vote
+		if($this->getInput('answer_id') == $this->getInput('answer_1_id')) {
+			$upvote = $this->getInput('answer_1_id');
+			$downvote = $this->getInput('answer_2_id');
+		}
+
+		if($this->getInput('answer_id') == $this->getInput('answer_2_id')) {
+			$upvote = $this->getInput('answer_2_id');
+			$downvote = $this->getInput('answer_1_id');
 		}
 
 		/**
 		 * @var xaseVoting $voting
 		 */
-		$voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $upvote))->getAR();
+		$voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $upvote))->first();
+
+		if(!is_object($voting)) {
+			$voting = new xaseVoting();
+		}
 
 		$voting->setUserId($this->dic->user()->getId());
 		$voting->setAnswerId($upvote);
@@ -134,17 +151,20 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		//print_r($voting);
 
 		/**
-		 * @var xaseVoting $voting
+		 * @var xaseVoting $voting_2
 		 */
-		$voting = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $downvote))->getAR();
+		$voting_2 = xaseVoting::where(array('user_id' => $this->dic->user()->getId(), 'answer_id' => $downvote))->first();
 
-		$voting->setUserId($this->dic->user()->getId());
-		$voting->setAnswerId($downvote);
-		$voting->setItemId($this->getInput('item_id'));
-		$voting->setCompAnswerId($upvote);
-		$voting->setVotingType(xaseVoting::VOTING_TYPE_DOWN);
-		$voting->store();
+		if(!is_object($voting_2)) {
+			$voting_2 = new xaseVoting();
+		}
 
+		$voting_2->setUserId($this->dic->user()->getId());
+		$voting_2->setAnswerId($downvote);
+		$voting_2->setItemId($this->getInput('item_id'));
+		$voting_2->setCompAnswerId($upvote);
+		$voting_2->setVotingType(xaseVoting::VOTING_TYPE_DOWN);
+		$voting_2->store();
 
 		return true;
 	}
@@ -184,7 +204,8 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 
 	protected function initAnswerList() {
 
-		$this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
+		$a_formaction = $this->ctrl->getFormAction($this->parent_gui);
+		$this->setFormAction($a_formaction);
 		$this->setTarget('_top');
 		$header = new ilFormSectionHeaderGUI();
 		$header->setTitle($this->pl->txt('view_answers'));
@@ -194,9 +215,10 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$item->setValue($this->arr_answers[0]->getItemId());
 		$this->addItem($item);
 
-		$item = new ilHiddenInputGUI('answer_1');
+		$item = new ilHiddenInputGUI('answer_1_id');
 		$item->setValue($this->arr_answers[0]->getId());
 		$this->addItem($item);
+
 
 		//$notesGUI = new ilNoteGUI($this->parent_gui->assisted_exercise->getId(), $this->arr_answers[0]->getId());
 		//$notesGUI->enablePublicNotes(true);
@@ -253,15 +275,14 @@ $props[] = array("alert" => false,
 			"value" =>
 			"newline" => $nl);*/
 
-		$item = new ilHiddenInputGUI('answer_2');
+
+		$item = new ilHiddenInputGUI('answer_2_id');
 		$item->setValue($this->arr_answers[1]->getId());
 		$this->addItem($item);
-
 
 		$item = new ilNonEditableValueGUI($this->pl->txt('answer_1'), "answer_1");
 		$item->setValue($this->arr_answers[0]->getBody());
 		$this->addItem($item);
-
 
 		$item = new ilNonEditableValueGUI($this->pl->txt('answer_2'), "answer_2");
 		$item->setValue($this->arr_answers[1]->getBody());

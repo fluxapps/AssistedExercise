@@ -409,14 +409,18 @@ class xaseItemTableGUI extends ilTable2GUI {
 		$xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
 
 		if(!empty($xase_answer)) {
-			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED && (count(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId())) >= 2)) {
 				//$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
-				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseVoteGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
+
+				$this->ctrl->setParameterByClass(xaseVoteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+				$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
 
 
 				if($this->voted_answers[$xaseItem->getId()] > 0) {
 					$current_selection_list->addItem($this->pl->txt('delete_my_votings'), xaseVoteGUI::CMD_DELETE_USERS_VOTINGS, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_DELETE_USERS_VOTINGS));
 				}
+
+
 
 			}
 		}
