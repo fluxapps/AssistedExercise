@@ -7,6 +7,9 @@
 
 class xaseItem extends ActiveRecord {
 
+	const SEVERITY_RATING_FROM = 1;
+	const SEVERITY_RATING_TO = 5;
+
 	/**
 	 * @return string
 	 */
@@ -182,5 +185,22 @@ class xaseItem extends ActiveRecord {
 	 */
 	public function setTask($task) {
 		$this->task = $task;
+	}
+
+
+	//Other
+	public function returnItemSeverityRatingAverage() {
+		global $ilDB;
+
+		$sql = "select ROUND(AVG(item_severity_rating),1) as item_severity_rating_avg  
+				from rep_robj_xase_answer where item_id = ".$ilDB->quote($this->getId(), 'integer')." and item_severity_rating > 0";
+
+		$set = $ilDB->query($sql);
+		//return the first result. should be only one
+		while($row = $ilDB->fetchAssoc($set)) {
+			return $row['item_severity_rating_avg'];
+		}
+
+		return false;
 	}
 }

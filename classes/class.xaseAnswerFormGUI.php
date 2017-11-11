@@ -136,6 +136,22 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		$answer->setRows(10);
 		$this->addItem($answer);
 
+		//Bewertung Schwierigkeitsgrad
+		$item = new ilSelectInputGUI($this->pl->txt('severity'),'severity');
+		$item->setInfo($this->pl->txt('severity_info'));
+		$item->setDisabled($this->only_read);
+		$item->setRequired(true);
+			$arr_options = array();
+
+			$arr_options[''] = '-';
+			for ($i = xaseItem::SEVERITY_RATING_FROM; $i <= xaseItem::SEVERITY_RATING_TO; $i++) {
+				$arr_options[$i] = $i;
+			}
+		$item->setOptions($arr_options);
+		$this->addItem($item);
+
+
+
 		//TODO Refactor
 		if($this->only_read && $this->xase_settings->getModus() != xaseAnswerGUI::M1) {
 			$item = new ilNonEditableValueGUI($this->pl->txt('answered_by'));
@@ -329,11 +345,13 @@ EOT;
 				'task' => $this->replace_hint_identifiers_with_glyphs(),
 				'show_hints' => $this->xase_answer->getShowHints(),
 				'answer' => $this->xase_answer->getBody(),
+				'severity' => $this->xase_answer->getItemSeverityRating(),
 			);
 		} else {
 			$array = array(
 				'task' => $this->xase_item->getTask(),
 				'answer' => $this->xase_answer->getBody(),
+				'severity' => $this->xase_answer->getItemSeverityRating(),
 			);
 		}
 		$this->setValuesByArray($array);
@@ -476,6 +494,7 @@ EOT;
 		}
 
 		$this->xase_answer->setBody($this->getInput('answer'));
+		$this->xase_answer->setItemSeverityRating($this->getInput('severity'));
 		$this->xase_answer->store();
 
 		return true;

@@ -129,6 +129,15 @@ class xaseAnswer extends ActiveRecord {
 	 * @db_is_notnull false
 	 */
 	//protected $number_of_upvotings;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
+	protected $item_severity_rating;
 
 
 	/**
@@ -302,17 +311,18 @@ class xaseAnswer extends ActiveRecord {
 	/**
 	 * @return int
 	 */
-	//public function getNumberOfUpvotings() {
-	//	return $this->number_of_upvotings;
-	//}
+	public function getItemSeverityRating() {
+		return $this->item_severity_rating;
+	}
 
 
 	/**
-	 * @param int $number_of_upvotings
+	 * @param int $item_severity_rating
 	 */
-	//public function setNumberOfUpvotings($number_of_upvotings) {
-	//	$this->number_of_upvotings = $number_of_upvotings;
-	//}
+	public function setItemSeverityRating($item_severity_rating) {
+		$this->item_severity_rating = $item_severity_rating;
+	}
+
 
 
 	//Other

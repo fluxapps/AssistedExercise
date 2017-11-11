@@ -16,7 +16,7 @@ class xaseVotings {
 	public static function getUnvotedAnswersOfUser($assisted_exercise_object_id, $user_id, $item_id) {
 		global $ilDB;
 
-		$sql = "SELECT answer.* FROM ilias.rep_robj_xase_answer as answer
+		$sql = "SELECT answer.* FROM rep_robj_xase_answer as answer
 				inner join rep_robj_xase_item as item on item.id = answer.item_id
 				where 
 				answer.id not in (SELECT answer_id from rep_robj_xase_voting as voting where user_id = ".$ilDB->quote($user_id,'integer').") 
@@ -43,7 +43,7 @@ class xaseVotings {
 	public static function getBestVotedAnswerOfUser($assisted_exercise_object_id, $user_id, $item_id) {
 		global $ilDB;
 
-		$sql = "SELECT answer.* FROM ilias.rep_robj_xase_answer as answer
+		$sql = "SELECT answer.* FROM rep_robj_xase_answer as answer
 				inner join rep_robj_xase_item as item on item.id = answer.item_id
 				inner join rep_robj_xase_voting as voting on voting.user_id = ".$ilDB->quote($user_id,'integer')." and voting.item_id = item.id and voting.answer_id = answer.id and voting.voting_type = ".xaseVoting::VOTING_TYPE_UP."
 				where 
@@ -69,7 +69,7 @@ class xaseVotings {
 		global $ilDB;
 
 		$sql = "SELECT answer.*, count(answer.id) as number_of_up_votes 
-				FROM ilias.rep_robj_xase_answer as answer
+				FROM rep_robj_xase_answer as answer
 				inner join rep_robj_xase_item as item on item.id = answer.item_id
 				inner join rep_robj_xase_voting as voting on voting.item_id = item.id and voting.voting_type = ".xaseVoting::VOTING_TYPE_UP." and voting.answer_id = answer.id
 				where answer.item_id = ".$ilDB->quote($item_id, 'integer')."
@@ -97,7 +97,7 @@ class xaseVotings {
 	public static function getVotedAnswersOfUserByItemId($assisted_exercise_object_id, $user_id) {
 		global $ilDB;
 
-		$sql = "SELECT answer.* FROM ilias.rep_robj_xase_answer as answer
+		$sql = "SELECT answer.* FROM rep_robj_xase_answer as answer
 				inner join rep_robj_xase_item as item on item.id = answer.item_id
 				inner join rep_robj_xase_voting as voting on voting.user_id = ".$ilDB->quote($user_id,'integer')." and voting.item_id = item.id
 				and item.assisted_exercise_id = ".$ilDB->quote($assisted_exercise_object_id,'integer');

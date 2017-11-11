@@ -226,6 +226,16 @@ class xaseItemTableGUI extends ilTable2GUI {
 			$this->tpl->parseCurrentBlock();
 		}
 
+		if ($this->isColumnSelected('severity')) {
+			$this->tpl->setCurrentBlock("SEVERITY");
+			if($xaseItem->returnItemSeverityRatingAverage()) {
+				$this->tpl->setVariable('SEVERITY', $xaseItem->returnItemSeverityRatingAverage());
+			} else {
+				$this->tpl->setVariable('SEVERITY', '&nbsp;');
+			}
+			$this->tpl->parseCurrentBlock();
+		}
+
 		$xaseAnswer = $this->getAnswer($xaseItem->getId());
 		if ($this->isColumnSelected('answer_status')) {
 			$this->tpl->setCurrentBlock("STATUS");
@@ -531,6 +541,10 @@ class xaseItemTableGUI extends ilTable2GUI {
 			"txt" => $this->pl->txt("title"),
 			"default" => true
 		);
+		$cols["severity"] = array(
+			"txt" => $this->pl->txt("severity"),
+			"default" => true
+		);
 		$cols["answer_status"] = array(
 			"txt" => $this->pl->txt("status"),
 			"default" => true
@@ -582,6 +596,9 @@ class xaseItemTableGUI extends ilTable2GUI {
 				"default" => true
 			);
 		}
+
+
+
 
 		return $cols;
 	}

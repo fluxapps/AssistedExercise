@@ -120,7 +120,7 @@ the_following_link_leads_to_the_list_view_of_the_items#:#Der folgende Link führ
 click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Frage können Sie über das Kontext Menü die Bewertung einsehen.
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
-is_voted#:#Stimme abgegeben
+is_voted#:#Voting durchgeführt
 release_answers_for_voting#:#Antworten zum Voten freigeben
 can_be_voted#:#Zum Voting freigegeben
 confirm_delete_question#:#Bist du sicher, dass du diese Frage löschen willst?
@@ -151,3 +151,5 @@ number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
 highest_ratet_answer#:#Antwort mit den meisten Upvotings
 show#:#Anzeigen
 answers_are_equal#:#Beide Antworten sind gleich gut. Der Vote geht an die früher eingetragene Antwort.
+severity#:#Schwierigkeitsgrad
+severity_info#:#Bitte schätzen Sie den Schwierigkeitsgrad dieser Frage ein: 1 einfach; 5 sehr schwierig.

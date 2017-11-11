@@ -116,7 +116,7 @@ the_following_link_leads_to_the_list_view_of_the_items#:#The following link lead
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
 click_on_actions_view_assessment#:#With a click on the actions button of the correspondent question you can view the assessment over the context menu.
-is_voted#:#voted
+is_voted#:#Voted
 release_answers_for_voting#:#Release answers for voting
 can_be_voted#:#Can be voted
 confirm_delete_question#:#Are you sure you want to delete this exercise?
@@ -148,3 +148,5 @@ number_of_upvotings_my_answer#:#Numboer of upvotings for my Answer
 highest_ratet_answer#:#Answer with the most upvotings
 show#:#Show
 answers_are_equal#:#Both answers are equally. The vote goes to the earlier registered answer.
+severity#:#Severity
+severity_info#:#Please estimate the difficulty of this question: 1 simple; 5 very difficult.
