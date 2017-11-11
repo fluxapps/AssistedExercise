@@ -179,7 +179,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 
 		$m2 = new ilRadioOption($this->pl->txt('student_creates_question'), self::M2);
 		$m2->setInfo($this->pl->txt('m2_info'));
-		$this->initVotingsForm($m2);
+		//$this->initVotingsForm($m2);
 		$mode->addOption($m2);
 
 		$m3 = new ilRadioOption($this->pl->txt('partially_teacher_controlled'), self::M3);
@@ -198,7 +198,7 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 		$this->initSolutionVisibleForm($radioOption);
 	}
 
-
+/*
 	protected function initVotingsForm(ilRadioOption $radioOption, $is_mode_3 = false) {
 		$mode_number = $is_mode_3 ? 3 : 2;
 		$dt_votings_after = new ilDateTimeInputGUI($this->pl->txt('votings_after'), "votings_after" . $mode_number);
@@ -206,10 +206,11 @@ class xaseSettingsFormGUI extends ilPropertyFormGUI {
 		$dt_votings_after->setShowTime(true);
 		$radioOption->addSubItem($dt_votings_after);
 	}
+*/
 
 
 	protected function initM3Form(ilRadioOption $radioOption) {
-		$this->initVotingsForm($radioOption, true);
+		//$this->initVotingsForm($radioOption, true);
 		$this->initRateAnswerForm($radioOption, true);
 		$this->initSolutionVisibleForm($radioOption, true);
 	}

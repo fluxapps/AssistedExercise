@@ -194,8 +194,8 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			$this->tpl->parseCurrentBlock();
 		}
 
-		/*
-		 * @var xaseItem $item
+		/**
+		 * @var xaseItem $xaseItem
 		 */
 		$xaseItem = xaseItem::where(array( 'id' => $xaseAnswer->getItemId() ))->first();
 		if ($this->isColumnSelected('item_title')) {
@@ -213,6 +213,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			$this->tpl->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints() === NULL ? 0 : $xaseAnswer->getNumberOfUsedHints());
 			$this->tpl->parseCurrentBlock();
 		}
+
 
 		/**
 		 * @var $xasePoint xasePoint
@@ -270,7 +271,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		if ($this->xase_settings->getModus() == 3 && $this->isColumnSelected('number_of_upvotings')) {
 			$this->tpl->setCurrentBlock("number_up_votings");
 			if (!empty($xaseAnswer)) {
-				$this->tpl->setVariable('NUMBERUPVOTINGS', $xaseAnswer->getNumberOfUpvotings());
+				$this->tpl->setVariable('NUMBERUPVOTINGS', $xaseAnswer->returnNumberOfUpvotings());
 			} else {
 				$this->tpl->setVariable('NUMBERUPVOTINGS', 0);
 			}
@@ -374,9 +375,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 		$collection->leftjoin(xaseItem::returnDbTableName(), 'item_id', 'id', array( 'item_title' ));
 
+		/*
 		if ($this->xase_settings->getModus() == 3) {
 			$collection->leftjoin(xaseVoting::returnDbTableName(), 'id', 'answer_id', array( 'number_of_upvotings' ));
-		}
+		}*/
 
 		$sorting_column = $this->getOrderField() ? $this->getOrderField() : 'submission_date';
 		$offset = $this->getOffset() ? $this->getOffset() : 0;

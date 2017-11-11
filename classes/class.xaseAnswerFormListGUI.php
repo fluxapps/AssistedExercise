@@ -209,7 +209,7 @@ class xaseAnswerFormListGUI extends ilPropertyFormGUI {
 			$this->setFormAction($this->ctrl->getFormAction($this->parent_gui));
 			$this->setTarget('_top');
 			$header = new ilFormSectionHeaderGUI();
-			$header->setTitle($this->pl->txt('view_answers'));
+			$header->setTitle($this->pl->txt('vote'));
 			$this->addItem($header);
 
 			if (!$this->hasUserVoted()) {

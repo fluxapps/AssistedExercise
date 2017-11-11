@@ -63,7 +63,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 	protected $mode;
 
 
-	public function __construct(xaseAnswerGUI $xase_answer_gui, ilObjAssistedExercise $assisted_exericse, xaseItem $xase_item) {
+	public function __construct(xaseAnswerGUI $xase_answer_gui, ilObjAssistedExercise $assisted_exericse, xaseItem $xase_item, $only_read = false) {
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
@@ -77,6 +77,16 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		$this->xase_answer = $this->getAnswer();
 		$this->mode = $this->xase_settings->getModus();
 		$this->parent_gui = $xase_answer_gui;
+
+		$this->only_read = $only_read;
+
+		//TODO Refactor
+		if ($this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED
+			|| $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED
+			|| $this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+			$this->only_read = true;
+		}
+
 		parent::__construct();
 
 		$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/tooltip.js');
@@ -105,22 +115,42 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 
 		$this->initTaskInput();
 
-		if ($this->mode == 1 || $this->mode == 3) {
-			$this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'show_hints');
-			$this->toogle_hint_checkbox->setChecked(true);
-			$this->toogle_hint_checkbox->setValue(1);
-			$this->addItem($this->toogle_hint_checkbox);
+		if(!$this->only_read) {
+			if ($this->mode == 1 || $this->mode == 3) {
+				$this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->pl->txt('show_hints'), 'show_hints');
+				$this->toogle_hint_checkbox->setChecked(true);
+				$this->toogle_hint_checkbox->setValue(1);
+				$this->addItem($this->toogle_hint_checkbox);
 
-			$item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
-			$item = new ilNonEditableValueGUI($this->pl->txt('max_points'));
-			$item->setValue($item_max_points['max_points']);
-			$this->addItem($item);
+				$item_max_points = $this->getItemMaxPoints($this->xase_item->getPointId());
+				$item = new ilNonEditableValueGUI($this->pl->txt('max_points'));
+				$item->setValue($item_max_points['max_points']);
+				$this->addItem($item);
+			}
 		}
+
 
 		$answer = new ilTextAreaInputGUI($this->pl->txt('answer'), 'answer');
 		$answer->setRequired(true);
+		$answer->setDisabled($this->only_read);
 		$answer->setRows(10);
 		$this->addItem($answer);
+
+		//TODO Refactor
+		if($this->only_read && $this->xase_settings->getModus() != xaseAnswerGUI::M1) {
+			$item = new ilNonEditableValueGUI($this->pl->txt('answered_by'));
+			$item->setValue(ilObjUser::_lookupFullname($this->getAnswer()->getUserId()));
+			$this->addItem($item);
+
+			$item = new ilNonEditableValueGUI($this->pl->txt('number_of_upvotings'));
+			$item->setValue($this->getAnswer()->returnNumberOfUpvotings());
+			$this->addItem($item);
+
+			$button = $this->getCommentButton($this->getAnswer()->getId());
+			$item = new ilCustomInputGUI('');
+			$item->setHtml($button->getToolbarHTML());
+			$this->addItem($item);
+		}
 
 		if ($this->mode == 1 || $this->mode == 3) {
 
@@ -129,16 +159,19 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 			$this->initHiddenUsedHintsInput();
 		}
 
+
 		if (($this->mode == 2 || $this->mode == 3)
 			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->pl->txt('can_be_voted'));
 		}
-
-		if ($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED
-			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED
-			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
-			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
+		if(!$this->only_read) {
+			if ($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED
+				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED
+				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+				$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->pl->txt('save'));
+			}
 		}
+
 		$this->addCommandButton(xaseAnswerGUI::CMD_CANCEL, $this->pl->txt("cancel"));
 	}
 
@@ -458,5 +491,30 @@ EOT;
 		}
 
 		return true;
+	}
+
+	//TODO Rector. Only one Method. You find this method also at. caseVoteFormGUI
+	/**
+	 * @param int $answer_id
+	 *
+	 * @return ilLinkButton
+	 */
+	protected function getCommentButton($answer_id) {
+		ilNoteGUI::initJavascript($this->ctrl->getLinkTargetByClass(array(
+			"ilcommonactiondispatchergui",
+			"ilnotegui"
+		), "", "", true, false));
+		ilNote::activateComments($this->parent_gui->assisted_exercise->getId(), $answer_id, 'answer', true);
+		$ajaxHash = ilCommonActionDispatcherGUI::buildAjaxHash(ilCommonActionDispatcherGUI::TYPE_REPOSITORY, $this->parent_gui->assisted_exercise->getRefId(), $this->pl->getPrefix(), $this->parent_gui->assisted_exercise->getId(), 'answer', $answer_id);
+		$redraw_js = "il.Object.redrawListItem(" . $this->parent_gui->assisted_exercise->getRefId() . ")";
+		$on_click_js = "return " . ilNoteGUI::getListCommentsJSCall($ajaxHash, $redraw_js);
+
+		$button = ilLinkButton::getInstance();
+		$button->setUrl('#');
+		$button->setOnClick($on_click_js);
+		$button->setCaption($this->pl->txt('comments'),false);
+
+
+		return $button;
 	}
 }
