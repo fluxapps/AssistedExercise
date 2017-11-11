@@ -32,9 +32,9 @@ content#:#Inhalt
 edit_properties#:#Einstellungen
 xase_new#:#Unterstützte Übung anlegen
 xase_objs_xase#:#Unterstützte Übung
-m1_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler beantworten die Fragen. Lehrer bewertet diese. Maximalpunktzahl abhängig von den verwendeten Tipps.
-m2_info#:#Schüler erstellt Fragen, ohne Tipps. Schüler geben Votings ab.
-m3_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler können Votings abgeben.
+m1_info#:#Lehrkraft erstellt Frage inkl. Tipps. Schüler beantworten die Fragen. Lehrkraft bewertet diese. Maximalpunktzahl abhängig von den verwendeten Tipps.
+m2_info#:#Schüler/in erstellt Fragen, ohne Tipps. Schüler geben Votings ab.
+m3_info#:#Lehrkraft erstellt Frage inkl. Tipps. Schüler können Votings abgeben.
 max_achieved_points#:#Maximal erreichte Punkte
 mode#:#Modus
 mode_settings#:#Modus Einstellungen
@@ -44,7 +44,7 @@ permission_denied#:#Sie sind nicht berechtigt diese Aktion durchzuführen.
 perm_settings#:#Rechte
 save#:#Speichern
 start_time#:#Startzeit
-student_creates_question#:#Schüler erstellt Frage
+student_creates_question#:#Schüler/in erstellt Frage
 time_limited#:#Zeitlich begrenzt
 time_period#:#Zeitraum
 title#:#Titel
@@ -75,6 +75,7 @@ msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind m
 answer_task#:#Aufgabe beantworten
 show_hints#:#Tipps anzeigen
 answer#:#Antworten
+my_answer#:#Meine Antwort
 submit_for_assessment#:#Übung zur Bewertung einreichen
 assessment_for_task#:#Bewertung für die Aufgabe
 submitted_by#:#eingereicht von
@@ -97,7 +98,7 @@ submitted#:#Eingereicht
 rated#:#Bewertet
 view_sample_solution#:#Musterlösung einsehen
 discard_comment#:#Verwerfen
-points_teacher#:#Punkte Lehrer
+points_teacher#:#Punkte Lehrkraft
 add_comment#:#Kommentar hinzufügen
 discard_comment#:#Verwerfen
 view_answers#:#Antworten ansehen
@@ -141,3 +142,11 @@ answer_1#:#Antwort 1
 answer_2#:#Antwort 2
 vote_for#:#Voten für
 please_choose_an_answer#:#Bitte wählen Sie eine Antwort aus.
+created_by#:#Erstellt durch
+answered_by#:#Beantwortet durch
+no_more_answers_to_vote#:#Derzeit gibt es weiteren Antworten mehr für welche gevotet werden könnte
+delete_my_votings#:#Meine Votings löschen
+vote#:#Vote
+number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
+highest_ratet_answer#:#Höchst gewertete Antwort
+show#:#Anzeigen

@@ -19,6 +19,8 @@ class xaseAnswerGUI {
 	const CMD_UPDATE = 'update';
 	const CMD_UPDATE_AND_SET_STATUS_TO_VOTE = 'upadteAndSetStatusToVote';
 	const CMD_CANCEL = 'cancel';
+	const CMD_SHOW = 'show';
+
 	/**
 	 * @var ilObjAssistedExercise
 	 */
@@ -92,6 +94,7 @@ class xaseAnswerGUI {
 		$cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
 		switch ($cmd) {
 			case self::CMD_STANDARD:
+			case self::CMD_SHOW:
 			case self::CMD_UPDATE:
 			case self::CMD_CANCEL:
 			case self::CMD_UPDATE_AND_SET_STATUS_TO_VOTE:
@@ -138,6 +141,28 @@ class xaseAnswerGUI {
 		$xaseAnswerFormGUI->fillForm();
 		$this->tpl->setContent($xaseAnswerFormGUI->getHTML());
 		$this->tpl->show();
+	}
+
+	//TODO Refactor
+	public function show() {
+		if($answer_id = $_GET['answer_id']) {
+
+			$answer = new xaseAnswer($answer_id);
+			if($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED ||  $answer->getUserId() == $this->dic->user()->getId()) {
+				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
+				$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item, true);
+				$xaseAnswerFormGUI->fillForm();
+				$this->tpl->setContent($xaseAnswerFormGUI->getHTML());
+				$this->tpl->show();
+			} else {
+				ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+				$this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_STANDARD);
+			}
+		} else {
+
+			ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+			$this->ctrl->redirectByClass('xaseItemGUI', xaseItemGUI::CMD_STANDARD);
+		}
 	}
 
 	public function upadteAndSetStatusToVote() {

@@ -1,4 +1,8 @@
 <?php
+require_once "./Services/Object/classes/class.ilCommonActionDispatcherGUI.php";
+require_once "./Services/Form/classes/class.ilLinkInputGUI.php";
+require_once "./Services/Notes/classes/class.ilNoteGUI.php";
+
 /*
 require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilAnswerListInputGUI.php");
 require_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php");
@@ -64,10 +68,7 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->arr_answers = $arr_answers;
 		$this->parent_gui = $parent_gui;
-		//$this->xase_item = new xaseItem($_GET['item_id']);
-		//$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
 
-		//$this->tpl->addJavaScript('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/templates/js/answerformlist.js');
 		$this->initAnswerList();
 
 		parent::__construct();
@@ -86,37 +87,14 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$this->setValuesByArray($array);
 	}
 
+
 	/**
-	 * @return bool|string
+	 * @return bool
 	 */
 	public function updateObject() {
-		if (!$this->fillObject()) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/*
-	protected function has_current_user_voted_for_answer($answer) {
-		if(!empty(xaseVoting::where(array('answer_id' => $answer->getId(), 'user_id' => $this->dic->user()->getId())))) {
-			return true;
-		}
-		return false;
-	}*/
-
-	public function fillObject() {
-
 		if(!$this->checkInput()) {
 			return false;
 		}
-
-
-		if(empty($this->getInput('answer_id'))) {
-			ilUtil::sendFailure($this->pl->txt("please_choose_an_answer"), true);
-			return false;
-		}
-
 
 		//Up Vote / Down Vote
 		if($this->getInput('answer_id') == $this->getInput('answer_1_id')) {
@@ -144,7 +122,6 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$voting->setCompAnswerId($downvote);
 		$voting->setVotingType(xaseVoting::VOTING_TYPE_UP);
 		$voting->store();
-		//print_r($voting);
 
 		/**
 		 * @var xaseVoting $voting_2
@@ -165,46 +142,14 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		return true;
 	}
 
-	/*
-	protected function resetPreviousVoting($item_id) {
-		$previousVoting = xaseVoting::where(array( 'item_id' => $item_id, 'user_id' => $this->dic->user()->getId() ))->first();
-		if(!empty($previousVoting)) {
-			$votedAnswer = xaseAnswer::where(array('id' => $previousVoting->getAnswerId()))->first();
-			$current_number_of_upvotings = $previousVoting->getNumberOfUpvotings();
-			$votedAnswer->setNumberOfUpvotings(--$current_number_of_upvotings);
-			$previousVoting->delete();
-		}
-		return;
-	}*/
-
-	/*
-	protected function hasVotedForAnswer($answer_id) {
-		$xaseVoting = xaseVoting::where(array( 'answer_id' => $answer_id, 'user_id' => $this->dic->user()->getId() ))->first();
-		if (empty($xaseVoting)) {
-			return $hasVoted = false;
-		}
-
-		return $hasVoted = true;
-	}*/
-
-	//TODO check if used
-	/*
-	protected function is_already_answered_by_user() {
-		$user_answers = xaseAnswer::where(array( 'item_id' => $this->xase_item->getId(), 'user_id' => $this->dic->user()->getId() ))->get();
-		if (count($user_answers) > 0) {
-			return true;
-		}
-
-		return false;
-	}*/
-
 	protected function initAnswerList() {
+
 
 		$a_formaction = $this->ctrl->getFormAction($this->parent_gui);
 		$this->setFormAction($a_formaction);
 		$this->setTarget('_top');
 		$header = new ilFormSectionHeaderGUI();
-		$header->setTitle($this->pl->txt('view_answers'));
+		$header->setTitle($this->pl->txt('vote'));
 		$this->addItem($header);
 
 		$item = new ilHiddenInputGUI('item_id');
@@ -215,6 +160,7 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$item->setValue($this->arr_answers[0]->getId());
 		$this->addItem($item);
 
+
 		$item = new ilHiddenInputGUI('answer_2_id');
 		$item->setValue($this->arr_answers[1]->getId());
 		$this->addItem($item);
@@ -223,22 +169,58 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 		$item->setValue($this->arr_answers[0]->getBody());
 		$this->addItem($item);
 
+
+		$button = $this->getCommentButton($this->arr_answers[0]->getId());
+		$item = new ilCustomInputGUI('');
+		$item->setHtml($button->getToolbarHTML());
+		$this->addItem($item);
+
 		$item = new ilNonEditableValueGUI($this->pl->txt('answer_2'), "answer_2");
 		$item->setValue($this->arr_answers[1]->getBody());
 		$this->addItem($item);
 
+		$button = $this->getCommentButton($this->arr_answers[1]->getId());
+		$item = new ilCustomInputGUI('');
+		$item->setHtml($button->getToolbarHTML());
+		$this->addItem($item);
+
 		$item_group = new ilRadioGroupInputGUI($this->pl->txt('vote_for'),"answer_id");
-		//$item_group->setValue(1);
+		$item_group->setRequired(true);
 			$item = new ilRadioOption($this->pl->txt('answer_1'),$this->arr_answers[0]->getId());
-			//$item->setValue($this->arr_answers[0]->getId());
 			$item_group->addOption($item);
 
 			$item = new ilRadioOption($this->pl->txt('answer_2'),$this->arr_answers[1]->getId());
-			//$item->setValue(2);
 			$item_group->addOption($item);
+
+
 
 		$this->addItem($item_group);
 
 		$this->addCommandButton(xaseAnswerListGUI::CMD_UPDATE, $this->pl->txt('save'));
+	}
+
+
+	/**
+	 * @param int $answer_id
+	 *
+	 * @return ilLinkButton
+	 */
+	protected function getCommentButton($answer_id) {
+		ilNoteGUI::initJavascript($this->ctrl->getLinkTargetByClass(array(
+			"ilcommonactiondispatchergui",
+			"ilnotegui"
+		), "", "", true, false));
+		ilNote::activateComments($this->parent_gui->assisted_exercise->getId(), $answer_id, 'answer', true);
+		$ajaxHash = ilCommonActionDispatcherGUI::buildAjaxHash(ilCommonActionDispatcherGUI::TYPE_REPOSITORY, $this->parent_gui->assisted_exercise->getRefId(), $this->pl->getPrefix(), $this->parent_gui->assisted_exercise->getId(), 'answer', $answer_id);
+		$redraw_js = "il.Object.redrawListItem(" . $this->parent_gui->assisted_exercise->getRefId() . ")";
+		$on_click_js = "return " . ilNoteGUI::getListCommentsJSCall($ajaxHash, $redraw_js);
+
+		$button = ilLinkButton::getInstance();
+		$button->setUrl('#');
+		$button->setOnClick($on_click_js);
+		$button->setCaption($this->pl->txt('comments'),false);
+
+
+		return $button;
 	}
 }
