@@ -74,7 +74,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		$this->assisted_exercise = $assisted_exericse;
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
 		$this->xase_item = $xase_item;
-		$this->xase_answer = $this->getAnswer();
+		$this->xase_answer = $xase_answer_gui->xase_answer;
 		$this->mode = $this->xase_settings->getModus();
 		$this->parent_gui = $xase_answer_gui;
 
@@ -93,7 +93,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		$this->initForm();
 	}
 
-
+/*
 	protected function getAnswer() {
 		$xaseAnswer = xaseAnswer::where(array(
 			'item_id' => $this->xase_item->getId(),
@@ -104,7 +104,7 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		}
 
 		return $xaseAnswer;
-	}
+	}*/
 
 
 	public function initForm() {
@@ -139,14 +139,14 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 		//TODO Refactor
 		if($this->only_read && $this->xase_settings->getModus() != xaseAnswerGUI::M1) {
 			$item = new ilNonEditableValueGUI($this->pl->txt('answered_by'));
-			$item->setValue(ilObjUser::_lookupFullname($this->getAnswer()->getUserId()));
+			$item->setValue(ilObjUser::_lookupFullname($this->xase_answer->getUserId()));
 			$this->addItem($item);
 
 			$item = new ilNonEditableValueGUI($this->pl->txt('number_of_upvotings'));
-			$item->setValue($this->getAnswer()->returnNumberOfUpvotings());
+			$item->setValue($this->xase_answer->returnNumberOfUpvotings());
 			$this->addItem($item);
 
-			$button = $this->getCommentButton($this->getAnswer()->getId());
+			$button = $this->getCommentButton($this->xase_answer->getId());
 			$item = new ilCustomInputGUI('');
 			$item->setHtml($button->getToolbarHTML());
 			$this->addItem($item);

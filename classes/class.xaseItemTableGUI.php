@@ -407,6 +407,9 @@ class xaseItemTableGUI extends ilTable2GUI {
 	 * @param xaseItem $xaseItem
 	 */
 	protected function addActionMenu(xaseItem $xaseItem) {
+
+		$xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
+
 		$current_selection_list = new ilAdvancedSelectionListGUI();
 		$current_selection_list->setListTitle($this->pl->txt('common_actions'));
 		$current_selection_list->setId('item_actions_' . $xaseItem->getId());
@@ -414,28 +417,41 @@ class xaseItemTableGUI extends ilTable2GUI {
 
 		$this->ctrl->setParameter($this->parent_obj, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseAnswerGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+		if(is_object($xase_answer)) {
+			$this->ctrl->setParameterByClass(xaseAnswerGUI::class,xaseAnswerGUI::ANSWER_IDENTIFIER,$xase_answer->getId());
+		} else {
+			$this->ctrl->setParameterByClass(xaseAnswerGUI::class,xaseAnswerGUI::ANSWER_IDENTIFIER,0);
+		}
+
+
 		$this->ctrl->setParameterByClass(xaseSampleSolutionGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseItemDeleteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseAnswerListGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 		$this->ctrl->setParameterByClass(xaseVoteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
 
 		$current_selection_list->addItem($this->pl->txt('my_answer'), xaseAnswerGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
-		$xase_answer = $this->getUserAnswerByItemId($xaseItem->getId());
 
 		if(!empty($xase_answer)) {
 			if($this->xase_settings->getModus() == self::M2 || $this->xase_settings->getModus() == self::M3 && $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_SUBMITTED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_RATED || $xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 				//$current_selection_list->addItem($this->pl->txt('view_answers'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseAnswerListGUI::class, xaseAnswerListGUI::CMD_STANDARD));
 
 				//ToDo Refactor!
-				if(count(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId())) >= 2
-					OR
-					count(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId())) == 1
-					AND is_object(xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId()))
 
-				) {
-					$this->ctrl->setParameterByClass(xaseVoteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
-					$current_selection_list->addItem($this->pl->txt('vote'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
+				if($xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+
+					if(count(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId())) >= 2
+						OR
+						count(xaseVotings::getUnvotedAnswersOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId())) == 1
+						AND is_object(xaseVotings::getBestVotedAnswerOfUser($this->assisted_exercise->getId(), $this->dic->user()->getId(), $xaseItem->getId()))
+
+					) {
+						$this->ctrl->setParameterByClass(xaseVoteGUI::class, xaseItemGUI::ITEM_IDENTIFIER, $xaseItem->getId());
+						$current_selection_list->addItem($this->pl->txt('vote'), xaseAnswerListGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseVoteGUI::class, xaseVoteGUI::CMD_STANDARD));
+					}
+
 				}
+
+
 
 
 				if($this->voted_answers[$xaseItem->getId()] > 0) {
@@ -561,12 +577,10 @@ class xaseItemTableGUI extends ilTable2GUI {
 				"txt" => $this->pl->txt("number_of_upvotings_my_answer"),
 				"default" => true
 			);
-			if ($this->xase_settings->getModus() == 3) {
-				$cols["highest_ratet_answer"] = array(
-					"txt" => $this->pl->txt("highest_ratet_answer"),
-					"default" => true
-				);
-			}
+			$cols["highest_ratet_answer"] = array(
+				"txt" => $this->pl->txt("highest_ratet_answer"),
+				"default" => true
+			);
 		}
 
 		return $cols;

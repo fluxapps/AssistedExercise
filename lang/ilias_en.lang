@@ -1,4 +1,4 @@
-add_task#:#Add task
+add_task#:#Add Question
 always_visible#:#Always visible
 always_visibility_info#:#Before and after the indicated period it is only the assisted exercise's title that will be displayed. The participants cannot take the assisted exercise.
 assisted_exercise_activation_online_info#:#If online, participants can take the assisted exercise
@@ -21,8 +21,8 @@ open#:#Open
 answered#:#Answered
 points#:#Points
 status#:#Status
-task_create#:#Create task
-task_title#:#Task title
+task_create#:#Create Question
+task_title#:#Delete Question
 xase_add#:#Add
 content#:#Content
 edit_properties#:#Properties
@@ -56,7 +56,7 @@ cb_additional_points_for_voting#:#Students get x% of the points per item, which 
 number_of_percentage#:#Percentage
 votings_after#:#Votings from:
 please_choose_mode#:#Please choose a mode.
-task#:#Task
+task#:#Question
 text_hint_btn#:#Create hint
 hint#:#hint
 level_1_hint#:#Level 1 hint
@@ -66,14 +66,14 @@ sample_solution#:#Sample Solution
 minus_points#:#Minus points
 specify_max_points#:#Specify maximum points
 hints#:#Hints
-info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
+info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Question" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
 msg_input_hints#:#Please fill out all required hint inputs. Required fields are marked with a *. The Input value for minus points has to be numeric. If you want to add a 2 level hint, you have to fill both inputs.
-answer_task#:#Answer Task
+answer_task#:#Answer Question
 show_hints#:#Show hints
 answer#:#Answer
 my_answer#:#My Answer
 submit_for_assessment#:#Submit for assessment
-assessment_for_task#:#Assessment for task
+assessment_for_task#:#Assessment for Question
 submitted_by#:#Submitted by
 show_used_hints#:#Show used hints
 comment#:#Comment
@@ -97,25 +97,25 @@ points_teacher#:#Points teacher
 add_comment#:#Add comment
 discard_comment#:#Discard
 view_answers#:#View answers
-task_label#:#Task:
+task_label#:#Question:
 pleas_vote_for_the_best_answer#:#Please vote for the best answer
 edit_task#:#Edit
 delete_task#:#Delete
 add_hint_btn_caption#:#Add hint
 last_name#:#Last name
 submission_date#:#Submission date
-tasks#:#Tasks
+tasks#:#Questions
 number_of_upvotings#:#Number of upvotings
 msg.success.exercise.submitted.for.assessment#:#The exercise was successfully submitted for assessment.
 no_disposal_date#:#No disposal date
 average_achieved_points#:#Average achieved points
 average_used_hints_per_item#:#Average number of used hints per item
-your_answer_of_the_task#:#Your answer of the task
+your_answer_of_the_task#:#Your answer of the question
 was_assessed#:#was assessed
 the_following_link_leads_to_the_list_view_of_the_items#:#The following link leads to the list view of the items
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
-click_on_actions_view_assessment#:#With a click on the actions button of the correspondent task you can view the assessment over the context menu.
+click_on_actions_view_assessment#:#With a click on the actions button of the correspondent question you can view the assessment over the context menu.
 is_voted#:#voted
 release_answers_for_voting#:#Release answers for voting
 can_be_voted#:#Can be voted
@@ -145,5 +145,6 @@ no_more_answers_to_vote#:#Currently there are no more answers for voting
 delete_my_votings#:#Delete my Votings
 vote#:#Vote
 number_of_upvotings_my_answer#:#Numboer of upvotings for my Answer
-highest_ratet_answer#:#Highest rated answer
+highest_ratet_answer#:#Answer with the most upvotings
 show#:#Show
+answers_are_equal#:#Both answers are equally. The vote goes to the earlier registered answer.
