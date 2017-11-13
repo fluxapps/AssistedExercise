@@ -48,3 +48,8 @@ xaseAssessment::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseVoting.php');
 xaseVoting::updateDB();
 ?>
+<#3>
+<?php
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAnswer.php');
+xaseAnswer::updateDB();
+?>
