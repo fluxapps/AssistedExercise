@@ -117,8 +117,8 @@ pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the f
 view_assessment#:#View assessment
 click_on_actions_view_assessment#:#With a click on the actions button of the correspondent question you can view the assessment over the context menu.
 is_voted#:#Voted
-release_answers_for_voting#:#Release answers for voting
-can_be_voted#:#Can be voted
+release_answers_for_voting#:#Release answers for voting/rating
+can_be_voted#:#Can be voted/rated
 confirm_delete_question#:#Are you sure you want to delete this exercise?
 successfully_deleted#:#Successfully deleted exercise.
 vote_error_text#:#Please first down vote the answer you upvoted previously.

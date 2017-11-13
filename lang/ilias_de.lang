@@ -121,8 +121,8 @@ click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der e
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
 is_voted#:#Voting durchgeführt
-release_answers_for_voting#:#Antworten zum Voten freigeben
-can_be_voted#:#Zum Voting freigegeben
+release_answers_for_voting#:#Antworten zum Voten/Bewertung freigeben
+can_be_voted#:#Zum Voting/Bewertung freigegeben
 confirm_delete_question#:#Bist du sicher, dass du diese Frage löschen willst?
 successfully_deleted#:#Frage erfolgreich gelöscht.
 vote_error_text#:#Bitte down voten Sie die zuvor upgevotete Antwort.
