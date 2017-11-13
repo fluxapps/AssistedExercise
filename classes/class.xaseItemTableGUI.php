@@ -362,12 +362,17 @@ class xaseItemTableGUI extends ilTable2GUI {
 	}
 
 	protected function initColums() {
+
+		$number_of_selected_columns = count($this->getSelectedColumns());
+		//add one to the number of columns for the action
+		$number_of_selected_columns ++;
+		$column_width = 100 / $number_of_selected_columns . '%';
+
 		$all_cols = $this->getSelectableColumns();
-		$number_of_columns = count($this->getSelectedColumns());
-		$column_width = 100 / $number_of_columns;
 		foreach ($this->getSelectedColumns() as $col) {
 			$this->addColumn($all_cols[$col]['txt'], $col, $column_width);
 		}
+
 		$this->addColumn($this->pl->txt('common_actions'), '', $column_width);
 	}
 
