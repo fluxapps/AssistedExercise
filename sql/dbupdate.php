@@ -96,3 +96,23 @@ xaseVoting::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseAssessment.php');
 xaseAssessment::updateDB();
 ?>
+<#5>
+<?php
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xasePoint.php');
+xasePoint::updateDB();
+?>
+<#6>
+<?php
+/*
+global $ilDB;
+$sql = "ALTER TABLE rep_robj_xase_point MODIFY total_points DOUBLE";
+$ilDB->query($sql);
+*/
+?>
+<#7>
+<?php
+/*
+$sql = "ALTER TABLE rep_robj_xase_point MODIFY additional_points DOUBLE";
+$ilDB->query($sql);
+*/
+?>

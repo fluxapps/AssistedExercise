@@ -445,8 +445,6 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 					$percentage_additiona_points = $this->mode_settings->getVotingPointsPercentage();
 					$additional_points = $point_higest_teacher_points->getPointsTeacher() * ($percentage_additiona_points / 100);
 
-
-
 					$points_user_answer->setAdditionalPoints($additional_points);
 					$points_user_answer->setTotalPoints($points_user_answer->getPointsTeacher() + $points_user_answer->getAdditionalPoints());
 
