@@ -15,6 +15,8 @@ class xaseVoteGUI {
 	const CMD_CANCEL = 'cancel';
 	const CMD_DELETE_USERS_VOTINGS = 'deleteUsersVotingsOfItem';
 
+	const RADIO_OPTION_EQUAL = -1;
+
 
 	/**
 	 * @var ilObjAssistedExercise

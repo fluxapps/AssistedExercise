@@ -96,15 +96,28 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 			return false;
 		}
 
-		//Up Vote / Down Vote
-		if($this->getInput('answer_id') == $this->getInput('answer_1_id')) {
-			$upvote = $this->getInput('answer_1_id');
-			$downvote = $this->getInput('answer_2_id');
-		}
+		$answer_1 = new xaseAnswer($this->getInput('answer_1_id'));
+		$answer_2 = new xaseAnswer($this->getInput('answer_2_id'));
 
-		if($this->getInput('answer_id') == $this->getInput('answer_2_id')) {
-			$upvote = $this->getInput('answer_2_id');
-			$downvote = $this->getInput('answer_1_id');
+		switch($this->getInput('answer_id')) {
+			case xaseVoteGUI::RADIO_OPTION_EQUAL:
+				//TODO Refactor Use Timestamp
+				if($answer_1->getId() < $answer_2->getId()) {
+					$upvote = $answer_1->getId();
+					$downvote = $answer_2->getId();
+				} else {
+					$upvote = $answer_1->getId();
+					$downvote = $answer_2->getId();
+				}
+				break;
+			case $answer_1->getId();
+				$upvote = $answer_1->getId();
+				$downvote = $answer_2->getId();
+				break;
+			case $this->getInput('answer_2_id'):
+				$upvote = $answer_1->getId();
+				$downvote = $answer_2->getId();
+				break;
 		}
 
 		/**
@@ -190,6 +203,9 @@ class xaseVoteFormGUI extends ilPropertyFormGUI {
 			$item_group->addOption($item);
 
 			$item = new ilRadioOption($this->pl->txt('answer_2'),$this->arr_answers[1]->getId());
+			$item_group->addOption($item);
+
+			$item = new ilRadioOption($this->pl->txt('answers_are_equal'),xaseVoteGUI::RADIO_OPTION_EQUAL);
 			$item_group->addOption($item);
 
 

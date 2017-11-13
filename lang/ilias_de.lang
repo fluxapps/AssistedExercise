@@ -1,4 +1,4 @@
-add_task#:#Aufgabe hinzufügen
+add_task#:#Frage hinzufügen
 always_visible#:#Immer sichtbar
 always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
 assisted_exercise_activation_online_info#:#Wenn Online, können Teilnehmer die unterstüzte Übung absolvieren.
@@ -12,8 +12,8 @@ finish_time#:#Endzeit
 first_name#:#Vorname
 general_settings#:#Allgemeine Einstellungen
 item#:#Item
-task_create#:#Aufgabe anlegen
-task_title#:#Aufgabe Titel
+task_create#:#Frage anlegen
+task_title#:#Fragentitel
 last_name#:#Nachname
 max_points#:#Maximale Punktzahl
 max_achievable_points#:#Maximal erreichbare Punkte
@@ -60,7 +60,7 @@ cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, w
 number_of_percentage#:#Anzahl Prozent
 votings_after#:#Votings ab:
 please_choose_mode#:#Bitte wählen Sie einen Modus aus.
-task#:#Aufgabe
+task#:#Frage
 text_hint_btn#:#Tipp hinzufügen
 hint#:#Tipp
 level_1_hint#:#Ebene 1 Tipp
@@ -72,12 +72,12 @@ specify_max_points#:#Maximalpunktzahl festlegen
 hints#:#Tipps
 info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert. Die maximale Punktzahl muss grösser sein als die Summe aller Minuspunkte der Tipps.
 msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.
-answer_task#:#Aufgabe beantworten
+answer_task#:#Frage beantworten
 show_hints#:#Tipps anzeigen
-answer#:#Antworten
+answer#:#Antwort
 my_answer#:#Meine Antwort
 submit_for_assessment#:#Übung zur Bewertung einreichen
-assessment_for_task#:#Bewertung für die Aufgabe
+assessment_for_task#:#Bewertung für die Frage
 submitted_by#:#eingereicht von
 show_used_hints#:#Verwendete Tipps anzeigen
 comment#:#Kommentar
@@ -102,29 +102,29 @@ points_teacher#:#Punkte Lehrkraft
 add_comment#:#Kommentar hinzufügen
 discard_comment#:#Verwerfen
 view_answers#:#Antworten ansehen
-task_label#:#Aufgabe:
+task_label#:#Frage:
 pleas_vote_for_the_best_answer#:#Bitte voten Sie für die beste Antwort
 edit_task#:#Bearbeiten
-delete_task#:#Löschen
+delete_task#:#Frage Löschen
 add_hint_btn_caption#:#Tipp hinzufügen
 submission_date#:#Abgabedatum
-tasks#:#Aufgaben
+tasks#:#Fragen
 number_of_upvotings#:#Anzahl Upvotings
 msg.success.exercise.submitted.for.assessment#:#Die Übung wurde erfolgreich zur Bewertung eingereicht.
 no_disposal_date#:#Kein Abgabedatum
 average_achieved_points#:#Durchschnittlich erreichte Punkte
 average_used_hints_per_item#:#Durschnittliche Anzahl verwendeter Tipps pro Item
-your_answer_of_the_task#:#Ihre Antwort auf die Aufgabe
+your_answer_of_the_task#:#Ihre Antwort auf die Frage
 was_assessed#:#wurde bewertet
 the_following_link_leads_to_the_list_view_of_the_items#:#Der folgende Link führt auf die Listenansicht:
-click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Aufgabe können Sie über das Kontext Menü die Bewertung einsehen.
+click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Frage können Sie über das Kontext Menü die Bewertung einsehen.
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
-is_voted#:#Stimme abgegeben
+is_voted#:#Voting durchgeführt
 release_answers_for_voting#:#Antworten zum Voten freigeben
 can_be_voted#:#Zum Voting freigegeben
-confirm_delete_question#:#Bist du sicher, dass du diese Aufgabe löschen willst?
-successfully_deleted#:#Aufgabe erfolgreich gelöscht.
+confirm_delete_question#:#Bist du sicher, dass du diese Frage löschen willst?
+successfully_deleted#:#Frage erfolgreich gelöscht.
 vote_error_text#:#Bitte down voten Sie die zuvor upgevotete Antwort.
 add_new_comment#:#Neuen Kommentar hinzufügen
 create_comment_form_error_message#:#Bitte füllen Sie das Eingabefeld für den Kommentar aus.
@@ -148,5 +148,8 @@ no_more_answers_to_vote#:#Derzeit gibt es weiteren Antworten mehr für welche ge
 delete_my_votings#:#Meine Votings löschen
 vote#:#Vote
 number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
-highest_ratet_answer#:#Höchst gewertete Antwort
+highest_ratet_answer#:#Antwort mit den meisten Upvotings
 show#:#Anzeigen
+answers_are_equal#:#Beide Antworten sind gleich gut. Der Vote geht an die früher eingetragene Antwort.
+severity#:#Schwierigkeitsgrad
+severity_info#:#Bitte schätzen Sie den Schwierigkeitsgrad dieser Frage ein: 1 einfach; 5 sehr schwierig.

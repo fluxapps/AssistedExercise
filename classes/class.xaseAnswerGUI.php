@@ -75,7 +75,12 @@ class xaseAnswerGUI {
 		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
 		$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
 		$this->xase_item = new xaseItem($_GET['item_id']);
-		$this->xase_answer = $this->getAnswer();
+
+		$this->xase_answer = xaseAnswer::findOrGetInstance($_GET['answer_id']);
+		$this->ctrl->saveParameter($this,self::ANSWER_IDENTIFIER);
+
+
+
 		//parent::__construct();
 	}
 
@@ -108,7 +113,7 @@ class xaseAnswerGUI {
 		}
 	}
 
-
+/*
 	protected function getAnswer() {
 		$xaseAnswer = xaseAnswer::where(array(
 			'item_id' => $this->xase_item->getId(),
@@ -120,7 +125,7 @@ class xaseAnswerGUI {
 
 		return $xaseAnswer;
 	}
-
+*/
 
 	protected function canVote() {
 		$current_date = date('Y-m-d h:i:s', time());
@@ -147,8 +152,8 @@ class xaseAnswerGUI {
 	public function show() {
 		if($answer_id = $_GET['answer_id']) {
 
-			$answer = new xaseAnswer($answer_id);
-			if($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED ||  $answer->getUserId() == $this->dic->user()->getId()) {
+
+			if($this->xase_answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED ||  $this->xase_answer->getUserId() == $this->dic->user()->getId()) {
 				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
 				$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item, true);
 				$xaseAnswerFormGUI->fillForm();
