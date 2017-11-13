@@ -128,7 +128,7 @@ class xaseAnswer extends ActiveRecord {
 	 * @db_length     4
 	 * @db_is_notnull false
 	 */
-	protected $number_of_upvotings;
+	//protected $number_of_upvotings;
 
 
 	/**
@@ -302,15 +302,21 @@ class xaseAnswer extends ActiveRecord {
 	/**
 	 * @return int
 	 */
-	public function getNumberOfUpvotings() {
-		return $this->number_of_upvotings;
-	}
+	//public function getNumberOfUpvotings() {
+	//	return $this->number_of_upvotings;
+	//}
 
 
 	/**
 	 * @param int $number_of_upvotings
 	 */
-	public function setNumberOfUpvotings($number_of_upvotings) {
-		$this->number_of_upvotings = $number_of_upvotings;
+	//public function setNumberOfUpvotings($number_of_upvotings) {
+	//	$this->number_of_upvotings = $number_of_upvotings;
+	//}
+
+
+	//Other
+	public function returnNumberOfUpvotings() {
+		return xaseVoting::where(array('answer_id' => $this->getId(), 'voting_type' => xaseVoting::VOTING_TYPE_UP))->count();
 	}
 }

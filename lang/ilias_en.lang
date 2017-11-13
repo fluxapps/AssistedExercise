@@ -71,6 +71,7 @@ msg_input_hints#:#Please fill out all required hint inputs. Required fields are 
 answer_task#:#Answer Task
 show_hints#:#Show hints
 answer#:#Answer
+my_answer#:#My Answer
 submit_for_assessment#:#Submit for assessment
 assessment_for_task#:#Assessment for task
 submitted_by#:#Submitted by
@@ -138,3 +139,11 @@ answer_1#:#Answer 1
 answer_2#:#Answer 2
 vote_for#:#Vote for
 please_choose_an_answer#:#Please choose an answer.
+created_by#:#Created by
+answered_by#:#Answered by
+no_more_answers_to_vote#:#Currently there are no more answers for voting
+delete_my_votings#:#Delete my Votings
+vote#:#Vote
+number_of_upvotings_my_answer#:#Numboer of upvotings for my Answer
+highest_ratet_answer#:#Highest rated answer
+show#:#Show
