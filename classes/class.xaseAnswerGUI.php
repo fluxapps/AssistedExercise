@@ -18,6 +18,7 @@ class xaseAnswerGUI {
 	const CMD_STANDARD = 'edit';
 	const CMD_UPDATE = 'update';
 	const CMD_UPDATE_AND_SET_STATUS_TO_VOTE = 'upadteAndSetStatusToVote';
+	const CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED = 'upadteAndSetStatusToSubmited';
 	const CMD_CANCEL = 'cancel';
 	const CMD_SHOW = 'show';
 
@@ -103,6 +104,7 @@ class xaseAnswerGUI {
 			case self::CMD_UPDATE:
 			case self::CMD_CANCEL:
 			case self::CMD_UPDATE_AND_SET_STATUS_TO_VOTE:
+			case self::CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED:
 				if ($this->access->hasReadAccess()) {
 					$this->{$cmd}();
 					break;
@@ -172,6 +174,10 @@ class xaseAnswerGUI {
 
 	public function upadteAndSetStatusToVote() {
 		$this->update(xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED);
+	}
+
+	public function upadteAndSetStatusToSubmited() {
+		$this->update(xaseAnswer::ANSWER_STATUS_SUBMITTED);
 	}
 
 

@@ -177,8 +177,12 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 
 
 		if (($this->mode == 2 || $this->mode == 3)
-			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED && $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
 			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->pl->txt('can_be_voted'));
+		}
+		if (($this->mode == 1)
+			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED && $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
+			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED, $this->pl->txt('can_be_voted'));
 		}
 		if(!$this->only_read) {
 			if ($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED
