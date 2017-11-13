@@ -639,7 +639,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 			$all_items_assisted_exercise_ids[] = $item_assisted_exercise->getId();
 		}
 		$all_items_assisted_exercise_ids_string = implode(', ', $all_items_assisted_exercise_ids);
-		$statement = $dic->database()->query("SELECT * FROM ilias.rep_robj_xase_answer where user_id = " . $user->getId()
+		$statement = $dic->database()->query("SELECT * FROM rep_robj_xase_answer where user_id = " . $user->getId()
 			. " AND item_id IN ($all_items_assisted_exercise_ids_string)");
 
 		$results = array();

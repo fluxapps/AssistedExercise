@@ -409,7 +409,7 @@ EOT;
 
 
 	protected function getItemMaxPoints($item_point_id) {
-		$statement = $this->dic->database()->query("SELECT max_points FROM ilias.rep_robj_xase_point where id = " . $this->dic->database()
+		$statement = $this->dic->database()->query("SELECT max_points FROM rep_robj_xase_point where id = " . $this->dic->database()
 				->quote($item_point_id, "integer") . " AND max_points IS NOT NULL");
 		$result = $statement->fetchAssoc();
 

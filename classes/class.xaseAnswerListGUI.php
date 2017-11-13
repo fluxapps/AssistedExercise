@@ -122,7 +122,7 @@ class xaseAnswerListGUI {
 
 
 	public function getNextAvailableCommentId() {
-		$statement = $this->dic->database()->query("SELECT * FROM ilias.rep_robj_xase_comment ORDER BY id DESC LIMIT 1");
+		$statement = $this->dic->database()->query("SELECT * FROM rep_robj_xase_comment ORDER BY id DESC LIMIT 1");
 
 		$results = array();
 
