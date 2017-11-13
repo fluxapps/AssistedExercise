@@ -429,6 +429,12 @@ EOT;
 		$this->xase_answer->setShowHints($this->getInput('show_hints'));
 		$this->xase_answer->setAnswerStatus($status);
 
+		$array_sumitted_states = array(xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED, xaseAnswer::ANSWER_STATUS_SUBMITTED);
+		if(in_array($status, $array_sumitted_states)) {
+			$now = new ilDateTime(time(),IL_CAL_UNIX);
+			$this->xase_answer->setSubmissionDate($now->get(IL_CAL_DATETIME));
+		}
+
 		if (empty($this->xase_answer->getUsedHints())) {
 			$used_hints = $this->getInput('used_hints');
 			$this->xase_answer->setUsedHints($used_hints);

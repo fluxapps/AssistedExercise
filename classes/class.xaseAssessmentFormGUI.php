@@ -406,34 +406,72 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 	 *      -save object
 	 */
 	protected function setAdditionalPointsForStudents() {
-		$answers = xaseAnswer::where(array('item_id' => $this->xase_item->getId()))->get();
-		$answer_id_highest_teacher_points = 0;
-		foreach($answers as $key => $answer) {
-			$points_user_answer = xasePoint::where(array('id' => $answer->getPointId()))->first();
-			if(prev($answers)) {
-				$previous_answer = prev($answers);
-				$points_previous_user_answer = xasePoint::where(array('id' => $previous_answer->getPointId()))->first();
-				if($points_previous_user_answer->getPointsTeacher() < $points_user_answer->getPointsTeacher()) {
-					$answer_id_highest_teacher_points = $answer->getId();
-				}
-			} else {
-				$answer_id_highest_teacher_points = $answer->getId();
-			}
+		global $ilDB;
+
+		//TODO Refactor - the points table should contains the answers_id!
+		$sql = "SELECT answers.id as answer_id FROM rep_robj_xase_answer as answers 
+				where answers.point_id in (
+				SELECT id FROM 
+					(SELECT points.id FROM rep_robj_xase_point as points 
+				    where points.points_teacher = (SELECT MAX(points_teacher) FROM rep_robj_xase_point WHERE rep_robj_xase_point.item_id = ".$ilDB->quote($this->xase_item->getId(),'integer').") and points.item_id = ".$ilDB->quote($this->xase_item->getId(),'integer').")  as maxvalues)";
+
+		$set = $ilDB->query($sql);
+
+		$arr_answer_id_highest_teacher_points = array();
+		while($row = $ilDB->fetchAssoc($set)) {
+			$arr_answer_id_highest_teacher_points[] = $row['answer_id'];
 		}
-		$votings = xaseVoting::where(array('item_id' => $this->xase_item->getId()))->get();
-		foreach($votings as $voting) {
-			$user_answer = xaseAnswer::where(array('user_id' => $voting->getUserId()))->first();
-			$points_user_answer = xasePoint::where(array('id' => $user_answer->getPointId()))->first();
-			if($voting->getAnswerId() == $answer_id_highest_teacher_points) {
-				$xasePoint = xasePoint::where(array('item_id' => $this->xase_item->getId()))->first();
-				$max_points_for_item = $xasePoint->getMaxPoints();
-				$percentage_additiona_points = $this->mode_settings->getVotingPointsPercentage();
-				$additional_points = $max_points_for_item * ($percentage_additiona_points / 100);
-				$points_user_answer->setAdditionalPoints($additional_points);
-			} else {
-				$points_user_answer->setAdditionalPoints(0);
+
+
+		foreach($arr_answer_id_highest_teacher_points as $answer_id_highest_teacher_points) {
+			$votings = xaseVoting::where(array('answer_id' => $answer_id_highest_teacher_points, 'voting_type' => xaseVoting::VOTING_TYPE_UP))->get();
+
+			foreach($votings as $voting) {
+				/**
+				 * @var xaseVoting $voting
+				 */
+				$user_id = $voting->getUserId();
+				/**
+				 * @var xasePoint $points_user_answer
+				 */
+				$points_user_answer = xasePoint::where(array('user_id' => $user_id, 'item_id' => $this->xase_item->getId()))->first();
+
+
+
+				if(is_object($points_user_answer)) {
+					$answer_higest_teacher_points = new xaseAnswer($answer_id_highest_teacher_points);
+					$point_higest_teacher_points = new xasePoint($answer_higest_teacher_points->getPointId());
+
+					$percentage_additiona_points = $this->mode_settings->getVotingPointsPercentage();
+					$additional_points = $point_higest_teacher_points->getPointsTeacher() * ($percentage_additiona_points / 100);
+
+
+
+					$points_user_answer->setAdditionalPoints($additional_points);
+					$points_user_answer->setTotalPoints($points_user_answer->getPointsTeacher() + $points_user_answer->getAdditionalPoints());
+
+					$points_user_answer->store();
+				}
 			}
-			$points_user_answer->store();
+
+			$votings = xaseVoting::where(array('answer_id' => $answer_id_highest_teacher_points, 'voting_type' => xaseVoting::VOTING_TYPE_DOWN))->get();
+
+			foreach($votings as $voting) {
+
+				//mehre antworten wurden vom lehrer mit gleicher punktzahl ausgestattet. punkte nicht auf 0 setzen!
+				if(in_array($voting->getCompAnswerId(), $arr_answer_id_highest_teacher_points) ) {
+					continue;
+				}
+
+				$user_id = $voting->getUserId();
+				$points_user_answer = xasePoint::where(array('user_id' => $user_id, 'item_id' => $this->xase_item->getId()))->first();
+				if($points_user_answer) {
+					$points_user_answer->setAdditionalPoints(0);
+					$points_user_answer->setTotalPoints($points_user_answer->getPointsTeacher() + $points_user_answer->getAdditionalPoints());
+					$points_user_answer->store();
+				}
+
+			}
 		}
 	}
 
@@ -467,14 +505,17 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		}
 		if (!empty($this->getInput('points'))) {
 			if ($this->xase_settings->getModus() == self::M1) {
+				$this->xase_point->setPointsTeacher($this->getInput('points'));
 				$this->xase_point->setTotalPoints($this->getInput('points'));
+				$this->xase_point->store();
 			} elseif ($this->xase_settings->getModus() == self::M3) {
+				$this->xase_point->setPointsTeacher($this->getInput('points'));
+				$this->xase_point->store();
 				//$this->xase_point->setAdditionalPoints($this->getAdditionalPoints());
 				$this->setAdditionalPointsForStudents();
-				$this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
+				//$this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
+				//$this->xase_point->store();
 			}
-			$this->xase_point->setPointsTeacher($this->getInput('points'));
-			$this->xase_point->store();
 		}
 
 		return true;

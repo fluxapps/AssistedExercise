@@ -190,7 +190,12 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		}
 		if ($this->isColumnSelected('submission_date')) {
 			$this->tpl->setCurrentBlock('submissiondate');
-			$this->tpl->setVariable('SUBMISSIONDATE', $xaseAnswer->getSubmissionDate());
+			if( $xaseAnswer->getSubmissionDate()) {
+				$this->tpl->setVariable('SUBMISSIONDATE', $xaseAnswer->getSubmissionDate());
+			} else {
+				$this->tpl->setVariable('SUBMISSIONDATE', '&nbsp;');
+			}
+
 			$this->tpl->parseCurrentBlock();
 		}
 
@@ -318,11 +323,11 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		if ($this->access->hasWriteAccess() && xaseSubmissionGUI::isDisposalDateExpired($this->mode_settings)) {
 			$current_selection_list->addItem($this->pl->txt('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
 		}
-		if ($this->xase_settings->getModus() == 3) {
+		/*if ($this->xase_settings->getModus() == 3) {
 			if ($this->access->hasWriteAccess()) {
 				$current_selection_list->addItem($this->pl->txt('show_upvotings'), xaseUpvotingsGUI::CMD_STANDARD, $this->ctrl->getLinkTargetByClass(xaseUpvotingsGUI::class, xaseUpvotingsGUI::CMD_STANDARD));
 			}
-		}
+		}*/
 		$this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
 	}
 
@@ -359,7 +364,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 		$collection->where(array( 'item_id' => $item_ids ), array( 'item_id' => 'IN' ));
 
-		$collection->where(array( 'answer_status' => array( 2, 3 ) ), array( 'answer_status' => 'IN' ));
+		$collection->where(array( 'answer_status' => array( xaseAnswer::ANSWER_STATUS_SUBMITTED, xaseAnswer::ANSWER_STATUS_RATED,  xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) ), array( 'answer_status' => 'IN' ));
 
 		$collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array( 'assessment_comment' ));
 
