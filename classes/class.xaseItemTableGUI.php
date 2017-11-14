@@ -130,7 +130,7 @@ class xaseItemTableGUI extends ilTable2GUI {
 		}
 
 		//TODO REFACTOR!
-		if ($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
+		/*if ($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
 			if ($this->hasUserFinishedExercise()) {
 				if (!$this->checkIfAnswersAlreadySubmitted(self::getAllUserAnswersFromAssistedExercise(xaseItem::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))
 					->get(), $this->dic, $this->dic->user()))) {
@@ -142,14 +142,14 @@ class xaseItemTableGUI extends ilTable2GUI {
 								$submissionLinkButton = ilLinkButton::getInstance();
 								$submissionLinkButton->setCaption($this->pl->txt("submit_for_assessment"), false);
 								$submissionLinkButton->setUrl($new_submission_link);
-								/** @var $ilToolbar ilToolbarGUI */
+
 								$DIC->toolbar()->addButtonInstance($submissionLinkButton);
 							}
 						}
 					}
 				}
 			}
-		}
+		}*/
 	}
 
 

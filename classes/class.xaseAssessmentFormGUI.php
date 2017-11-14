@@ -230,7 +230,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$this->addItem($max_points);
 
 		if (!$this->is_student) {
-			$points_input = new ilTextInputGUI("points", "points");
+			$points_input = new ilTextInputGUI($this->pl->txt("points"), "points");
 			$points_input->setRequired(true);
 			$this->addItem($points_input);
 		} else {

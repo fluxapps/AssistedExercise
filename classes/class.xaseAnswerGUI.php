@@ -143,8 +143,14 @@ class xaseAnswerGUI {
 
 
 	public function edit() {
+		
+		$only_read = false;
+		if($this->isDisposalDateExpired()) {
+			$only_read = true;
+		}
+		
 		$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item);
+		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_item,$only_read);
 		$xaseAnswerFormGUI->fillForm();
 		$this->tpl->setContent($xaseAnswerFormGUI->getHTML());
 		$this->tpl->show();
@@ -208,6 +214,20 @@ class xaseAnswerGUI {
 			return xaseSettingsM3::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
 		} else {
 			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
+		}
+	}
+
+	protected function isDisposalDateExpired() {
+		$current_date = date('Y-m-d h:i:s', time());
+
+		$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+		$disposal_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $this->mode_settings->getDisposalDate());
+
+		if (($disposal_date_datetime->getTimestamp() > $current_date_datetime->getTimestamp())
+			|| $this->mode_settings->getDisposalDate() == "0000-00-00 00:00:00") {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
