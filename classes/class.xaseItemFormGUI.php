@@ -359,7 +359,7 @@ class xaseItemFormGUI extends ilPropertyFormGUI {
 
 
 	protected function getMaxHintNumber($item_id) {
-		$this->dic->database()->query("SELECT max(hint_number) FROM ilias.rep_robj_xase_hint where item_id = " . $this->dic->database()
+		$this->dic->database()->query("SELECT max(hint_number) FROM rep_robj_xase_hint where item_id = " . $this->dic->database()
 				->quote($item_id, "integer"));
 	}
 

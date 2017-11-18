@@ -175,12 +175,16 @@ class xaseAnswerFormGUI extends ilPropertyFormGUI {
 			$this->initHiddenUsedHintsInput();
 		}
 
-
-		if (($this->mode == 2 || $this->mode == 3)
-			&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
-			$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->pl->txt('can_be_voted'));
-		}
 		if(!$this->only_read) {
+			if (($this->mode == 2 || $this->mode == 3)
+				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED && $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
+				$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->pl->txt('submit_for_assessment'));
+			}
+			if (($this->mode == 1)
+				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED && $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED) {
+				$this->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED, $this->pl->txt('submit_for_assessment'));
+			}
+
 			if ($this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_SUBMITTED
 				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_RATED
 				&& $this->xase_answer->getAnswerStatus() != xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
@@ -409,7 +413,7 @@ EOT;
 
 
 	protected function getItemMaxPoints($item_point_id) {
-		$statement = $this->dic->database()->query("SELECT max_points FROM ilias.rep_robj_xase_point where id = " . $this->dic->database()
+		$statement = $this->dic->database()->query("SELECT max_points FROM rep_robj_xase_point where id = " . $this->dic->database()
 				->quote($item_point_id, "integer") . " AND max_points IS NOT NULL");
 		$result = $statement->fetchAssoc();
 
@@ -428,6 +432,12 @@ EOT;
 		$this->xase_answer->setItemId($this->xase_item->getId());
 		$this->xase_answer->setShowHints($this->getInput('show_hints'));
 		$this->xase_answer->setAnswerStatus($status);
+
+		$array_sumitted_states = array(xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED, xaseAnswer::ANSWER_STATUS_SUBMITTED);
+		if(in_array($status, $array_sumitted_states)) {
+			$now = new ilDateTime(time(),IL_CAL_UNIX);
+			$this->xase_answer->setSubmissionDate($now->get(IL_CAL_DATETIME));
+		}
 
 		if (empty($this->xase_answer->getUsedHints())) {
 			$used_hints = $this->getInput('used_hints');

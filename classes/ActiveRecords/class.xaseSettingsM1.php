@@ -43,7 +43,7 @@ class xaseSettingsM1 extends ActiveRecord {
 	 * @db_length     1
 	 * @db_is_notnull true
 	 */
-	protected $rate_answers = 1;
+	protected $rate_answers = 0;
 	/**
 	 * @var string
 	 *

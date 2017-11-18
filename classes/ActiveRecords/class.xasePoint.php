@@ -56,7 +56,7 @@ class xasePoint extends ActiveRecord {
 	 * @var int
 	 *
 	 * @db_has_field  true
-	 * @db_fieldtype  integer
+	 * @db_fieldtype  float
 	 * @db_length     4
 	 * @db_is_notnull false
 	 */
@@ -74,7 +74,7 @@ class xasePoint extends ActiveRecord {
 	 * @var int
 	 *
 	 * @db_has_field  true
-	 * @db_fieldtype  integer
+	 * @db_fieldtype  float
 	 * @db_length     4
 	 * @db_is_notnull false
 	 */
@@ -88,7 +88,6 @@ class xasePoint extends ActiveRecord {
 	 * @db_is_notnull false
 	 */
 	protected $minus_points;
-
 
 	/**
 	 * @return int
@@ -163,7 +162,7 @@ class xasePoint extends ActiveRecord {
 
 
 	/**
-	 * @return int
+	 * @return float
 	 */
 	public function getTotalPoints() {
 		return $this->total_points;
@@ -171,7 +170,7 @@ class xasePoint extends ActiveRecord {
 
 
 	/**
-	 * @param int $total_points
+	 * @param float $total_points
 	 */
 	public function setTotalPoints($total_points) {
 		$this->total_points = $total_points;
@@ -195,7 +194,7 @@ class xasePoint extends ActiveRecord {
 
 
 	/**
-	 * @return int
+	 * @return float
 	 */
 	public function getAdditionalPoints() {
 		return $this->additional_points;
@@ -203,7 +202,7 @@ class xasePoint extends ActiveRecord {
 
 
 	/**
-	 * @param int $additional_points
+	 * @param float $additional_points
 	 */
 	public function setAdditionalPoints($additional_points) {
 		$this->additional_points = $additional_points;
