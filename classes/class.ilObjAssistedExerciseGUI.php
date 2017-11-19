@@ -7,20 +7,23 @@
  */
 
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilObjAssistedExerciseAccess.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseItem.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/ActiveRecords/class.xaseSettings.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseItemDeleteGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSubmissionGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSettingsFormGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseSampleSolutionFormGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Question/class.xaseQuestion.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Setting/class.xaseSetting.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Answer/class.xaseAnswerGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Question/class.xaseQuestionGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Question/class.xaseQuestionDeleteGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Submission/class.xaseSubmissionGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Setting/class.xaseSettingFormGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Setting/class.xaseSettingFormGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/SampleSolution/class.xaseSampleSolutionFormGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseUpvotingsGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.xaseAnswerListGUI.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Vote/class.xaseVoteGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Answer/class.xaseAnswerListGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Voting/class.xaseVotingGUI.php');
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Setting/class.xaseSettingFactory.php');
 require_once('./Services/Repository/classes/class.ilObjectPluginGUI.php');
 require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
+
+require_once "./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/class.ilObjAssistedExerciseFacade.php";
 
 /**
  * User Interface class for assisted exercise repository object.
@@ -43,9 +46,9 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilPermissionGUI,ilInfoScreenGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilObjectCopyGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: ilCommonActionDispatcherGUI
- * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemGUI
- * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseItemDeleteGUI
- * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingsFormGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseQuestionGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseQuestionDeleteGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSettingFormGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAssessmentGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSubmissionGUI
@@ -53,7 +56,7 @@ require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseSampleSolutionGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseAnswerListGUI
  * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseUpvotingsGUI
- * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseVoteGUI
+ * @ilCtrl_Calls      ilObjAssistedExerciseGUI: xaseVotingGUI
  */
 class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 
@@ -61,63 +64,20 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 	const CMD_STANDARD = 'index';
 	const CMD_EDIT = 'edit';
 	const CMD_UPDATE = 'update';
-	const CMD_AFTER_SAVE = 'afterSave'; //after creation see ilObjectGUI
-	const M1 = 1;
-	const M2 = 2;
-	const M3 = 3;
 	/**
-	 * @var ilObjAssistedExercise
+	 * @var ilObjAssistedExerciseFacade
 	 */
-	public $object;
-	/**
-	 * @var xaseSettings
-	 */
-	protected $xase_settings;
-	/**
-	 * @var xaseSettingsM1|xaseSettingsM2|xaseSettingsM3
-	 */
-	protected $mode_settings;
-	/**
-	 * @var ilCtrl
-	 */
-	protected $ctrl;
-	/**
-	 * @var ilObjAssistedExerciseAccess
-	 */
-	protected $access;
-	/**
-	 * @var ilAssistedExercisePlugin
-	 */
-	protected $pl;
-	/**
-	 * @var \ILIAS\DI\Container
-	 */
-	protected $dic;
-	/**
-	 * @var ilPropertyFormGUI
-	 */
-	protected $form;
-	/**
-	 * @var ilTabsGUI
-	 */
-	protected $tabs;
+	protected $obj_facade;
+
 
 
 	protected function afterConstructor() {
-		global $DIC;
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
 
-		$this->dic = $DIC;
-		$this->access = new ilObjAssistedExerciseAccess();
-		$this->pl = ilAssistedExercisePlugin::getInstance();
-		$this->tabs = $DIC->tabs();
-		$this->ctrl = $DIC->ctrl();
-		$this->tpl = $DIC['tpl'];
-
-		if (!$this->getCreationMode() && is_object($this->getSettings())) {
-			$this->xase_settings = $this->getSettings();
-			$this->mode_settings = $this->getModeSettings($this->xase_settings->getModus());
+		if (!$this->obj_facade->getAccess()->hasReadAccess()) {
+			ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+			ilUtil::redirect('/');
 		}
-
 	}
 
 
@@ -129,123 +89,100 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 	public function executeCommand() {
 		global $ilLog;
 
+		//TODO
 		$this->setTitleAndDescription();
 		if (!$this->getCreationMode()) {
-			$this->tpl->setTitleIcon(ilObject::_getIcon($this->object->getId()));
+			$this->obj_facade->getTpl()->setTitleIcon(ilObject::_getIcon($this->object->getId()));
 		} else {
-			$this->tpl->setTitleIcon(ilObject::_getIcon(ilObject::_lookupObjId($_GET['ref_id']), 'big'), $this->pl->txt('obj_'
+			$this->obj_facade->getTpl()->setTitleIcon(ilObject::_getIcon(ilObject::_lookupObjId($_GET['ref_id']), 'big'), $this->obj_facade->getLanguageValue('obj_'
 				. ilObject::_lookupType($_GET['ref_id'], true)));
 		}
 
-		$next_class = $this->dic->ctrl()->getNextClass($this);
+		$next_class = $this->obj_facade->getCtrl()->getNextClass($this);
+		$cmd = $this->obj_facade->getCtrl()->getCmd(self::CMD_STANDARD);
 
-		$cmd = $this->dic->ctrl()->getCmd(self::CMD_STANDARD);
 
 		switch ($next_class) {
-			case 'xaseitemgui':
+			case 'xasequestiongui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-				//has to be called because in this case parent::executeCommand is not executed(contains getStandardTempplate and Show)
-				//Show Method has to be called in the corresponding methods
-				$this->tpl->getStandardTemplate();
-				$xaseItemGUI = new xaseItemGUI();
-				$this->ctrl->forwardCommand($xaseItemGUI);
+				$this->obj_facade->getTabsGUI()->activateTab('content');
+				$this->obj_facade->forwardCommandByClass('xaseQuestionGUI');
 				break;
 
 			case 'xaseitemdeletegui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseItemDeleteGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseItemDeleteGUI = new xaseItemDeleteGUI();
-				$this->ctrl->forwardCommand($xaseItemDeleteGUI);
+				$this->obj_facade->getTabsGUI()->activateTab('content');
+				$this->obj_facade->forwardCommandByClass('xaseQuestionDeleteGUI');
 				break;
 
 			case 'xaseanswergui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseAnswerGUI = new xaseAnswerGUI($this->object);
-				$this->ctrl->forwardCommand($xaseAnswerGUI);
+				$this->obj_facade->getTabsGUI()->activateTab('content');
+				$this->obj_facade->forwardCommandByClass('xaseAnswerGUI');
 				break;
 
 			case 'xaseassessmentgui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseAssessmentGUI = new xaseAssessmentGUI($this->object);
-				$this->ctrl->forwardCommand($xaseAssessmentGUI);
+				$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+				$this->obj_facade->forwardCommandByClass('xaseAssessmentGUI');
 				break;
 
-			case 'xaseupvotingsgui':
+			/*case 'xaseupvotingsgui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseUpvotingsGUI = new xaseUpvotingsGUI();
-				$this->ctrl->forwardCommand($xaseUpvotingsGUI);
-				break;
+				$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+				$this->obj_facade->forwardCommandByClass('xaseUpvotingsGUI');
+				break;*/
 
 			case 'xasesubmissiongui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseSubmissionGUI = new xaseSubmissionGUI();
-				$this->ctrl->forwardCommand($xaseSubmissionGUI);
+				$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+				$this->obj_facade->forwardCommandByClass('xaseSubmissionGUI');
 				break;
 
 			case 'xasesamplesolutiongui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseSampleSolution = new xaseSampleSolutionGUI();
-				$this->ctrl->forwardCommand($xaseSampleSolution);
+				$this->obj_facade->getTabsGUI()->activateTab('content');
+				$this->obj_facade->forwardCommandByClass('xaseSampleSolutionGUI');
 				break;
 
 			case 'xaseanswerlistgui':
 				$this->setTabs();
 				$this->setLocator();
-				$this->tabs->activateTab(xaseItemGUI::CMD_STANDARD);
-				$this->tpl->getStandardTemplate();
-				$xaseAnswerListGUI = new xaseAnswerListGUI($this->object);
-				$this->ctrl->forwardCommand($xaseAnswerListGUI);
+				$this->obj_facade->getTabsGUI()->activateTab('content');
+				$this->obj_facade->forwardCommandByClass('xaseAnswerListGUI');
 				break;
 
-			case 'xasevotegui':
-				$this->tpl->getStandardTemplate();
-				$xaseVoteGUI = new xaseVoteGUI($this->object);
-				$this->ctrl->forwardCommand($xaseVoteGUI);
-				$this->tpl->show();
+			case 'xasevotinggui':
+				$this->obj_facade->getTpl()->getStandardTemplate();
+				$this->obj_facade->forwardCommandByClass('xaseVotingGUI');
+				$this->obj_facade->getTpl()->show();
 				break;
 
 			default:
-				return parent::executeCommand();
+				parent::executeCommand();
 				break;
 		}
 	}
 
 
 	protected function performCommand() {
-		$cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
+		$cmd = $this->obj_facade->getCtrl()->getCmd(self::CMD_STANDARD);
 
 		switch ($cmd) {
 			case self::CMD_STANDARD:
-				if ($this->access->hasReadAccess()) {
-					$this->ctrl->redirect(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD);
+					$this->obj_facade->getCtrl()->redirect(new xaseQuestionGUI(), xaseQuestionGUI::CMD_INDEX);
 					break;
-				} else {
-					ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
-					break;
-				}
 			case self::CMD_EDIT:
 			case self::CMD_UPDATE:
-			case self::CMD_AFTER_SAVE:
-				if ($this->access->hasWriteAccess()) {
+				if ($this->obj_facade->getAccess()->hasWriteAccess()) {
+					$this->obj_facade->getTabsGUI()->activateTab(self::CMD_EDIT);
 					$this->{$cmd}();
 					break;
 				} else {
@@ -255,36 +192,32 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 		}
 	}
 
-
 	/**
-	 * Post (successful) object creation hook
-	 *
-	 * @param ilObject $a_new_object
+	 * After saving
+	 * @access	public
 	 */
-	public function afterSave(ilObject $a_new_object)
+	function afterSave(ilObject $newObj)
 	{
-		//Create Settings
-		$xaseSettings = new xaseSettings();
-		$xaseSettings->setAssistedExerciseObjectId($a_new_object->getId());
-		$xaseSettings->create();
 
-		//Create Mode Settings
-		$xaseSettingsM1 = new xaseSettingsM1();
-		$xaseSettingsM1->setSettingsId($xaseSettings->getId());
-		$xaseSettingsM1->create();
+		if(ilObject::_lookupType($newObj->getRefId(),true) == 'xase') {
+			$obj_facade = ilObjAssistedExerciseFacade::getInstance($newObj->getRefId());
+			$obj_facade->store();
+		}
 
-		ilUtil::sendSuccess($this->lng->txt("object_added"), true);
-		$this->ctrl->returnToParent($this);
 
-		//ilUtil::sendSuccess($this->lng->txt("object_added"), true);
-		//$this->ctrl->redirect($this,'edit');
+		parent::afterSave($newObj);
 	}
+
 
 	/**
 	 * Cmd that will be redirected to after creation of a new object.
 	 */
 	function getAfterCreationCmd() {
-		return true;
+		//$this->store();
+	}
+
+	function store() {
+		//$this->obj_facade->store();
 	}
 
 	function getStandardCmd() {
@@ -293,67 +226,57 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 
 
 	protected function setTabs() {
+		//ToDO
 		if (strtolower($_GET['baseClass']) != 'iladministrationgui') {
-			$this->tabs->addTab('content', $this->pl->txt('tasks'), $this->ctrl->getLinkTarget(new xaseItemGUI(), xaseItemGUI::CMD_STANDARD));
+			$this->obj_facade->addTab('content', 'tasks','xaseQuestionGUI', xaseQuestionGUI::CMD_INDEX);
 			$this->addInfoTab();
-			if ($this->access->hasWriteAccess()) {
-				if($this->xase_settings->getModus() == self::M1 || $this->xase_settings->getModus() == self::M3) {
-					if($this->mode_settings->getRateAnswers()) {
-						$this->tabs->addTab(xaseSubmissionGUI::CMD_STANDARD, $this->pl->txt('submissions'), $this->ctrl->getLinkTarget(new xaseSubmissionGUI(), xaseSubmissionGUI::CMD_STANDARD));
+			if ($this->obj_facade->getAccess()->hasWriteAccess()) {
+
+				//TODO
+				if($this->obj_facade->getSetting()->getModus() == xaseSetting::MODUS1) {
+					if($this->obj_facade->getSetting()->getRateAnswers()) {
+						$this->obj_facade->getTabsGUI()->addTab(xaseSubmissionGUI::CMD_STANDARD, $this->obj_facade->getLanguageValue('submissions'), $this->obj_facade->getCtrl()->getLinkTarget(new xaseSubmissionGUI(), xaseSubmissionGUI::CMD_STANDARD));
 					}
 				}
-				$this->tabs->addTab(self::CMD_EDIT, $this->pl->txt('edit_properties'), $this->ctrl->getLinkTarget($this, self::CMD_EDIT));
+
+				$this->obj_facade->addTab(self::CMD_EDIT, 'edit_properties','ilObjAssistedExerciseGUI', self::CMD_EDIT);
 			}
-			if ($this->checkPermissionBool('edit_permission')) {
-				$this->tabs->addTab('perm_settings', $this->pl->txt('perm_settings'), $this->ctrl->getLinkTargetByClass(array(
-					'ilObjAssistedExerciseGUI',
-					'ilpermissiongui',
-				), 'perm'));
+
+			if ($this->obj_facade->getAccess()->hasWriteAccess()) {
+				$this->obj_facade->getTabsGUI()
+					->addTab('perm_settings', $this->obj_facade->getLanguageValue('perm_settings'), $this->obj_facade->getCtrl()
+						->getLinkTargetByClass(array(
+							'ilObjAssistedExerciseGUI',
+							'ilpermissiongui'
+						), 'perm'));
 			}
+
 		} else {
 			$this->addAdminLocatorItems();
-			$this->tpl->setLocator();
+			$this->obj_facade->getTpl()->setLocator();
 			$this->setAdminTabs();
 		}
 	}
 
 
 	public function edit() {
-		$this->tabs->activateTab(self::CMD_EDIT);
-		$xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $this->xase_settings->getModus());
-		$xaseSettingsFormGUI->fillForm();
-		$this->tpl->setContent($xaseSettingsFormGUI->getHTML());
+		$form = new xaseSettingFormGUI($this);
+		$form->fillForm();
+		$this->obj_facade->getTpl()->setContent($form->getHTML());
 	}
 
 
 	public function update() {
-		$this->tabs->activateTab(self::CMD_EDIT);
-		$xaseSettingsFormGUI = new xaseSettingsFormGUI($this, $this->object, $this->xase_settings, $_POST['mode']);
-		if ($xaseSettingsFormGUI->updateObject() && $this->object->update()) {
-			ilUtil::sendSuccess($this->pl->txt('changes_saved_success'), true);
-		}
-		$xaseSettingsFormGUI->setValuesByPost();
-		$this->tpl->setContent($xaseSettingsFormGUI->getHTML());
-	}
 
-
-	protected function getSettings() {
-		if (xaseSettings::where([ 'assisted_exercise_object_id' => intval($this->object->getId()) ])->hasSets()) {
-			return xaseSettings::where([ 'assisted_exercise_object_id' => intval($this->object->getId()) ])->first();
+		$form = new xaseSettingFormGUI($this);
+		$form->setValuesByPost();
+		if($form->checkInput()) {
+			$form->update();
+			ilUtil::sendSuccess($this->obj_facade->getLanguageValue('changes_saved_success'), true);
+			$this->obj_facade->getCtrl()->redirect($this);
 		}
 
-		return false;
-	}
-
-
-	protected function getModeSettings($mode) {
-		if ($mode == self::M1) {
-			return xaseSettingsM1::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
-		} elseif ($mode == self::M3) {
-			return xaseSettingsM3::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
-		} else {
-			return xaseSettingsM2::where([ 'settings_id' => $this->xase_settings->getId() ])->first();
-		}
+		$this->obj_facade->getTpl()->setContent($form->getHTML());
 	}
 
 
@@ -363,7 +286,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 	function infoScreen() {
 		global $DIC;
 
-		$this->tabs->activateTab("info_short");
+		$this->obj_facade->getTabsGUI()->activateTab("info_short");
 
 		$this->checkPermission("visible");
 
@@ -378,7 +301,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 		require_once('Services/Tracking/classes/class.ilChangeEvent.php');
 		ilChangeEvent::_recordReadEvent("webr", $_GET['ref_id'], $this->obj_id, $DIC->user()->getId());
 
-		$this->ctrl->forwardCommand($info);
+		$this->obj_facade->getCtrl()->forwardCommand($info);
 	}
 
 

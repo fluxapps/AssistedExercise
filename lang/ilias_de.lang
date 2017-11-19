@@ -53,8 +53,8 @@ disposal_date#:#Abgabedatum
 rate_student_answers#:#Antworten der Schüler bewerten
 disposals_until#:#Abgaben bis spätestens:
 sample_solution_visible#:#Musterlösung einsehbar
-after_exercise_completion#:#Nach Abschluss der Übung
-exercise_finished_questions_answered#:#Die Übung gilt als abgeschlossen wenn alle Fragen beantwortet wurden.
+after_exercise_completion#:#Nach Abschluss der Frage
+exercise_finished_questions_answered#:#Die Frage gilt als beantwortet wenn diese zur Bewertung eingereicht wurde.
 after_definied_date#:#Ab definiertem Datum:
 cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, welche durch sie gevotet worden sind und durch die Lehrkraft am besten bewertet wurden.
 number_of_percentage#:#Anzahl Prozent
@@ -144,7 +144,7 @@ vote_for#:#Voten für
 please_choose_an_answer#:#Bitte wählen Sie eine Antwort aus.
 created_by#:#Erstellt durch
 answered_by#:#Beantwortet durch
-no_more_answers_to_vote#:#Derzeit gibt es weiteren Antworten mehr für welche gevotet werden könnte
+no_more_answers_to_vote#:#Derzeit gibt es keine weiteren Antworten mehr, für welche gevotet werden könnte
 delete_my_votings#:#Meine Votings löschen
 vote#:#Vote
 number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
@@ -153,3 +153,4 @@ show#:#Anzeigen
 answers_are_equal#:#Beide Antworten sind gleich gut. Der Vote geht an die früher eingetragene Antwort.
 severity#:#Schwierigkeitsgrad
 severity_info#:#Bitte schätzen Sie den Schwierigkeitsgrad dieser Frage ein: 1 einfach; 5 sehr schwierig.
+enable_student_voting#:#Voting-Funktion für Studierende aktivieren
