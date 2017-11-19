@@ -117,7 +117,7 @@ class xaseHintGUI {
 				$this->obj_facade->getCtrl()->setParameter($this,'hint_level',$hint_level->getHintLevel());
 				$link = $this->obj_facade->getCtrl()->getLinkTarget($this, self::CMD_INDEX);
 				$custom_input_gui = new ilCustomInputGUI();
-				
+
 				$custom_input_gui->setHtml('<a href="'.$link.'">'.sprintf($this->obj_facade->getLanguageValue('show_level_'.$hint_level->getHintLevel()), $hint_level->getMinusPoints()).'</a>');
 				$form->addItem($custom_input_gui);
 			}

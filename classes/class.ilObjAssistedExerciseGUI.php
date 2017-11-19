@@ -74,7 +74,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 	protected function afterConstructor() {
 		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
 
-		if (!$this->obj_facade->getAccess()->hasReadAccess()) {
+		if (!$this->getCreationMode() && !$this->obj_facade->getAccess()->hasReadAccess()) {
 			ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
 			ilUtil::redirect('/');
 		}
@@ -181,7 +181,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 					break;
 			case self::CMD_EDIT:
 			case self::CMD_UPDATE:
-				if ($this->obj_facade->getAccess()->hasWriteAccess()) {
+				if (!$this->getCreationMode() && $this->obj_facade->getAccess()->hasWriteAccess()) {
 					$this->obj_facade->getTabsGUI()->activateTab(self::CMD_EDIT);
 					$this->{$cmd}();
 					break;
