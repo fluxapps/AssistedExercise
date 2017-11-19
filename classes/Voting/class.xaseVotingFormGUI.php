@@ -112,7 +112,7 @@ class xaseVotingFormGUI extends ilPropertyFormGUI {
 					$downvote = $answer_2->getId();
 				}
 				break;
-			case $answer_1->getId();
+			case $this->getInput('answer_1_id'):
 				$upvote = $answer_1->getId();
 				$downvote = $answer_2->getId();
 				break;
