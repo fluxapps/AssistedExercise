@@ -21,9 +21,6 @@ xaseHintLevel::updateDB();
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Point/class.xasePoint.php');
 xasePoint::updateDB();
 
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/SampleSolution/class.xaseSampleSolution.php');
-xaseSampleSolution::updateDB();
-
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Setting/class.xaseSetting.php');
 xaseSetting::updateDB();
 
@@ -53,4 +50,14 @@ xaseAssessment::updateDB();
 <?php
 require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Hint/class.xaseUsedHintLevel.php';
 xaseUsedHintLevel::updateDB();
+?>
+<#5>
+<?php
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Assessment/class.xaseAssessment.php');
+xaseAssessment::updateDB();
+?>
+<#6>
+<?php
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Assessment/class.xaseAssessment.php');
+xaseAssessment::updateDB();
 ?>

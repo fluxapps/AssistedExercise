@@ -130,5 +130,7 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 				return false;
 			}
 		}
+
+		return true;
 	}
 }

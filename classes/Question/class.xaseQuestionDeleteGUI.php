@@ -51,9 +51,15 @@ class xaseQuestionDeleteGUI {
 	 * @var ilObjAssistedExerciseAccess
 	 */
 	protected $access;
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
 
 
 	public function __construct() {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
@@ -118,11 +124,6 @@ class xaseQuestionDeleteGUI {
 		// Get Item
 		$xaseQuestion = xaseQuestion::where(array( 'id' => $_GET['question_id'] ))->first();
 
-		// Delete SampleSolution
-		$xaseSampleSolution = xaseSampleSolution::where(array( 'id' => $xaseQuestion->getSampleSolutionId() ))->first();
-		if ($xaseSampleSolution !== NULL) {
-			$xaseSampleSolution->delete();
-		}
 
 		// Get all Hints and delete all associated Level and finally the Hint itself
 		$xaseHints = xaseHint::where(array( 'question_id' => $_GET['question_id'] ))->get();
@@ -130,10 +131,10 @@ class xaseQuestionDeleteGUI {
 			// Get and delete all Level and associated Points
 			$xaseLevels = xaseHintLevel::where(array( 'hint_id' => $xaseHint->getId() ))->get();
 			foreach ($xaseLevels as $xaseLevel) {
-				$xasePoint = xasePoint::where(array( 'id' => $xaseLevel->getPointId() ))->first();
+				/*$xasePoint = xasePoint::where(array( 'id' => $xaseLevel->getPointId() ))->first();
 				if ($xasePoint !== NULL) {
 					$xasePoint->delete();
-				}
+				}*/
 
 				$xaseLevel->delete();
 			}
@@ -143,10 +144,10 @@ class xaseQuestionDeleteGUI {
 		}
 
 		// Delete all Points
-		$xasePoints = xasePoint::where(array( 'question_id' => $_GET['question_id'] ))->get();
+		/*$xasePoints = xasePoint::where(array( 'question_id' => $_GET['question_id'] ))->get();
 		foreach ($xasePoints as $xasePoint) {
 			$xasePoint->delete();
-		}
+		}*/
 
 		// Get all Answers and delete all associated Comments, Votings and finally the Answer itself
 		$xaseAnswers = xaseAnswer::where(array( 'question_id' => $_GET['question_id'] ))->get();

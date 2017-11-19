@@ -18,10 +18,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 	const M1 = "1";
 	const M2 = "2";
 	const M3 = "3";
-	/**
-	 * @var ilObjAssistedExercise
-	 */
-	public $assisted_exercise;
+
 	/**
 	 * @var xaseQuestion
 	 */
@@ -99,24 +96,36 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $ilias;
 
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
 
-	public function __construct(xaseAssessmentGUI $xase_assessment_gui, ilObjAssistedExercise $assisted_exericse, $is_student = false) {
+
+
+	public function __construct(xaseAssessmentGUI $xase_assessment_gui, $is_student = false) {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
+
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
 		$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
-		$this->access = new ilObjAssistedExerciseAccess();
+		$this->access = ilObjAssistedExerciseAccess::getInstance($this->obj_facade,$this->obj_facade->getUser()->getId());
 		$this->pl = ilAssistedExercisePlugin::getInstance();
-		$this->assisted_exercise = $assisted_exericse;
-		$this->xase_answer = new xaseAnswer($_GET[xaseAnswerGUI::ANSWER_IDENTIFIER]);
+
+
+		$this->xase_answer = new xaseAnswer($_GET['answer_id']);
+
+
 		$this->xase_question = $this->getItem();
 		$this->xase_assessment = $this->getAssessment();
-		$this->xase_point = $this->getPoints();
+
 		$this->xase_comment = $this->getComment();
 		$this->parent_gui = $xase_assessment_gui;
 		$this->is_student = $is_student;
-		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
+		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $this->obj_facade->getIlObjObId() ])->first();
 		//$this->mode_settings = $this->getModeSetting($this->xase_settings->getModus());
 		$this->https = $this->dic['https'];
 		$this->ilias = $this->dic['ilias'];
@@ -126,12 +135,12 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$this->initForm();
 	}
 
-
+	//TODO
 	protected function getAnswer() {
 		$xaseAnswer = xaseAnswer::where(array(
 			'question_id' => $this->xase_question->getId(),
-			'user_id' => $this->dic->user()->getId()
-		), array( 'question_id' => '=', 'user_id' => '=' ))->first();
+			'id' => $_GET['answer_id']
+		), array( 'question_id' => '=', 'id' => '=' ))->first();
 		if (empty($xaseAnswer)) {
 			$xaseAnswer = new xaseAnswer();
 		}
@@ -186,12 +195,12 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		$this->setTitle($this->obj_facade->getLanguageValue('assessment_for_task') . " " . $this->xase_question->getTitle() . " " . $this->obj_facade->getLanguageValue('submitted_by') . " "
 			. $student_user->getFirstName() . " " . $student_user->getLastName());
 
-		if (!$this->is_student) {
+		/*if (!$this->is_student) {
 			$this->toogle_hint_checkbox = new ilCheckboxInputGUI($this->obj_facade->getLanguageValue('show_used_hints'), 'show_used_hints');
 			$this->toogle_hint_checkbox->setChecked(true);
 			$this->toogle_hint_checkbox->setValue(1);
 			$this->addItem($this->toogle_hint_checkbox);
-		}
+		}*/
 
 		$item = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('item') . " " . $this->xase_question->getTitle(), 'item', true);
 		$item->setValue($this->xase_question->getQuestiontext());
@@ -223,7 +232,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 	public function initPointsForm() {
 		$max_points = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('max_points'));
-		$max_points->setValue($this->xase_point->getMaxPoints());
+		$max_points->setValue($this->xase_question->getMaxPoints());
 		$this->addItem($max_points);
 
 		if (!$this->is_student) {
@@ -232,14 +241,32 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			$this->addItem($points_input);
 		} else {
 			$points = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('points'));
-			$points->setValue($this->xase_point->getPointsTeacher());
+			$points->setValue($this->xase_assessment->getPointsTeacher());
 			$this->addItem($points);
 		}
 
 		$max_assignable_points_input = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('max_assignable_points'));
-		$this->max_assignable_points = $this->xase_point->getMaxPoints() - $this->minus_points;
+		$this->max_assignable_points = $this->xase_question->getMaxPoints() - $this->getTotalMinusPoints();
 		$max_assignable_points_input->setValue($this->max_assignable_points);
 		$this->addItem($max_assignable_points_input);
+	}
+
+	protected function getTotalMinusPoints() {
+		/**
+		 * @var $ilDB \ilDBInterface
+		 */
+		$ilDB = $GLOBALS['DIC']->database();
+
+		$sql = "SELECT SUM(minus_points) as minus_points FROM xase_used_hint_level as used
+				inner join xase_hint_level as hint_level on hint_level.id = used.hint_level_id
+				where used.question_id = ".$ilDB->quote($this->xase_question->getId(),'integer')." and used.user_id = ".$ilDB->quote($this->getAnswer()->getUserId(),'integer');
+
+		$result = $ilDB->query($sql);
+
+		while ($row = $ilDB->fetchAssoc($result)) {
+			return $row['minus_points'];
+		}
+		return 0;
 	}
 
 
@@ -355,16 +382,23 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 	public function initUsedHintsForm() {
 
-		$custom_input_gui = new ilCustomInputGUI($this->obj_facade->getLanguageValue('used_hints'), 'used_hints');
+		//TODO Refactor
+		$number_of_used_hints = xaseUsedHintLevel::where(array('question_id' => $this->getAnswer()->getQuestionId(), 'user_id' => $this->getAnswer()->getUserId()))->count();
+
+		$item = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('used_hints'), 'number_of_used_hints');
+		$item->setValue($number_of_used_hints);
+		$this->addItem($item);
+
+	/*$custom_input_gui = new ilCustomInputGUI($this->obj_facade->getLanguageValue('used_hints'), 'number_of_used_hints');
 		$custom_input_gui->setHtml($this->createListing());
-		$this->addItem($custom_input_gui);
+		$this->addItem($custom_input_gui);*/
 	}
 
 
 	public function fillForm() {
 		$array = array(
 			'comment' => $this->xase_comment->getBody(),
-			'points' => $this->xase_point->getPointsTeacher()
+			'points' => $this->xase_assessment->getPointsTeacher()
 		);
 		$this->setValuesByArray($array, true);
 	}
@@ -406,11 +440,11 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 		global $ilDB;
 
 		//TODO Refactor - the points table should contains the answers_id!
-		$sql = "SELECT answers.id as answer_id FROM xase_answer as answers 
-				where answers.point_id in (
-				SELECT id FROM 
-					(SELECT points.id FROM xase_point as points 
-				    where points.points_teacher = (SELECT MAX(points_teacher) FROM xase_point WHERE xase_point.question_id = ".$ilDB->quote($this->xase_question->getId(),'integer').") and points.question_id = ".$ilDB->quote($this->xase_question->getId(),'integer').")  as maxvalues)";
+		$sql = "SELECT answers.id as answer_id 
+				FROM xase_answer as answers where answers.id in 
+				(SELECT answer_id FROM (SELECT * FROM xase_assessm as assess where assess.points_teacher = 
+				(SELECT MAX(points_teacher) FROM xase_assessm as assess_max WHERE assess_max.question_id = ".$ilDB->quote($this->xase_question->getId(),'integer').") and assess.question_id = ".$ilDB->quote($this->xase_question->getId(),'integer').") as maxvalues)";
+
 
 		$set = $ilDB->query($sql);
 
@@ -429,23 +463,21 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 				 */
 				$user_id = $voting->getUserId();
 				/**
-				 * @var xasePoint $points_user_answer
+				 * @var xaseAssessment $assessment
 				 */
-				$points_user_answer = xasePoint::where(array('user_id' => $user_id, 'question_id' => $this->xase_question->getId()))->first();
+				$assessment = xaseAssessment::where(array('user_id' => $user_id, 'question_id' => $this->xase_question->getId()))->first();
 
 
-
-				if(is_object($points_user_answer)) {
+				if(is_object($assessment)) {
 					$answer_higest_teacher_points = new xaseAnswer($answer_id_highest_teacher_points);
 					$point_higest_teacher_points = new xasePoint($answer_higest_teacher_points->getPointId());
 
-					/*$percentage_additiona_points = $this->mode_settings->getVotingPointsPercentage();
+					$percentage_additiona_points = $this->obj_facade->getSetting()->getVotingPointsPercentage();
 					$additional_points = $point_higest_teacher_points->getPointsTeacher() * ($percentage_additiona_points / 100);
 
-					$points_user_answer->setAdditionalPoints($additional_points);
-					$points_user_answer->setTotalPoints($points_user_answer->getPointsTeacher() + $points_user_answer->getAdditionalPoints());
-
-					$points_user_answer->store();*/
+					$assessment->setAdditionalPoints($additional_points);
+					$assessment->setTotalPoints($assessment->getPointsTeacher() + $assessment->getAdditionalPoints());
+					$assessment->store();
 				}
 			}
 
@@ -459,11 +491,11 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 				}
 
 				$user_id = $voting->getUserId();
-				$points_user_answer = xasePoint::where(array('user_id' => $user_id, 'question_id' => $this->xase_question->getId()))->first();
-				if($points_user_answer) {
-					$points_user_answer->setAdditionalPoints(0);
-					$points_user_answer->setTotalPoints($points_user_answer->getPointsTeacher() + $points_user_answer->getAdditionalPoints());
-					$points_user_answer->store();
+				$assessment = xaseAssessment::where(array('user_id' => $user_id, 'question_id' => $this->xase_question->getId()))->first();
+				if($assessment) {
+					$assessment->setAdditionalPoints(0);
+					$assessment->setTotalPoints($assessment->getPointsTeacher() + $assessment->getAdditionalPoints());
+					$assessment->store();
 				}
 
 			}
@@ -484,24 +516,23 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 		$this->xase_answer->setIsAssessed(1);
 		$this->xase_answer->store();
-		if (!empty($this->getInput('comment'))) {
-			$this->xase_comment->setAnswerId($this->xase_answer->getId());
-			$this->xase_comment->setBody($this->getInput('comment'));
-			$this->xase_comment->store();
-		}
+
+
 		if (!empty($this->getInput('points'))) {
-			if ($this->xase_settings->getModus() == xaseSetting::MODUS1) {
-				$this->xase_point->setPointsTeacher($this->getInput('points'));
-				$this->xase_point->setTotalPoints($this->getInput('points'));
-				$this->xase_point->store();
-			} elseif ($this->xase_settings->getModus() == xaseSetting::MODUS3) {
-				$this->xase_point->setPointsTeacher($this->getInput('points'));
-				$this->xase_point->store();
-				//$this->xase_point->setAdditionalPoints($this->getAdditionalPoints());
+
+			$this->xase_assessment->setPointsTeacher($this->getInput('points'));
+			$this->xase_assessment->setAssessmentComment($this->getInput('comment'));
+			$this->xase_assessment->setAnswerId($this->getAnswer()->getId());
+			$this->xase_assessment->setUserId($this->getAnswer()->getUserId());
+			$this->xase_assessment->setQuestionId($this->getAnswer()->getQuestionId());
+			$this->xase_assessment->setTotalPoints($this->getInput('points'));
+			$this->xase_assessment->setPointsTeacher($this->getInput('points'));
+			$this->xase_assessment->store();
+
+			if ($this->obj_facade->getSetting()->getVotingEnabled()) {
 				$this->setAdditionalPointsForStudents();
-				//$this->xase_point->setTotalPoints(intval($this->getInput('points')) + $this->xase_point->getAdditionalPoints());
-				//$this->xase_point->store();
 			}
+
 		}
 
 		return true;
@@ -516,7 +547,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 			return false;
 		}
 
-		$this->notifyUserAboutAssessment();
+		//$this->notifyUserAboutAssessment();
 
 		return true;
 	}
@@ -528,7 +559,7 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 
 
 	// TODO: Prüfen, ob eine Variante implementier werden muss, die direkt auf eine Bewertung führt. ilobjassistedexercisegui
-	public function notifyUserAboutAssessment() {
+	/*public function notifyUserAboutAssessment() {
 		$protocol = $this->https->isDetected() ? 'https://' : 'http://';
 		$server_url = $protocol . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/')) . '/';
 		$contact_address = ilMail::getIliasMailerAddress();
@@ -557,10 +588,10 @@ class xaseAssessmentFormGUI extends ilPropertyFormGUI {
 					)
 				);*/
 
-		$body = $this->obj_facade->getLanguageValue('the_following_link_leads_to_the_list_view_of_the_items') . "\n" . $assessment_url . "\n"
+		/*$body = $this->obj_facade->getLanguageValue('the_following_link_leads_to_the_list_view_of_the_items') . "\n" . $assessment_url . "\n"
 			. $this->obj_facade->getLanguageValue('click_on_actions_view_assessment');
 
 		$mm->Body($body);
 		$mm->Send();
-	}
+	}*/
 }

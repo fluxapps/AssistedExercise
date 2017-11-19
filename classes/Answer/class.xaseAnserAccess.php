@@ -89,7 +89,6 @@ class xaseAnswerAccess extends xaseItemAbstractAccess {
 			return false;
 		}
 
-
 		$global_access = ilObjAssistedExerciseAccess::getInstance($obj_facade,$il_user_id);
 
 		if(!self::isDisposalLimitRespected($obj_facade)) {

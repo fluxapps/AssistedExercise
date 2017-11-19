@@ -273,7 +273,7 @@ class ilObjAssistedExerciseGUI extends ilObjectPluginGUI {
 		if($form->checkInput()) {
 			$form->update();
 			ilUtil::sendSuccess($this->obj_facade->getLanguageValue('changes_saved_success'), true);
-			$this->obj_facade->getCtrl()->redirect($this);
+			$this->obj_facade->getCtrl()->redirect($this,self::CMD_EDIT);
 		}
 
 		$this->obj_facade->getTpl()->setContent($form->getHTML());

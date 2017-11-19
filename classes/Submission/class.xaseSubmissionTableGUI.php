@@ -17,21 +17,18 @@ require_once('./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvan
 require_once('./Services/Table/classes/class.ilTable2GUI.php');
 require_once('./Services/Form/classes/class.ilTextInputGUI.php');
 
+require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Assessment/class.xaseAssessments.php');
+
 class xaseSubmissionTableGUI extends ilTable2GUI {
 
-	const TBL_ID = 'tbl_xase_submissions';
-	const M1 = 1;
-	const M2 = 2;
-	const M3 = 3;
+	const TBL_ID = 'xa_sub';
 
 	/**
-	 * @var \ILIAS\DI\Container
+	 * @var ilObjAssistedExerciseFacade
 	 */
-	protected $dic;
-	/**
-	 * @var ilCtrl
-	 */
-	protected $ctrl;
+	protected $obj_facade;
+
+
 	/**
 	 * @var array
 	 */
@@ -41,29 +38,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	 */
 	protected $parent_obj;
 	/**
-	 * @var xaseAnswer
-	 */
-	protected $xase_answer;
-	/**
-	 * @var xaseSetting
-	 */
-	public $xase_settings;
-	/**
-	 * @var xaseQuestion
-	 */
-	public $xase_question;
-	/**
-	 * @var ilAssistedExercisePlugin
-	 */
-	protected $pl;
-	/**
 	 * @var ilObjAssistedExerciseAccess
 	 */
 	protected $access;
-	/**
-	 * @var ilObjAssistedExercise
-	 */
-	public $assisted_exercise;
+
 
 
 	/**
@@ -72,27 +50,20 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	 * @param xaseSubmissionGUI $a_parent_obj
 	 * @param string            $a_parent_cmd
 	 */
-	function __construct($a_parent_obj, $a_parent_cmd, ilObjAssistedExercise $assisted_exercise) {
-		global $DIC;
-		$this->dic = $DIC;
+	function __construct($a_parent_obj, $a_parent_cmd, $a_template_context = "") {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
 		$this->parent_obj = $a_parent_obj;
-		$this->ctrl = $this->dic->ctrl();
-		$this->pl = ilAssistedExercisePlugin::getInstance();
-		$this->access = new ilObjAssistedExerciseAccess();
+		$this->access =  ilObjAssistedExerciseAccess::getInstance($this->obj_facade,$this->obj_facade->getUser()->getId());
 
 		$this->setId(self::TBL_ID);
 		$this->setPrefix(self::TBL_ID);
 		$this->setFormName(self::TBL_ID);
 		$this->obj_facade->getCtrl()->saveParameter($a_parent_obj, $this->getNavParameter());
-		$this->assisted_exercise = $assisted_exercise;
-		//$this->xase_answer = $this->getSubmittedAnswers();
-		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $assisted_exercise->getId() ])->first();
-		//$this->mode_settings = $this->getModeSetting($this->xase_settings->getModus());
-		//$this->xase_question = $xase_question;
 
-		parent::__construct($a_parent_obj, $a_parent_cmd);
+		parent::__construct($a_parent_obj, $a_parent_cmd,$a_template_context);
 		$this->parent_obj = $a_parent_obj;
-		$this->setRowTemplate("tpl.submissions.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
+		$this->setRowTemplate("tpl.default_row.html", "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
 		$this->setFormAction($this->obj_facade->getCtrl()->getFormActionByClass('xasesubmissiongui'));
 		$this->setExternalSorting(true);
@@ -101,11 +72,6 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$this->setDefaultOrderDirection("asc");
 		$this->setExternalSegmentation(true);
 		$this->setEnableHeader(true);
-
-		if ($this->xase_settings->getModus() != 2) {
-			$list = $this->createListing();
-			$this->obj_facade->getTpl()->setVariable('LIST', $list);
-		}
 
 		$this->initColums();
 		$this->addFilterItems();
@@ -125,9 +91,10 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 		//TODO handle Status
 		include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
-		$option[0] = $this->obj_facade->getLanguageValue('no');
-		$option[1] = $this->obj_facade->getLanguageValue('yes');
-		$assessed = new ilSelectInputGUI($this->obj_facade->getLanguageValue("assessed"), "is_assessed");
+		$option[''] = '';
+		$option[1] = $this->obj_facade->getLanguageValue('no');
+		$option[2] = $this->obj_facade->getLanguageValue('yes');
+		$assessed = new ilSelectInputGUI($this->obj_facade->getLanguageValue("assessed"), "isassessed");
 		$assessed->setOptions($option);
 		$this->addAndReadFilterItem($assessed);
 	}
@@ -162,126 +129,38 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	}
 
 
+
 	/**
 	 * @param array $a_set
 	 */
 	public function fillRow($a_set) {
-		/**
-		 * @var $xaseAnswer xaseAnswer
-		 */
-		//$a_set contains the items
-		$xaseAnswer = xaseAnswer::find($a_set['id']);
+		foreach ($this->getSelectableColumns() as $k => $v) {
 
-		$user = $this->getUserObject($xaseAnswer);
-
-		if ($this->isColumnSelected('firstname')) {
-			$this->obj_facade->getTpl()->setCurrentBlock("firstname");
-			$this->obj_facade->getTpl()->setVariable('FIRSTNAME', $user->getFirstname());
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-		if ($this->isColumnSelected('lastname')) {
-			$this->obj_facade->getTpl()->setCurrentBlock("lastname");
-			$this->obj_facade->getTpl()->setVariable('LASTNAME', $user->getLastname());
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-		if ($this->isColumnSelected('submission_date')) {
-			$this->obj_facade->getTpl()->setCurrentBlock('submissiondate');
-			if( $xaseAnswer->getSubmissionDate()) {
-				$this->obj_facade->getTpl()->setVariable('SUBMISSIONDATE', $xaseAnswer->getSubmissionDate());
-			} else {
-				$this->obj_facade->getTpl()->setVariable('SUBMISSIONDATE', '&nbsp;');
+			//TODO
+			if($k == 'is_assessed') {
+				if($a_set[$k] == 0) {
+					$a_set[$k] = $this->obj_facade->getLanguageValue('no');
+				}
+				if($a_set[$k] == 1) {
+					$a_set[$k] = $this->obj_facade->getLanguageValue('yes');
+				}
 			}
 
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-
-		/**
-		 * @var xaseQuestion $xaseQuestion
-		 */
-		$xaseQuestion = xaseQuestion::where(array( 'id' => $xaseAnswer->getQuestionId() ))->first();
-		if ($this->isColumnSelected('question_title')) {
-			$this->obj_facade->getTpl()->setCurrentBlock('itemtitle');
-			$this->obj_facade->getTpl()->setVariable('ITEMTITLE', $xaseQuestion->getTitle());
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-		if ($this->isColumnSelected('is_assessed')) {
-			$this->obj_facade->getTpl()->setCurrentBlock('assessed');
-			$this->obj_facade->getTpl()->setVariable('ASSESSED', $xaseAnswer->getisAssessed() ? $this->obj_facade->getLanguageValue('yes') : $this->obj_facade->getLanguageValue('no'));
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-		if ($this->isColumnSelected('number_of_used_hints')) {
-			$this->obj_facade->getTpl()->setCurrentBlock('numberofusedhints');
-			$this->obj_facade->getTpl()->setVariable('NUMBEROFUSEDHINTS', $xaseAnswer->getNumberOfUsedHints() === NULL ? 0 : $xaseAnswer->getNumberOfUsedHints());
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
-
-
-		/**
-		 * @var $xasePoint xasePoint
-		 */
-		$xasePoint = xasePoint::find($xaseAnswer->getPointId());
-
-		if (!empty($xasePoint)) {
-			if ($this->isColumnSelected('max_points')) {
-				$this->obj_facade->getTpl()->setCurrentBlock('maxpoints');
-				if (!empty($xasePoint->getMaxPoints())) {
-					$this->obj_facade->getTpl()->setVariable('MAXPOINTS', $xasePoint->getMaxPoints());
+			if ($this->isColumnSelected($k)) {
+				if ($a_set[$k]) {
+					$this->tpl->setCurrentBlock('td');
+					$this->tpl->setVariable('VALUE', (is_array($a_set[$k]) ? implode(", ", $a_set[$k]) : $a_set[$k]));
+					$this->tpl->parseCurrentBlock();
 				} else {
-					$this->obj_facade->getTpl()->setVariable('MAXPOINTS', 0);
+					$this->tpl->setCurrentBlock('td');
+					$this->tpl->setVariable('VALUE', '&nbsp;');
+					$this->tpl->parseCurrentBlock();
 				}
-				$this->obj_facade->getTpl()->parseCurrentBlock();
-			}
-			if ($this->xase_settings->getModus() == 3) {
-				if ($this->isColumnSelected('points_teacher')) {
-					$this->obj_facade->getTpl()->setCurrentBlock("pointsteacher");
-					if (!empty($xasePoint->getPointsTeacher())) {
-						$this->obj_facade->getTpl()->setVariable('POINTSTEACHER', $xasePoint->getPointsTeacher());
-					} else {
-						$this->obj_facade->getTpl()->setVariable('POINTSTEACHER', 0);
-					}
-					$this->obj_facade->getTpl()->parseCurrentBlock();
-				}
-				if ($this->isColumnSelected('additional_points')) {
-					$this->obj_facade->getTpl()->setCurrentBlock("additionalpointsvoting");
-					if (!empty($xasePoint->getAdditionalPoints())) {
-						$this->obj_facade->getTpl()->setVariable('ADDITIONALPOINTSVOTING', $xasePoint->getAdditionalPoints());
-					} else {
-						$this->obj_facade->getTpl()->setVariable('ADDITIONALPOINTSVOTING', 0);
-					}
-					$this->obj_facade->getTpl()->parseCurrentBlock();
-				}
-			}
-			if ($this->isColumnSelected('points')) {
-				$this->obj_facade->getTpl()->setCurrentBlock("points");
-				if (!empty($xasePoint->getTotalPoints())) {
-					$this->obj_facade->getTpl()->setVariable('TOTALPOINTS', $xasePoint->getTotalPoints());
-				} else {
-					$this->obj_facade->getTpl()->setVariable('TOTALPOINTS', 0);
-				}
-				$this->obj_facade->getTpl()->parseCurrentBlock();
 			}
 		}
-		/**
-		 * @var $xaseVoting xaseVoting
-		 */
-		$xaseVoting = xaseVoting::where(array( 'answer_id' => $xaseAnswer->getId() ))->first();
 
-		/**
-		 * @var $xaseAnswer xaseAnswer
-		 */
-		if ($this->xase_settings->getModus() == 3 && $this->isColumnSelected('number_of_upvotings')) {
-			$this->obj_facade->getTpl()->setCurrentBlock("number_up_votings");
-			if (!empty($xaseAnswer)) {
-				$this->obj_facade->getTpl()->setVariable('NUMBERUPVOTINGS', $xaseAnswer->returnNumberOfUpvotings());
-			} else {
-				$this->obj_facade->getTpl()->setVariable('NUMBERUPVOTINGS', 0);
-			}
-			$this->obj_facade->getTpl()->parseCurrentBlock();
-		}
+		$this->addActionMenu($a_set['answer_id'], $a_set['question_id']);
 
-		$xaseAssessment = $this->getAssessment($xaseAnswer->getId());
-
-		$this->addActionMenu($xaseAnswer, $xaseAssessment, $xaseQuestion);
 	}
 
 
@@ -303,32 +182,37 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	/**
 	 * @param xaseQuestion $xaseQuestion
 	 */
-	protected function addActionMenu(xaseAnswer $xaseAnswer, xaseAssessment $xaseAssessment, xaseQuestion $xaseQuestion) {
+	protected function addActionMenu($answer_id,$question_id) {
+
+
 		$current_selection_list = new ilAdvancedSelectionListGUI();
 		$current_selection_list->setListTitle($this->obj_facade->getLanguageValue('common_actions'));
-		$current_selection_list->setId('answer_actions' . $xaseAnswer->getId());
+		$current_selection_list->setId('answer_actions' . $answer_id);
 		$current_selection_list->setUseImages(false);
 
-		$this->obj_facade->getCtrl()->setParameter($this->parent_obj, xaseQuestionGUI::ITEM_IDENTIFIER, $xaseAnswer->getId());
-		$this->obj_facade->getCtrl()->setParameterByClass(xaseAnswerGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
-		$this->obj_facade->getCtrl()->setParameterByClass(xaseAssessmentGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
-		$this->obj_facade->getCtrl()->setParameterByClass(xaseUpvotingsGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER, $xaseQuestion->getId());
-		$this->obj_facade->getCtrl()->setParameterByClass(xaseUpvotingsGUI::class, xaseAnswerGUI::ANSWER_IDENTIFIER, $xaseAnswer->getId());
-		//TODO xase_question setzen
-		//$this->obj_facade->getCtrl()->setParameterByClass(xaseAssessmentGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER, $this->xase_question->getId());
-		/*if ($this->access->hasWriteAccess() && xaseSubmissionGUI::isDisposalDateExpired($this->mode_settings)) {
+		$this->obj_facade->getCtrl()->setParameter($this->parent_obj, xaseQuestionGUI::ITEM_IDENTIFIER, $answer_id);
+		$this->obj_facade->getCtrl()->setParameterByClass(xaseAnswerGUI::class, 'answer_id', $answer_id);
+		$this->obj_facade->getCtrl()->setParameterByClass(xaseAssessmentGUI::class, 'answer_id', $answer_id);
+		$this->obj_facade->getCtrl()->setParameterByClass(xaseUpvotingsGUI::class, 'question_id', $question_id);
+		$this->obj_facade->getCtrl()->setParameterByClass(xaseUpvotingsGUI::class, 'answer_id', $answer_id);
+
+		$this->obj_facade->getCtrl()->setParameterByClass(xaseAssessmentGUI::class, 'question_id', $question_id);
+
+
+		if ($this->access->hasWriteAccess() && !ilObjAssistedExerciseAccess::isDisposalLimitRespected($this->obj_facade)) {
 			$current_selection_list->addItem($this->obj_facade->getLanguageValue('assess'), xaseAssessmentGUI::CMD_STANDARD, $this->obj_facade->getCtrl()->getLinkTargetByClass('xaseassessmentgui', xaseAssessmentGUI::CMD_STANDARD));
-		}*/
+		}
+
 		/*if ($this->xase_settings->getModus() == 3) {
 			if ($this->access->hasWriteAccess()) {
 				$current_selection_list->addItem($this->obj_facade->getLanguageValue('show_upvotings'), xaseUpvotingsGUI::CMD_STANDARD, $this->obj_facade->getCtrl()->getLinkTargetByClass(xaseUpvotingsGUI::class, xaseUpvotingsGUI::CMD_STANDARD));
 			}
 		}*/
-		$this->obj_facade->getTpl()->setVariable('ACTIONS', $current_selection_list->getHTML());
+		$this->tpl->setVariable('ACTIONS', $current_selection_list->getHTML());
 	}
 
 	protected function getQuestionIdsFromThisExercise() {
-		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
+		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->obj_facade->getIlObjObId() ))->get();
 		$question_ids = [];
 		foreach ($items as $item) {
 			$question_ids[] = $item->getId();
@@ -337,72 +221,26 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	}
 
 	protected function parseData() {
-		$this->determineOffsetAndOrder();
+		$this->setExternalSorting(true);
+		$this->setExternalSegmentation(true);
+		//$this->setDefaultOrderField($this->columns[0]);
+
 		$this->determineLimit();
+		$this->determineOffsetAndOrder();
 
-		/*
-		 * 1) Nur Antworten auf Items des entsprechenden assisted exercise anzeigen
-		 * 2) get all items from assisted exericse
-		 * 3) get all answers from current user
-		 * 4)save item ids from this assisted exercise in an array
-		 * 5) loop through answers
-		 * 6) if question_id is in items array
-		 *      a) add the id of the answer to the answers id array
-		 * 7) return array with answer ids
-		 * 8) check in id of answer in parseData is in the answer id array
-		 */
-		$collection = xaseAnswer::getCollection();
-		$question_ids = $this->getQuestionIdsFromThisExercise();
+		$options = array(
+			'filters' => $this->filter,
+			'limit' => array(),
+			'count' => true,
+			'sort' => array( 'field' => $this->getOrderField(), 'direction' => $this->getOrderDirection() ),
+		);
 
-		if (empty($question_ids)) {
-			return;
-		}
+		$count = xaseAssessments::getData($options,$this->obj_facade->getIlObjObId());
+		$options['limit'] = array( 'start' => (int)$this->getOffset(), 'end' => (int)$this->getLimit());
+		$data = xaseAssessments::getData(array_merge($options, array( 'count' => false )),$this->obj_facade->getIlObjObId());
 
-		$collection->where(array( 'question_id' => $question_ids ), array( 'question_id' => 'IN' ));
-
-		$collection->where(array( 'answer_status' => array( xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) ), array( 'answer_status' => 'IN' ));
-
-		$collection->leftjoin(xaseAssessment::returnDbTableName(), 'id', 'answer_id', array( 'assessment_comment' ));
-
-		$collection->leftjoin(xasePoint::returnDbTableName(), 'point_id', 'id', array(
-			'max_points',
-			'total_points',
-			'points_teacher',
-			'additional_points',
-			'minus_points'
-		));
-
-		$collection->leftjoin(xaseilUser::returnDbTableName(), 'user_id', 'usr_id', array( 'firstname', 'lastname' ));
-
-		$collection->leftjoin(xaseQuestion::returnDbTableName(), 'question_id', 'id', array( 'item_title' ));
-
-		/*
-		if ($this->xase_settings->getModus() == 3) {
-			$collection->leftjoin(xaseVoting::returnDbTableName(), 'id', 'answer_id', array( 'number_of_upvotings' ));
-		}*/
-
-		$sorting_column = $this->getOrderField() ? $this->getOrderField() : 'submission_date';
-		$offset = $this->getOffset() ? $this->getOffset() : 0;
-
-		$sorting_direction = $this->getOrderDirection();
-		$num = $this->getLimit();
-
-		$collection->orderBy($sorting_column, $sorting_direction);
-		$collection->limit($offset, $num);
-
-		foreach ($this->filter as $filter_key => $filter_value) {
-			switch ($filter_key) {
-				case 'firstname':
-				case 'lastname':
-				case 'item':
-				case 'is_assessed':
-					if (!empty($filter_value)) {
-						$collection->where(array( $filter_key => '%' . $filter_value . '%' ), 'LIKE');
-						break;
-					}
-			}
-		}
-		$this->setData($collection->getArray());
+		$this->setMaxCount($count);
+		$this->setData($data);
 	}
 
 
@@ -419,47 +257,40 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 			"txt" => $this->obj_facade->getLanguageValue("submission_date"),
 			"default" => true
 		);
-		$cols["item_title"] = array(
+		$cols["question_title"] = array(
 			"txt" => $this->obj_facade->getLanguageValue("task_title"),
-			"default" => true
-		);
-		$cols["is_assessed"] = array(
-			"txt" => $this->obj_facade->getLanguageValue("assessed"),
 			"default" => true
 		);
 		$cols["max_points"] = array(
 			"txt" => $this->obj_facade->getLanguageValue("max_points"),
 			"default" => true
 		);
+
 		$cols["number_of_used_hints"] = array(
 			"txt" => $this->obj_facade->getLanguageValue("number_of_used_hints"),
 			"default" => true
 		);
-		if ($this->xase_settings->getModus() == 3) {
-			$cols["points_teacher"] = array(
-				"txt" => $this->obj_facade->getLanguageValue("points_teacher"),
-				"default" => true
-			);
-			$cols["additional_points"] = array(
-				"txt" => $this->obj_facade->getLanguageValue("additional_points_voting"),
-				"default" => true
-			);
-			$cols["points"] = array(
-				"txt" => $this->obj_facade->getLanguageValue("total_points"),
-				"default" => true
-			);
-		} elseif ($this->xase_settings->getModus() == 1) {
-			$cols["points"] = array(
-				"txt" => $this->obj_facade->getLanguageValue("points"),
-				"default" => true
-			);
-		}
-		if ($this->xase_settings->getModus() == 3) {
-			$cols["number_of_upvotings"] = array(
-				"txt" => $this->obj_facade->getLanguageValue("number_of_upvotings"),
-				"default" => false
-			);
-		}
+		$cols["is_assessed"] = array(
+			"txt" => $this->obj_facade->getLanguageValue("assessed"),
+			"default" => true
+		);
+		$cols["points_teacher"] = array(
+			"txt" => $this->obj_facade->getLanguageValue("points_teacher"),
+			"default" => true
+		);
+		$cols["additional_points"] = array(
+			"txt" => $this->obj_facade->getLanguageValue("additional_points_voting"),
+			"default" => true
+		);
+		$cols["total_points"] = array(
+			"txt" => $this->obj_facade->getLanguageValue("total_points"),
+			"default" => true
+		);
+		$cols["number_of_upvotings"] = array(
+			"txt" => $this->obj_facade->getLanguageValue("number_of_upvotings"),
+			"default" => true
+		);
+
 
 		return $cols;
 	}
@@ -476,15 +307,14 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 	 * 8) return the result of the division
 	 */
 	protected function getAverageAchievedPoints() {
-		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
+		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->obj_facade->getIlObjObId() ))->get();
 		$total_points = 0;
 		$number_of_answers = 0;
 		foreach ($items as $item) {
 			$answers = xaseAnswer::where(array( 'question_id' => $item->getId() ))->get();
 			foreach ($answers as $answer) {
 				$number_of_answers ++;
-				$xase_point = xasePoint::where(array( 'id' => $answer->getPointId() ))->first();
-				$total_points += $xase_point->getTotalPoints();
+				$total_points += $answer->getTotalPoints();
 			}
 		}
 
@@ -493,15 +323,15 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 
 
 	protected function getAverageUsedHintsPerItem() {
-		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->assisted_exercise->getId() ))->get();
+		$items = xaseQuestion::where(array( 'assisted_exercise_id' => $this->obj_facade->getIlObjObId() ))->get();
 		$total_used_hints = 0;
 		$number_of_answers = 0;
 		foreach ($items as $item) {
-			$answers = xaseAnswer::where(array( 'question_id' => $item->getId() ))->get();
-			foreach ($answers as $answer) {
-				$number_of_answers ++;
-				$total_used_hints += $answer->getNumberOfUsedHints();
-			}
+			$total_used_hints += xaseUsedHintLevel::where(array('question_id' => $item->getId()))->count();
+			/**
+			 * @var xaseAnswer[] $answers
+			 */
+			$number_of_answers = xaseAnswer::where(array( 'question_id' => $item->getId() ))->count();
 		}
 
 		return $number_of_answers > 0 ? $total_used_hints / $number_of_answers : 0;
@@ -513,7 +343,7 @@ class xaseSubmissionTableGUI extends ilTable2GUI {
 		$renderer = $this->dic->ui()->renderer();
 
 		$unordered = $f->listing()->descriptive(array(
-				$this->obj_facade->getLanguageValue('max_achievable_points') => strval(xaseQuestionTableGUI::getMaxAchievablePoints($this->assisted_exercise->getId(), $this->xase_settings->getModus())),
+				$this->obj_facade->getLanguageValue('max_achievable_points') => strval(xaseQuestionTableGUI::getMaxAchievablePoints($this->obj_facade->getIlObjObId(), $this->xase_settings->getModus())),
 				$this->obj_facade->getLanguageValue('average_achieved_points') => strval($this->getAverageAchievedPoints()),
 				$this->obj_facade->getLanguageValue('average_used_hints_per_item') => strval($this->getAverageUsedHintsPerItem())
 			));

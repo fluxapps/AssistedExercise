@@ -219,16 +219,37 @@ class xaseSettingFormGUI extends ilPropertyFormGUI {
 	}
 
 
-
-/*
-	protected function resetVotingSpecificStatusToAnswerd() {
-		$all_answers = xaseAnswer::get();
-		foreach ($all_answers as $answer) {
-			if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
-				$answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
-			}
+	/**
+	 * Check Post Input. This method also strips slashes and html from
+	 * input and sets the alert texts for the items, if the input was not ok.
+	 *
+	 * @return	boolean		ok true/false
+	 */
+	function checkInput()
+	{
+		if(!parent::checkInput()) {
+			return false;
 		}
-	}*/
+
+
+		if ($this->getInput('rate_answers') && empty($this->getInput('disposals_until' ))) {
+			ilUtil::sendFailure($this->obj_facade->getLanguageValue('msg_input_please_chose_disposal_date'));
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/*
+		protected function resetVotingSpecificStatusToAnswerd() {
+			$all_answers = xaseAnswer::get();
+			foreach ($all_answers as $answer) {
+				if ($answer->getAnswerStatus() == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+					$answer->setAnswerStatus(xaseAnswer::ANSWER_STATUS_ANSWERED);
+				}
+			}
+		}*/
 
 
 	/**

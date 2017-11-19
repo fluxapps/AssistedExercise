@@ -12,7 +12,7 @@ require_once './Customizing/global/plugins/Services/Repository/RepositoryObject/
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Point/class.xasePoint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Hint/class.xaseHint.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Answer/class.xaseAnswer.php');
-require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/SampleSolution/class.xaseSampleSolution.php');
+
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Answer/class.xaseAnswerGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/Assessment/class.xaseAssessmentGUI.php');
 require_once('./Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise/classes/SampleSolution/class.xaseSampleSolutionGUI.php');
@@ -90,10 +90,11 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 		$this->addFilterItemWithValue($title);
 
 		include_once("./Services/Form/classes/class.ilSelectInputGUI.php");
-		$option[0] = $this->obj_facade->getLanguageValue('open');
-		$option[1] = $this->obj_facade->getLanguageValue('answered');
-		$option[2] = $this->obj_facade->getLanguageValue('submitted');
-		$option[3] = $this->obj_facade->getLanguageValue('rated');
+		$option[''] = '-';
+		$option[1] = $this->obj_facade->getLanguageValue('open');
+		$option[2] = $this->obj_facade->getLanguageValue('answered');
+		$option[3] = $this->obj_facade->getLanguageValue('submitted');
+
 		/*if ($this->xase_settings->getModus() == xaseSettingMODUS2 || $this->xase_settings->getModus() == xaseSettingMODUS3) {
 			$option[4] = $this->obj_facade->getLanguageValue('can_be_voted');
 		}*/
@@ -161,7 +162,7 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 					case xaseAnswer::ANSWER_STATUS_ANSWERED:
 						$a_set[$k] = $this->obj_facade->getLanguageValue('answered');
 						break;
-					case xaseAnswer::ANSWER_STATUS_OPEN:
+					case xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED:
 						$a_set[$k] = $this->obj_facade->getLanguageValue('can_be_voted');
 						break;
 				}
@@ -264,7 +265,7 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 			$this->obj_facade->getctrl()->setParameterByClass(xaseAnswerGUI::class,'answer_id',0);
 			$current_selection_list->addItem($this->obj_facade->getLanguageValue('my_answer'), xaseAnswerGUI::CMD_STANDARD, $this->obj_facade->getctrl()->getLinkTargetByClass('xaseanswergui', xaseAnswerGUI::CMD_STANDARD));
 		}
-		$this->obj_facade->getctrl()->setParameterByClass(xaseSampleSolutionGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER, $a_set['question_id']);
+
 		$this->obj_facade->getctrl()->setParameterByClass(xaseQuestionDeleteGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER,$a_set['question_id']);
 		$this->obj_facade->getctrl()->setParameterByClass(xaseAnswerListGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER, $a_set['question_id']);
 		$this->obj_facade->getctrl()->setParameterByClass(xaseVotingGUI::class, xaseQuestionGUI::ITEM_IDENTIFIER, $a_set['question_id']);
@@ -340,9 +341,9 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 			'sort' => array( 'field' => $this->getOrderField(), 'direction' => $this->getOrderDirection() ),
 		);
 
-		$count = xaseQuestions::getData($options,$this->obj_facade->getUser()->getId());
+		$count = xaseQuestions::getData($options,$this->obj_facade->getUser()->getId(),$this->obj_facade->getIlObjObId());
 		$options['limit'] = array( 'start' => (int)$this->getOffset(), 'end' => (int)$this->getLimit());
-		$data = xaseQuestions::getData(array_merge($options, array( 'count' => false )),$this->obj_facade->getUser()->getId());
+		$data = xaseQuestions::getData(array_merge($options, array( 'count' => false )),$this->obj_facade->getUser()->getId(),$this->obj_facade->getIlObjObId());
 		$this->setMaxCount($count);
 		$this->setData($data);
 

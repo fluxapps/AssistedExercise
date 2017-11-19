@@ -130,7 +130,8 @@ class xaseAnswerGUI {
 		$form = new xaseAnswerFormGUI($this);
 		$form->fillForm();
 
-		if(xaseAnswerAccess::hasCreateAccess($this->obj_facade,$this->obj_facade->getUser()->getId()) || $this->answer_access->hasWriteAccess()) {
+		if(xaseAnswerAccess::hasCreateAccess($this->obj_facade,$this->obj_facade->getUser()->getId(),$_GET['question_id'])
+		|| $this->answer_access->hasWriteAccess()) {
 			$form->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->obj_facade->getLanguageValue('submit_for_assessment'));
 			$form->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->obj_facade->getLanguageValue('save'));
 		}

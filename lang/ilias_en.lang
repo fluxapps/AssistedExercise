@@ -151,3 +151,4 @@ answers_are_equal#:#Both answers are equally. The vote goes to the earlier regis
 severity#:#Severity
 severity_info#:#Please estimate the difficulty of this question: 1 simple; 5 very difficult.
 enable_student_voting#:#Enable Student Voting
+use_hints_info#:#Points are deducted when using the tips.

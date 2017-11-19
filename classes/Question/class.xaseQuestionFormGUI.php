@@ -112,7 +112,7 @@ class xaseQuestionFormGUI extends ilPropertyFormGUI {
 
 		if($this->obj_facade->getSetting()->modusOffersHint()) {
 			$header = new ilFormSectionHeaderGUI();
-			$header->setTitle($this->obj_facade->getLanguageValue($this->obj_facade->getLanguageValue('hints')));
+			$header->setTitle($this->obj_facade->getLanguageValue('hints'));
 			$this->addItem($header);
 			$this->initHintForm();
 		}
@@ -453,7 +453,8 @@ class xaseQuestionFormGUI extends ilPropertyFormGUI {
 	}
 
 
-	/**
+
+/**
 	 * @return bool|string
 	 */
 	public function update() {

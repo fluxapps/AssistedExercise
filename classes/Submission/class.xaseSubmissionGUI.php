@@ -17,9 +17,13 @@ class xaseSubmissionGUI {
 	const CMD_ADD_SUBMITTED_EXERCISE = "addSubmittedExercise";
 	const CMD_APPLY_FILTER = 'applyFilter';
 	const CMD_RESET_FILTER = 'resetFilter';
-	const M1 = 1;
-	const M2 = 2;
-	const M3 = 3;
+
+
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
+
 	/**
 	 * @var ilObjAssistedExercise
 	 */
@@ -63,12 +67,14 @@ class xaseSubmissionGUI {
 
 
 	public function __construct() {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
 		$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
-		$this->access = new ilObjAssistedExerciseAccess();
+		$this->access =  ilObjAssistedExerciseAccess::getInstance($this->obj_facade,$this->obj_facade->getUser()->getId());
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->assisted_exercise = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $this->assisted_exercise->getId() ])->first();
@@ -152,28 +158,28 @@ class xaseSubmissionGUI {
 		if (!$this->access->hasWriteAccess()) {
 			ilUtil::sendFailure($this->obj_facade->getLanguageValue('permission_denied'), true);
 		}
-		//$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
-		/*if(self::isDisposalDateExpired($this->mode_settings)) {
+		$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD);
+		if(self::isDisposalDateExpired($this->obj_facade->getSetting())) {
 			$this->obj_facade->getTpl()->setContent($xaseSubmissionTableGUI->getHTML());
 		} else {
 			$this->obj_facade->getTpl()->setContent($this->info_panel_disposal_date() . $xaseSubmissionTableGUI->getHTML());
-		}*/
+		}
 		$this->obj_facade->getTpl()->show();
 	}
 
 
 	protected function applyFilter() {
-		/*$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
+		$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD);
 		$xaseSubmissionTableGUI->writeFilterToSession();
-		$this->obj_facade->getCtrl()->redirect($this, self::CMD_STANDARD);*/
+		$this->obj_facade->getCtrl()->redirect($this, self::CMD_STANDARD);
 	}
 
 
 	protected function resetFilter() {
-	/*	$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD, $this->assisted_exercise);
+		$xaseSubmissionTableGUI = new xaseSubmissionTableGUI($this, self::CMD_STANDARD);
 		$xaseSubmissionTableGUI->resetFilter();
 		$xaseSubmissionTableGUI->resetOffset();
-		$this->obj_facade->getCtrl()->redirect($this, self::CMD_STANDARD);*/
+		$this->obj_facade->getCtrl()->redirect($this, self::CMD_STANDARD);
 	}
 
 	protected function cancel() {
@@ -183,7 +189,7 @@ class xaseSubmissionGUI {
 
 
 	public static function isDisposalDateExpired($mode_settings) {
-		/*$current_date = date('Y-m-d h:i:s', time());
+		$current_date = date('Y-m-d h:i:s', time());
 		$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
 		$disposal_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $mode_settings->getDisposalDate());
 		if (($disposal_date_datetime->getTimestamp() > $current_date_datetime->getTimestamp())
@@ -191,7 +197,7 @@ class xaseSubmissionGUI {
 			return false;
 		} else {
 			return true;
-		}*/
+		}
 	}
 
 	protected function info_panel_disposal_date() {

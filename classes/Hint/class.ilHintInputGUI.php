@@ -115,26 +115,26 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 				continue;
 			}
 			if (trim($data["lvl_1_hint"]) == "" || trim($data["lvl_1_minus_points"]) == "") {
-				ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
-
+				ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+				$this->obj_facade->getTpl()->show();
 				return false;
 			}
 			if (!is_numeric($data["lvl_1_minus_points"])) {
-				ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
-
+				ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+				$this->obj_facade->getTpl()->show();
 				return false;
 			}
 			if (!empty(trim($data["lvl_2_hint"]))) {
 				if (trim($data["lvl_2_minus_points"]) == "" || !is_numeric($data["lvl_2_minus_points"])) {
-					ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
-
+					ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+					$this->obj_facade->getTpl()->show();
 					return false;
 				}
 			}
 			if (!empty(trim($data["lvl_2_minus_points"]))) {
 				if (trim($data["lvl_2_hint"]) == "" || !is_numeric($data["lvl_2_minus_points"])) {
-					ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
-
+					ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
+					$this->obj_facade->getTpl()->show();
 					return false;
 				}
 			}
@@ -142,7 +142,7 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 		}
 		if ($_POST["max_points"] <= $this->total_minus_points) {
 			ilUtil::sendFailure($this->obj_facade->getLanguageValue("msg_input_minus_points_error"), true);
-
+			$this->obj_facade->getTpl()->show();
 			return false;
 		}
 
@@ -404,19 +404,19 @@ class ilHintInputGUI extends ilFormPropertyGUI {
 					continue;
 				}
 				if (trim($data["lvl_1_hint"]) == "" || trim($data["lvl_1_minus_points"]) == "") {
-					ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
+					ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
 				}
 				if (!is_numeric($data["lvl_1_minus_points"])) {
-					ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
+					ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
 				}
 				if (!empty(trim($data["lvl_2_hint"]))) {
 					if (trim($data["lvl_2_minus_points"]) == "" || !is_numeric($data["lvl_2_minus_points"])) {
-						ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
+						ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
 					}
 				}
 				if (!empty(trim($data["lvl_2_minus_points"]))) {
 					if (trim($data["lvl_2_hint"]) == "" || !is_numeric($data["lvl_2_minus_points"])) {
-						ilUtil::sendFailure($this->dic->language()->txt("msg_input_hints"));
+						ilUtil::sendFailure($this->dic->language()->txt("msg_input_minus_points_error"));
 					}
 				}
 

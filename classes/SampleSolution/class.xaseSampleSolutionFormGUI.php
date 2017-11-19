@@ -48,9 +48,20 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI {
 	 */
 	protected $pl;
 
+	/**
+	 * @var xaseAnswerAccess
+	 */
+	protected $answer_access;
+
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
+
+
 
 	public function __construct($parentGUI, xaseQuestion $xaseQuestion) {
-
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
 
 		global $DIC;
 		$this->dic = $DIC;
@@ -61,7 +72,6 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI {
 		$this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->parent_gui = $parentGUI;
 		$this->xase_question = $xaseQuestion;
-		$this->xase_sample_solution = xaseSampleSolution::where(array( 'id' => $this->xase_question->getSampleSolutionId() ))->first();
 
 		parent::__construct();
 	}
@@ -77,8 +87,12 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI {
 		$item->setValue($this->xase_question->getTitle());
 		$this->addItem($item);
 
+		$item = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('task'));
+		$item->setValue($this->xase_question->getQuestiontext());
+		$this->addItem($item);
+
 		$sample_solution = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('sample_solution'));
-		$sample_solution->setValue($this->xase_sample_solution->getSolution());
+		$sample_solution->setValue($this->xase_question->getSampleSolution());
 		$this->addItem($sample_solution);
 
 		$this->addCommandButton(xaseSampleSolutionGUI::CMD_CANCEL, $this->obj_facade->getLanguageValue("cancel"));

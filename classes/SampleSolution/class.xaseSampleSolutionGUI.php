@@ -47,15 +47,25 @@ class xaseSampleSolutionGUI {
 	 * @var ilObjAssistedExerciseAccess
 	 */
 	protected $access;
+	/**
+	 * @var xaseAnswerAccess
+	 */
+	protected $answer_access;
 
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
 
 	public function __construct() {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
 		$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
-		$this->access = new ilObjAssistedExerciseAccess();
+		$this->access = ilObjAssistedExerciseAccess::getInstance($this->obj_facade,$this->obj_facade->getUser()->getId());
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
 		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $this->object->getId() ])->first();
@@ -68,7 +78,7 @@ class xaseSampleSolutionGUI {
 
 		$nextClass = $this->obj_facade->getCtrl()->getNextClass();
 		switch ($nextClass) {
-			case 'xaseitemgui':
+			case 'xasequestiongui':
 				//has to be called because in this case parent::executeCommand is not executed(contains getStandardTempplate and Show)
 				//Show Method has to be called in the corresponding methods
 				$xaseQuestionGUI = new xaseQuestionGUI();
@@ -95,6 +105,7 @@ class xaseSampleSolutionGUI {
 					break;
 				}
 		}
+
 	}
 
 
@@ -109,6 +120,6 @@ class xaseSampleSolutionGUI {
 
 
 	protected function cancel() {
-		$this->obj_facade->getCtrl()->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xaseitemgui' ), xaseQuestionGUI::CMD_INDEX);
+		$this->obj_facade->getCtrl()->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xasequestiongui' ), xaseQuestionGUI::CMD_INDEX);
 	}
 }

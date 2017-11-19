@@ -31,16 +31,34 @@ class xaseAssessment extends ActiveRecord {
 	 * @db_has_field  true
 	 * @db_fieldtype  integer
 	 * @db_length     4
-	 * @db_is_notnull false
+	 * @db_is_notnull true
+	 */
+	protected $user_id;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
 	 */
 	protected $answer_id;
+	/**
+	 * @var int
+	 *
+	 * @db_has_field  true
+	 * @db_fieldtype  integer
+	 * @db_length     4
+	 * @db_is_notnull true
+	 */
+	protected $question_id;
 	/**
 	 * @var string
 	 *
 	 * @db_has_field        true
 	 * @db_fieldtype        text
 	 * @db_length           4000
-	 * @db_is_notnull       true
+	 * @db_is_notnull       false
 	 */
 	protected $assessment_comment;
 	/**
@@ -100,6 +118,22 @@ class xaseAssessment extends ActiveRecord {
 	/**
 	 * @return int
 	 */
+	public function getUserId() {
+		return $this->user_id;
+	}
+
+
+	/**
+	 * @param int $user_id
+	 */
+	public function setUserId($user_id) {
+		$this->user_id = $user_id;
+	}
+
+
+	/**
+	 * @return int
+	 */
 	public function getAnswerId() {
 		return $this->answer_id;
 	}
@@ -110,6 +144,22 @@ class xaseAssessment extends ActiveRecord {
 	 */
 	public function setAnswerId($answer_id) {
 		$this->answer_id = $answer_id;
+	}
+
+
+	/**
+	 * @return int
+	 */
+	public function getQuestionId() {
+		return $this->question_id;
+	}
+
+
+	/**
+	 * @param int $question_id
+	 */
+	public function setQuestionId($question_id) {
+		$this->question_id = $question_id;
 	}
 
 

@@ -118,8 +118,8 @@ class xaseVotingGUI {
 
 	public function deleteUsersVotingsOfItem() {
 
-		xaseVotings::deleteVotingsOfUserByItemId($this->dic->user()->getId(),$_GET['question_id']);
+		xaseVotings::deleteVotingsOfUserByItemId($this->obj_facade->getUser()->getId(),$_GET['question_id']);
 
-		$this->obj_facade->getCtrl()->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xaseitemgui' ), xaseQuestionGUI::CMD_INDEX);
+		$this->obj_facade->getCtrl()->redirectByClass('xaseQuestionGUI', xaseQuestionGUI::CMD_INDEX);
 	}
 }

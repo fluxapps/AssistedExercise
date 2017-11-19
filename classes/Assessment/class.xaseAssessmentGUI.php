@@ -50,17 +50,23 @@ class xaseAssessmentGUI {
 	 */
 	protected $is_student;
 
+	/**
+	 * @var ilObjAssistedExerciseFacade
+	 */
+	protected $obj_facade;
 
-	public function __construct(ilObjAssistedExercise $assisted_exercise) {
+
+	public function __construct() {
+		$this->obj_facade = ilObjAssistedExerciseFacade::getInstance($_GET['ref_id']);
+
 		global $DIC;
 		$this->dic = $DIC;
 		$this->tpl = $this->dic['tpl'];
 		$this->tabs = $DIC->tabs();
 		$this->ctrl = $this->dic->ctrl();
-		$this->access = new ilObjAssistedExerciseAccess();
+		$this->access = ilObjAssistedExerciseAccess::getInstance($this->obj_facade, $this->obj_facade->getUser()->getId());
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->xase_question = new xaseQuestion($_GET['question_id']);
-		$this->assisted_exercise = $assisted_exercise;
 	}
 
 
@@ -85,6 +91,7 @@ class xaseAssessmentGUI {
 					break;
 				} else {
 					ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+					$this->obj_facade->getTpl()->show();
 					break;
 				}
 			case self::CMD_VIEW_ASSESSMENT:
@@ -93,9 +100,12 @@ class xaseAssessmentGUI {
 					break;
 				} else {
 					ilUtil::sendFailure(ilAssistedExercisePlugin::getInstance()->txt('permission_denied'), true);
+					$this->obj_facade->getTpl()->show();
 					break;
 				}
 		}
+
+
 	}
 
 
@@ -109,7 +119,7 @@ class xaseAssessmentGUI {
 
 
 	public function view_assessment() {
-		$this->obj_facade->getCtrl()->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+		$this->obj_facade->getCtrl()->saveParameter($this, 'answer_id');
 		$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
 		$xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise, true);
 		$xaseAssessmentFormGUI->fillForm();
@@ -119,7 +129,7 @@ class xaseAssessmentGUI {
 
 
 	public function edit() {
-		$this->obj_facade->getCtrl()->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+		$this->obj_facade->getCtrl()->saveParameter($this, 'answer_id');
 		$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
 		$xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise);
 		$xaseAssessmentFormGUI->fillForm();
@@ -129,7 +139,7 @@ class xaseAssessmentGUI {
 
 
 	public function update() {
-		$this->obj_facade->getCtrl()->saveParameter($this, xaseAnswerGUI::ANSWER_IDENTIFIER);
+		$this->obj_facade->getCtrl()->saveParameter($this, 'answer_id');
 		$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
 		$xaseAssessmentFormGUI = new xaseAssessmentFormGUI($this, $this->assisted_exercise);
 		if ($xaseAssessmentFormGUI->updateObject()) {

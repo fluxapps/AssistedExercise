@@ -4,15 +4,17 @@
  *
  * @author  Martin Studer <ms@studer-raimann.ch>
  */
-class xaseQuestions {
+class xaseAssessments {
+
+	//TODO combine this query with the query xaseQuestions. we could work with serveral temporary tables and join them.
 
 	/**
-	 * @param array $arr_usr_ids
 	 * @param array $options
+	 * @param int $obj_id
 	 *
 	 * @return array|bool|int
 	 */
-	public static function getData(array $options = array(),$usr_id = 0,$obj_id) {
+	public static function getData(array $options = array(),$obj_id) {
 		/**
 		 * @var $ilDB \ilDBInterface
 		 */
@@ -30,12 +32,16 @@ class xaseQuestions {
 		$options = array_merge($_options, $options);
 
 		$select = 'SELECT 
+					usr.usr_id,
+                    usr.firstname as firstname,
+                    usr.lastname as lastname,
 					question.id as question_id,
 					question.title as question_title,
+					question.max_points as max_points,
 					answer.id as answer_id,
 					answer.answer_status as answer_status,
-					answer.submission_date as submission_date,
-					answer.is_assessed as is_assessed,					
+                    answer.submission_date as submission_date,
+                    answer.is_assessed as is_assessed,
 					(select ROUND(AVG(question_severity_rating),1) as question_severity_rating
 					from xase_answer where question_severity_rating > 0 AND question_id = question.id) as severity,
 					question.created_by as created_by,
@@ -59,13 +65,14 @@ class xaseQuestions {
 					group by vote_answer.id
 					ORDER BY  count(vote_answer.id) DESC LIMIT 1) as highest_ratet_answer
 				    from xase_question as question
-				     left join xase_answer as answer on answer.question_id = question.id and answer.user_id = '.$ilDB->quote($usr_id,'int').'
-                     left join xase_assessm as assessm on assessm.answer_id = answer.id and assessm.user_id = answer.user_id';
+				     inner join xase_answer as answer on answer.question_id = question.id and answer.answer_status = 2
+                     inner join usr_data as usr on usr.usr_id = answer.user_id
+                     left join xase_assessm as assessm on assessm.answer_id = answer.id';
 
 
 		$options['filters']['obj_id'] = $obj_id;
 
-		$select .= static::createWhereStatement(array(), $options['filters']);
+		$select .= static::createWhereStatement($options['filters']);
 		if ($options['count']) {
 			$result = $ilDB->query($select);
 			return $ilDB->numRows($result);
@@ -86,14 +93,14 @@ class xaseQuestions {
 	}
 
 	/**
-	 * Returns the WHERE Part for the Queries using parameter $user_ids and local variable $filters
+	 * Returns the WHERE Part for the Queries using $filters
 	 *
-	 * @param array $arr_usr_ids
 	 * @param array $arr_filter
 	 *
 	 * @return bool|string
 	 */
-	public static function createWhereStatement($arr_usr_ids, $arr_filter) {
+	public static function createWhereStatement($arr_filter) {
+
 
 		/**
 		 * @var $ilDB \ilDBInterface
@@ -101,51 +108,36 @@ class xaseQuestions {
 		$ilDB = $GLOBALS['DIC']->database();
 		$where = array();
 
+
 		$where[] = '(question.assisted_exercise_id = ' . $ilDB->quote($arr_filter['obj_id'], 'integer') . ')';
 
+		if(!empty($arr_filter['firstname'])) {
+			$where[] = $ilDB->like("usr.firstname", "text", "%"
+				. $arr_filter['firstname']	. "%");
 
-
-
-
-		//$where[] = $ilDB->in('usr_data.usr_id', $arr_usr_ids, false, 'integer');
-		if (!empty($arr_filter['answer_status'])) {
-			//todo!
-			if($arr_filter['answer_status'] == 1) {
-				$where[] = '(answer.answer_status is NULL)';
-			} else {
-				$where[] = '(answer.answer_status = ' . $ilDB->quote(($arr_filter['answer_status']-1), 'integer') . ')';
-			}
 		}
 
-		if (!empty($arr_filter['question_title'])) {
-				$where[] = $ilDB->like("question.title", "text", "%"
-						. $arr_filter['question_title']	. "%");
+		if(!empty($arr_filter['lastname'])) {
+			$where[] = $ilDB->like("usr.lastname", "text", "%"
+				. $arr_filter['lastname']	. "%");
 		}
 
-		/*
-		if ($arr_filter['course'] > 0) {
-			$where[] = '(crs_ref.ref_id = ' . $ilDB->quote($arr_filter['course'], 'integer') . ')';
+		if(!empty($arr_filter['title'])) {
+			$where[] = $ilDB->like("question.title", "text", "%"
+				. $arr_filter['title']	. "%");
+
 		}
-		if (!empty($arr_filter['lp_status']) or $arr_filter['lp_status'] === 0) {
-			$where[] = '(lp_status = ' . $ilDB->quote($arr_filter['lp_status'], 'integer') . ')';
+
+
+		if($arr_filter['isassessed'] == 1) {
+			$where[] =  '(answer.is_assessed = ' . $ilDB->quote(0, 'integer') . ' OR answer.is_assessed is Null)';
 		}
-		if (!empty($arr_filter['memb_status'])) {
-			$where[] = '(reg_status = ' . $ilDB->quote($arr_filter['memb_status'], 'integer') . ')';
+		if($arr_filter['isassessed'] == 2) {
+			$where[] =  '(answer.is_assessed = ' . $ilDB->quote(1, 'integer') . ')';
 		}
-		if (!empty($arr_filter['user'])) {
-			$where[] = "(" . $ilDB->like("usr_data.login", "text", "%" . $arr_filter['user'] . "%")
-				. " " . "OR " . $ilDB->like("usr_data.firstname", "text", "%"
-					. $arr_filter['user']
-					. "%") . " "
-				. "OR " . $ilDB->like("usr_data.lastname", "text", "%" . $arr_filter['user']
-					. "%") . " " . "OR "
-				. $ilDB->like("usr_data.email", "text", "%" . $arr_filter['user'] . "%")
-				. ") ";
-		}
-		if (!empty($arr_filter['org_unit'])) {
-			$where[] = 'usr_data.usr_id in (SELECT user_id from il_orgu_ua where orgu_id = '
-				. $ilDB->quote($arr_filter['org_unit'], 'integer') . ')';
-		}*/
+
+
+
 		if (!empty($where)) {
 			return ' WHERE ' . implode(' AND ', $where) . ' ';
 		} else {
