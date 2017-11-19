@@ -91,7 +91,7 @@ class xaseSampleSolutionFormGUI extends ilPropertyFormGUI {
 		$item->setValue($this->xase_question->getQuestiontext());
 		$this->addItem($item);
 
-		$sample_solution = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('sample_solution'));
+		$sample_solution = new ilNonEditableValueGUI($this->obj_facade->getLanguageValue('answer'));
 		$sample_solution->setValue($this->xase_question->getSampleSolution());
 		$this->addItem($sample_solution);
 

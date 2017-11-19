@@ -152,4 +152,31 @@ class xaseQuestions {
 			return '';
 		}
 	}
+
+
+	/**
+	 * @param int $assisted_exercise_object_id
+	 * @param int $user_id
+	 *
+	 * @return xaseQuestion[]
+	 */
+	public static function getUnansweredQuestionsOfUser($assisted_exercise_object_id, $user_id) {
+		/**
+		 * @var $ilDB \ilDBInterface
+		 */
+		$ilDB = $GLOBALS['DIC']->database();
+
+		$sql = "SELECT question.id FROM xase_question as question
+				where question.id not in (SELECT question_id from xase_answer as answer where answer.user_id =  " . $ilDB->quote($user_id, 'integer') . ")
+				and question.assisted_exercise_id = " . $ilDB->quote($assisted_exercise_object_id, 'integer');
+
+		$set = $ilDB->query($sql);
+
+		$arr_questions = array();
+		while($row = $ilDB->fetchAssoc($set)) {
+			$arr_answers[] = new xaseQuestion($row['id']);
+		}
+
+		return $arr_answers;
+	}
 }

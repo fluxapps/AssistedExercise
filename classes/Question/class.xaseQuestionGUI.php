@@ -79,6 +79,23 @@ class xaseQuestionGUI {
 			$this->obj_facade->getDic()->toolbar()->addButtonInstance($ilLinkButton);
 		}
 
+
+		$arr_questions = xaseQuestions::getUnansweredQuestionsOfUser($this->obj_facade->getIlObjObId(),$this->obj_facade->getUser()->getId());
+
+		if(count($arr_questions) > 0) {
+
+			ilUtil::sendInfo(sprintf($this->obj_facade->getLanguageValue('unanswered_questions_info'),count($arr_questions)));
+
+			$new_item_link = $this->obj_facade->getCtrl()->getLinkTargetByClass('xaseAnswerGUI', xaseAnswerGUI::CMD_QUESTION_ROUND);
+			$ilLinkButton = ilLinkButton::getInstance();
+			$ilLinkButton->setCaption($this->obj_facade->getLanguageValue("start_question_round"), false);
+			$ilLinkButton->setUrl($new_item_link);
+			/** @var $ilToolbar ilToolbarGUI */
+			$this->obj_facade->getDic()->toolbar()->addButtonInstance($ilLinkButton);
+		}
+
+
+
 		$table_gui = new xaseQuestionTableGUI($this, self::CMD_INDEX);
 		$this->obj_facade->getTpl()->setContent($table_gui->getHTML());
 		/*$this->obj_facade->getCtrl()->saveParameterByClass(xaseQuestionTableGUI::class, self::ITEM_IDENTIFIER);

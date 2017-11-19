@@ -1,3 +1,4 @@
+
 add_task#:#Frage hinzufügen
 always_visible#:#Immer sichtbar
 always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
@@ -6,7 +7,7 @@ availability#:#Verfügbarkeit
 cancel#:#Abbrechen
 changes_saved_success#:#Änderungen gespeichert
 common_actions#:#Aktionen
-completely_teacher_controlled#:#komplett Lehrkraft gesteuert
+completely_teacher_controlled#:#Lehrkraft erstellt Fragen
 description#:#Beschreibung
 finish_time#:#Endzeit
 first_name#:#Vorname
@@ -157,3 +158,7 @@ enable_student_voting#:#Voting-Funktion für Studierende aktivieren
 use_hints_info#:#Bei der Nutzung der Tipps werden dir Punkte abgezogen.
 show_level_1#:#Level 1 zeigen -> -%s Pkt.
 show_level_2#:#Level 2 zeigen -> -%s Pkt.
+unanswered_questions_info#:#Sie haben %s unbeantworte Fragen. Starten Sie jetzt eine Fragerunde.
+start_question_round#:#Fragerunde starten
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Sehr schön! Du hast alle Fragen beantwortet!

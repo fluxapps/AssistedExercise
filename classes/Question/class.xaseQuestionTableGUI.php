@@ -309,6 +309,7 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 		}
 		*/
 		if($question_access->hasAccessToSampleSolution()) {
+			$this->obj_facade->getctrl()->setParameterByClass(xaseSampleSolutionGUI::class, 'question_id',$a_set['question_id']);
 			$current_selection_list->addItem($this->obj_facade->getLanguageValue('view_sample_solution'), xaseSampleSolutionGUI::CMD_STANDARD, $this->obj_facade->getctrl()->getLinkTargetByClass('xaseSampleSolutionGUI', xaseSampleSolutionGUI::CMD_STANDARD));
 		}
 

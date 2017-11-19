@@ -152,3 +152,8 @@ severity#:#Severity
 severity_info#:#Please estimate the difficulty of this question: 1 simple; 5 very difficult.
 enable_student_voting#:#Enable Student Voting
 use_hints_info#:#Points are deducted when using the tips.
+unanswered_questions_info#:#Du hast %s unbeantworte Fragen. Starte jetzt eine Fragerunde.
+start_question_round#:#Start Answering Questions
+question_x_of_y#:#Question %s of %s
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Congratulations! You answered all questions!

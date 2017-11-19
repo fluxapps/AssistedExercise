@@ -22,6 +22,7 @@ class xaseAnswerGUI {
 	const CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED = 'upadteAndSetStatusToSubmited';
 	const CMD_CANCEL = 'cancel';
 	const CMD_SHOW = 'show';
+	const CMD_QUESTION_ROUND = 'showQuestionRound';
 
 	 /**
 	 * @var ilObjAssistedExerciseFacade
@@ -40,6 +41,8 @@ class xaseAnswerGUI {
 
 		$this->answer_access = new xaseAnswerAccess($answer,$this->obj_facade->getUser()->getId());
 
+
+		$this->obj_facade->getCtrl()->setParameter($this,'mode',$_GET['mode']);
 	}
 /*
 	public function __construct(ilObjAssistedExercise $assisted_exericse) {
@@ -86,6 +89,7 @@ class xaseAnswerGUI {
 			case self::CMD_CANCEL:
 			case self::CMD_UPDATE_AND_SET_STATUS_TO_VOTE:
 			case self::CMD_UPDATE_AND_SET_STATUS_TO_SUBMITED:
+			case self::CMD_QUESTION_ROUND:
 				//if ($this->access->hasReadAccess()) {
 					$this->{$cmd}();
 					break;
@@ -122,6 +126,22 @@ class xaseAnswerGUI {
 		}*/
 	}
 
+	public function showQuestionRound() {
+		$arr_questions = xaseQuestions::getUnansweredQuestionsOfUser($this->obj_facade->getIlObjObId(),$this->obj_facade->getUser()->getId());
+
+		if(count($arr_questions) == 0) {
+			ilUtil::sendInfo($this->obj_facade->getLanguageValue('all_questions_answered'),true);
+			$this->obj_facade->getCtrl()->redirectByClass(xaseQuestionGUI::class, xaseQuestionGUI::CMD_INDEX);
+		}
+
+		ilUtil::sendInfo(sprintf($this->obj_facade->getLanguageValue('question_open'),count($arr_questions)),true);
+
+		$this->obj_facade->getCtrl()->setParameter($this,'question_id',$arr_questions[0]->getId());
+		$this->obj_facade->getCtrl()->setParameter($this,'mode','questionnaire');
+		$this->obj_facade->getCtrl()->redirect($this,self::CMD_STANDARD);
+
+	}
+
 
 	public function edit() {
 		
@@ -135,8 +155,6 @@ class xaseAnswerGUI {
 			$form->addCommandButton(xaseAnswerGUI::CMD_UPDATE_AND_SET_STATUS_TO_VOTE, $this->obj_facade->getLanguageValue('submit_for_assessment'));
 			$form->addCommandButton(xaseAnswerGUI::CMD_UPDATE, $this->obj_facade->getLanguageValue('save'));
 		}
-
-
 
 		$this->obj_facade->getTpl()->setContent($form->getHTML());
 		$this->obj_facade->getTpl()->show();
@@ -182,7 +200,13 @@ class xaseAnswerGUI {
 		$xaseAnswerFormGUI = new xaseAnswerFormGUI($this, $this->assisted_exercise, $this->xase_question);
 		if ($xaseAnswerFormGUI->updateObject($status)) {
 			ilUtil::sendSuccess($this->obj_facade->getLanguageValue('changes_saved_success'), true);
+
+			if($_GET['mode'] == 'questionnaire'){
+				$this->obj_facade->getCtrl()->redirectByClass(xaseAnswerGUI::class, xaseAnswerGUI::CMD_QUESTION_ROUND);
+			}
 			$this->obj_facade->getCtrl()->redirectByClass(xaseQuestionGUI::class, xaseQuestionGUI::CMD_INDEX);
+
+
 		} else {
 			$xaseAnswerFormGUI->setValuesByPost();
 			$xaseAnswerFormGUI->fillTaskInput();
