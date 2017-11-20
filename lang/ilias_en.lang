@@ -1,4 +1,4 @@
-add_task#:#Add task
+add_task#:#Add Question
 always_visible#:#Always visible
 always_visibility_info#:#Before and after the indicated period it is only the assisted exercise's title that will be displayed. The participants cannot take the assisted exercise.
 assisted_exercise_activation_online_info#:#If online, participants can take the assisted exercise
@@ -10,7 +10,7 @@ completely_teacher_controlled#:#Completely teacher controlled
 description#:#Description
 finish_time#:#Finish Time
 first_name#:#First Name
-general_settings#:#General Settings
+general_settings#:#General Setting
 max_points#:#Maximum points
 max_achievable_points#:#Maximum achievable points
 number_of_used_hints#:#Number of used hints
@@ -21,8 +21,8 @@ open#:#Open
 answered#:#Answered
 points#:#Points
 status#:#Status
-task_create#:#Create task
-task_title#:#Task title
+task_create#:#Create Question
+task_title#:#Delete Question
 xase_add#:#Add
 content#:#Content
 edit_properties#:#Properties
@@ -40,7 +40,7 @@ perm_settings#:#Permissions
 total_used_hints#:#Total of used hints
 disposal_date#:#Disposal date
 save#:#Save
-settings_assisted_exercise#:#Settings Assisted Exercise
+settings_assisted_exercise#:#Setting Assisted Exercise
 start_time#:#Start Time
 student_creates_question#:#Student creates question
 time_limited#:#Limited Availability Period
@@ -49,14 +49,14 @@ title#:#Title
 rate_student_answers#:#Rate students answers
 disposals_until#:#Disposals at the latest
 sample_solution_visible#:#Sample solution visible
-after_exercise_completion#:#After exercise completion
-exercise_finished_questions_answered#:#The exercise is considered finished if all questions were answered.
+after_exercise_completion#:#After question is answered
+exercise_finished_questions_answered#:#The question is answered if it is set to rating.
 after_definied_date#:#After definied date:
 cb_additional_points_for_voting#:#Students get x% of the points per item, which they votet for and where the teacher votes them best.
 number_of_percentage#:#Percentage
 votings_after#:#Votings from:
 please_choose_mode#:#Please choose a mode.
-task#:#Task
+task#:#Question
 text_hint_btn#:#Create hint
 hint#:#hint
 level_1_hint#:#Level 1 hint
@@ -66,13 +66,14 @@ sample_solution#:#Sample Solution
 minus_points#:#Minus points
 specify_max_points#:#Specify maximum points
 hints#:#Hints
-info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Task" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
+info_hints#:#To add a new hint select the desired text and click the button "Add Hint". Pleas delete the hints only with the corresponding Remove Button. Hints which were deleted directly from the form "Question" will not be saved. Maximum points have to be bigger than the sum of all minus points of the hints.
 msg_input_hints#:#Please fill out all required hint inputs. Required fields are marked with a *. The Input value for minus points has to be numeric. If you want to add a 2 level hint, you have to fill both inputs.
-answer_task#:#Answer Task
+answer_task#:#Answer Question
 show_hints#:#Show hints
 answer#:#Answer
-submit_for_assessment#:#Submit for assessment
-assessment_for_task#:#Assessment for task
+my_answer#:#My Answer
+submit_for_assessment#:#Submit for Voting / Assessment
+assessment_for_task#:#Assessment for Question
 submitted_by#:#Submitted by
 show_used_hints#:#Show used hints
 comment#:#Comment
@@ -96,28 +97,28 @@ points_teacher#:#Points teacher
 add_comment#:#Add comment
 discard_comment#:#Discard
 view_answers#:#View answers
-task_label#:#Task:
+task_label#:#Question:
 pleas_vote_for_the_best_answer#:#Please vote for the best answer
 edit_task#:#Edit
 delete_task#:#Delete
 add_hint_btn_caption#:#Add hint
 last_name#:#Last name
 submission_date#:#Submission date
-tasks#:#Tasks
+tasks#:#Questions
 number_of_upvotings#:#Number of upvotings
 msg.success.exercise.submitted.for.assessment#:#The exercise was successfully submitted for assessment.
 no_disposal_date#:#No disposal date
 average_achieved_points#:#Average achieved points
 average_used_hints_per_item#:#Average number of used hints per item
-your_answer_of_the_task#:#Your answer of the task
+your_answer_of_the_task#:#Your answer of the question
 was_assessed#:#was assessed
 the_following_link_leads_to_the_list_view_of_the_items#:#The following link leads to the list view of the items
 pleas_click_on_the_following_link_to_view_the_assessment#:#Please click on the following URL to view the assessment:
 view_assessment#:#View assessment
-click_on_actions_view_assessment#:#With a click on the actions button of the correspondent task you can view the assessment over the context menu.
-is_voted#:#voted
-release_answers_for_voting#:#Release answers for voting
-can_be_voted#:#Can be voted
+click_on_actions_view_assessment#:#With a click on the actions button of the correspondent question you can view the assessment over the context menu.
+is_voted#:#Voted
+release_answers_for_voting#:#Release answers for voting/rating
+can_be_voted#:#Can be voted/rated
 confirm_delete_question#:#Are you sure you want to delete this exercise?
 successfully_deleted#:#Successfully deleted exercise.
 vote_error_text#:#Please first down vote the answer you upvoted previously.
@@ -134,3 +135,25 @@ on_the_question#:#on the question
 msg_input_please_chose_disposal_date#:#Please chose a disposal date.
 info_regarding_disposal_date#:#Information regarding disposal date
 assessment_can_be_done_after_the_defined_disposal_date#:#Assessment can be done after the defined disposal date
+answer_1#:#Answer 1
+answer_2#:#Answer 2
+vote_for#:#Vote for
+please_choose_an_answer#:#Please choose an answer.
+created_by#:#Created by
+answered_by#:#Answered by
+no_more_answers_to_vote#:#Currently there are no more answers for voting
+delete_my_votings#:#Delete my Votings
+vote#:#Vote
+number_of_upvotings_my_answer#:#Numboer of upvotings for my Answer
+highest_ratet_answer#:#Answer with the most upvotings
+show#:#Show
+answers_are_equal#:#Both answers are equally. The vote goes to the earlier registered answer.
+severity#:#Severity
+severity_info#:#Please estimate the difficulty of this question: 1 simple; 5 very difficult.
+enable_student_voting#:#Enable Student Voting
+use_hints_info#:#Points are deducted when using the tips.
+unanswered_questions_info#:#Du hast %s unbeantworte Fragen. Starte jetzt eine Fragerunde.
+start_question_round#:#Start Answering Questions
+question_x_of_y#:#Question %s of %s
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Congratulations! You answered all questions!

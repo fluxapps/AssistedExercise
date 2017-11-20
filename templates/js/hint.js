@@ -1,6 +1,8 @@
 $(document).ready(function() {
 
-    var task = $('#task')[0];
+    //TODO: Handle document.selection and else hint_trigger_text click cases
+
+    var task = $('#question_text')[0];
     var counter = 0;
 
     function increase_counter(number_only) {

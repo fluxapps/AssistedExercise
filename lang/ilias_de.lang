@@ -1,4 +1,5 @@
-add_task#:#Aufgabe hinzufügen
+
+add_task#:#Frage hinzufügen
 always_visible#:#Immer sichtbar
 always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
 assisted_exercise_activation_online_info#:#Wenn Online, können Teilnehmer die unterstüzte Übung absolvieren.
@@ -6,14 +7,14 @@ availability#:#Verfügbarkeit
 cancel#:#Abbrechen
 changes_saved_success#:#Änderungen gespeichert
 common_actions#:#Aktionen
-completely_teacher_controlled#:#komplett Lehrkraft gesteuert
+completely_teacher_controlled#:#Lehrkraft erstellt Fragen
 description#:#Beschreibung
 finish_time#:#Endzeit
 first_name#:#Vorname
 general_settings#:#Allgemeine Einstellungen
 item#:#Item
-task_create#:#Aufgabe anlegen
-task_title#:#Aufgabe Titel
+task_create#:#Frage anlegen
+task_title#:#Fragentitel
 last_name#:#Nachname
 max_points#:#Maximale Punktzahl
 max_achievable_points#:#Maximal erreichbare Punkte
@@ -32,9 +33,9 @@ content#:#Inhalt
 edit_properties#:#Einstellungen
 xase_new#:#Unterstützte Übung anlegen
 xase_objs_xase#:#Unterstützte Übung
-m1_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler beantworten die Fragen. Lehrer bewertet diese. Maximalpunktzahl abhängig von den verwendeten Tipps.
-m2_info#:#Schüler erstellt Fragen, ohne Tipps. Schüler geben Votings ab.
-m3_info#:#Lehrer erstellt Frage inkl. Tipps. Schüler können Votings abgeben.
+m1_info#:#Lehrkraft erstellt Frage inkl. Tipps. Schüler beantworten die Fragen. Lehrkraft bewertet diese. Maximalpunktzahl abhängig von den verwendeten Tipps.
+m2_info#:#Schüler/in erstellt Fragen, ohne Tipps. Schüler geben Votings ab.
+m3_info#:#Lehrkraft erstellt Frage inkl. Tipps. Schüler können Votings abgeben.
 max_achieved_points#:#Maximal erreichte Punkte
 mode#:#Modus
 mode_settings#:#Modus Einstellungen
@@ -44,7 +45,7 @@ permission_denied#:#Sie sind nicht berechtigt diese Aktion durchzuführen.
 perm_settings#:#Rechte
 save#:#Speichern
 start_time#:#Startzeit
-student_creates_question#:#Schüler erstellt Frage
+student_creates_question#:#Schüler/in erstellt Frage
 time_limited#:#Zeitlich begrenzt
 time_period#:#Zeitraum
 title#:#Titel
@@ -53,14 +54,14 @@ disposal_date#:#Abgabedatum
 rate_student_answers#:#Antworten der Schüler bewerten
 disposals_until#:#Abgaben bis spätestens:
 sample_solution_visible#:#Musterlösung einsehbar
-after_exercise_completion#:#Nach Abschluss der Übung
-exercise_finished_questions_answered#:#Die Übung gilt als abgeschlossen wenn alle Fragen beantwortet wurden.
+after_exercise_completion#:#Nach Abschluss der Frage
+exercise_finished_questions_answered#:#Die Frage gilt als abgeschlossen, sobald diese zur Bewertung eingereicht wurde.
 after_definied_date#:#Ab definiertem Datum:
 cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, welche durch sie gevotet worden sind und durch die Lehrkraft am besten bewertet wurden.
 number_of_percentage#:#Anzahl Prozent
 votings_after#:#Votings ab:
 please_choose_mode#:#Bitte wählen Sie einen Modus aus.
-task#:#Aufgabe
+task#:#Frage
 text_hint_btn#:#Tipp hinzufügen
 hint#:#Tipp
 level_1_hint#:#Ebene 1 Tipp
@@ -72,11 +73,12 @@ specify_max_points#:#Maximalpunktzahl festlegen
 hints#:#Tipps
 info_hints#:#Um einen neuen Tipp hinzuzufügen markieren Sie bitte den gewünschten Text zu dem ein Tipp angelegt werden soll und klicken Sie anschliessend auf den Button "Tipp hinzufügen". Bitte löschen Sie die Tipps nur über den entsprechenden Entfernen Button. Tipps die aus dem Formularfeld "Task" direkt gelöscht werden, werden nicht gespeichert. Die maximale Punktzahl muss grösser sein als die Summe aller Minuspunkte der Tipps.
 msg_input_hints#:#Bitte füllen Sie alle Pflichtfelder aus. Pflichtfelder sind mit einem * markiert. Der Eingabewert für den Punkteabzug muss nummerisch sein. Wenn Sie für die 2 Ebene einen Tipp hinzufügen möchten, müssen Sie beide Eingabefelder ausfüllen.
-answer_task#:#Aufgabe beantworten
+answer_task#:#Frage beantworten
 show_hints#:#Tipps anzeigen
-answer#:#Antworten
-submit_for_assessment#:#Übung zur Bewertung einreichen
-assessment_for_task#:#Bewertung für die Aufgabe
+answer#:#Antwort
+my_answer#:#Meine Antwort
+submit_for_assessment#:#Zum Voting / Bewertung einreichen
+assessment_for_task#:#Bewertung für die Frage
 submitted_by#:#eingereicht von
 show_used_hints#:#Verwendete Tipps anzeigen
 comment#:#Kommentar
@@ -97,33 +99,33 @@ submitted#:#Eingereicht
 rated#:#Bewertet
 view_sample_solution#:#Musterlösung einsehen
 discard_comment#:#Verwerfen
-points_teacher#:#Punkte Lehrer
+points_teacher#:#Punkte Lehrkraft
 add_comment#:#Kommentar hinzufügen
 discard_comment#:#Verwerfen
 view_answers#:#Antworten ansehen
-task_label#:#Aufgabe:
+task_label#:#Frage:
 pleas_vote_for_the_best_answer#:#Bitte voten Sie für die beste Antwort
 edit_task#:#Bearbeiten
-delete_task#:#Löschen
+delete_task#:#Frage Löschen
 add_hint_btn_caption#:#Tipp hinzufügen
 submission_date#:#Abgabedatum
-tasks#:#Aufgaben
+tasks#:#Fragen
 number_of_upvotings#:#Anzahl Upvotings
 msg.success.exercise.submitted.for.assessment#:#Die Übung wurde erfolgreich zur Bewertung eingereicht.
 no_disposal_date#:#Kein Abgabedatum
 average_achieved_points#:#Durchschnittlich erreichte Punkte
 average_used_hints_per_item#:#Durschnittliche Anzahl verwendeter Tipps pro Item
-your_answer_of_the_task#:#Ihre Antwort auf die Aufgabe
+your_answer_of_the_task#:#Ihre Antwort auf die Frage
 was_assessed#:#wurde bewertet
 the_following_link_leads_to_the_list_view_of_the_items#:#Der folgende Link führt auf die Listenansicht:
-click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Aufgabe können Sie über das Kontext Menü die Bewertung einsehen.
+click_on_actions_view_assessment#:#Mit einen Klick auf den Aktionen Button der entsprechenden Frage können Sie über das Kontext Menü die Bewertung einsehen.
 please_click_on_the_following_link_to_view_the_assessment#:#Um die Bewertung einzusehen klicken Sie bitte auf die folgende URL:
 view_assessment#:#Bewertung einsehen
-is_voted#:#Stimme abgegeben
-release_answers_for_voting#:#Antworten zum Voten freigeben
-can_be_voted#:#Zum Voting freigegeben
-confirm_delete_question#:#Bist du sicher, dass du diese Aufgabe löschen willst?
-successfully_deleted#:#Aufgabe erfolgreich gelöscht.
+is_voted#:#Voting durchgeführt
+release_answers_for_voting#:#Antworten zum Voten/Bewertung freigeben
+can_be_voted#:#Zum Voting/Bewertung freigegeben
+confirm_delete_question#:#Bist du sicher, dass du diese Frage löschen willst?
+successfully_deleted#:#Frage erfolgreich gelöscht.
 vote_error_text#:#Bitte down voten Sie die zuvor upgevotete Antwort.
 add_new_comment#:#Neuen Kommentar hinzufügen
 create_comment_form_error_message#:#Bitte füllen Sie das Eingabefeld für den Kommentar aus.
@@ -136,4 +138,27 @@ upvoters_for_answer_from#:#Upvoters auf die Antwort von
 on_the_question#:#auf die Frage
 msg_input_please_chose_disposal_date#:#Bitte geben Sie ein Abgabedatum an.
 info_regarding_disposal_date#:#Information betreffend Abgabedatum
-assessment_can_be_done_after_the_defined_disposal_date#:#Bewertungen erst können nach dem definierten Abgabedatum vorgenommen werden.
+assessment_can_be_done_after_the_defined_disposal_date#:#Bewertungen können erst nach dem definierten Abgabedatum vorgenommen werden.
+answer_1#:#Antwort 1
+answer_2#:#Antwort 2
+vote_for#:#Voten für
+please_choose_an_answer#:#Bitte wählen Sie eine Antwort aus.
+created_by#:#Erstellt durch
+answered_by#:#Beantwortet durch
+no_more_answers_to_vote#:#Derzeit gibt es auf diese Frage keine weiteren Antworten mehr, für welche gevotet werden könnte
+delete_my_votings#:#Meine Votings löschen
+vote#:#Vote
+number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
+highest_ratet_answer#:#Antwort mit den meisten Upvotings
+show#:#Anzeigen
+answers_are_equal#:#Beide Antworten sind gleich gut. Der Vote geht an die früher eingetragene Antwort.
+severity#:#Schwierigkeitsgrad
+severity_info#:#Bitte schätzen Sie den Schwierigkeitsgrad dieser Frage ein: 1 einfach; 5 sehr schwierig.
+enable_student_voting#:#Voting-Funktion für Studierende aktivieren
+use_hints_info#:#Bei der Nutzung der Tipps werden dir Punkte abgezogen.
+show_level_1#:#Level 1 zeigen -> -%s Pkt.
+show_level_2#:#Level 2 zeigen -> -%s Pkt.
+unanswered_questions_info#:#Sie haben %s unbeantworte Fragen. Starten Sie jetzt eine Fragerunde.
+start_question_round#:#Fragerunde starten
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Sehr schön! Du hast alle Fragen beantwortet!

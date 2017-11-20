@@ -15,15 +15,15 @@ class xaseUpvotingsGUI {
 	 */
 	public $object;
 	/**
-	 * @var xaseItem
+	 * @var xaseQuestion
 	 */
-	public $xase_item;
+	public $xase_question;
 	/**
 	 * @var xaseAnswer
 	 */
 	public $xase_answer;
 	/**
-	 * @var xaseSettings
+	 * @var xaseSetting
 	 */
 	public $xase_settings;
 	/**
@@ -61,25 +61,25 @@ class xaseUpvotingsGUI {
 		$this->access = new ilObjAssistedExerciseAccess();
 		$this->pl = ilAssistedExercisePlugin::getInstance();
 		$this->object = ilObjectFactory::getInstanceByRefId($_GET['ref_id']);
-		$this->xase_settings = xaseSettings::where([ 'assisted_exercise_object_id' => $this->object->getId() ])->first();
-		$this->xase_item = new xaseItem($_GET[xaseItemGUI::ITEM_IDENTIFIER]);
+		$this->xase_settings = xaseSetting::where([ 'assisted_exercise_object_id' => $this->object->getId() ])->first();
+		$this->xase_question = new xaseQuestion($_GET[xaseQuestionGUI::ITEM_IDENTIFIER]);
 		$this->xase_answer = new xaseAnswer($_GET[xaseAnswerGUI::ANSWER_IDENTIFIER]);
 	}
 
 
 	public function executeCommand() {
 
-		$nextClass = $this->ctrl->getNextClass();
+		$nextClass = $this->obj_facade->getCtrl()->getNextClass();
 		switch ($nextClass) {
 			default:
-				$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+				$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
 				$this->performCommand();
 		}
 	}
 
 
 	protected function performCommand() {
-		$cmd = $this->ctrl->getCmd(self::CMD_STANDARD);
+		$cmd = $this->obj_facade->getCtrl()->getCmd(self::CMD_STANDARD);
 		switch ($cmd) {
 			case self::CMD_STANDARD:
 			case self::CMD_CANCEL:
@@ -95,40 +95,47 @@ class xaseUpvotingsGUI {
 
 
 	public function show_upvotings() {
-		$this->tabs->activateTab(xaseSubmissionGUI::CMD_STANDARD);
-		$submission_table_link = $this->ctrl->getLinkTargetByClass(xaseSubmissionGUI::class, xaseSubmissionGUI::CMD_STANDARD);
+		$this->obj_facade->getTabsGUI()->activateTab(xaseSubmissionGUI::CMD_STANDARD);
+		$submission_table_link = $this->obj_facade->getCtrl()->getLinkTargetByClass(xaseSubmissionGUI::class, xaseSubmissionGUI::CMD_STANDARD);
 		$ilLinkButton = ilLinkButton::getInstance();
-		$ilLinkButton->setCaption($this->pl->txt("back"), false);
+		$ilLinkButton->setCaption($this->obj_facade->getLanguageValue("back"), false);
 		$ilLinkButton->setUrl($submission_table_link);
 		/** @var $ilToolbar ilToolbarGUI */
 		$this->dic->toolbar()->addButtonInstance($ilLinkButton);
-		$this->tpl->setContent($this->createListing($this->getUsersWhichVotedForAnswers()));
-		$this->tpl->show();
+		$this->obj_facade->getTpl()->setContent($this->createListing($this->getUsersWhichVotedForAnswers()));
+		$this->obj_facade->getTpl()->show();
 	}
 
 	protected function cancel() {
-		$this->ctrl->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xasesubmissiongui' ), xaseSubmissionGUI::CMD_STANDARD);
+		$this->obj_facade->getCtrl()->redirectByClass(array( 'ilObjAssistedExerciseGUI', 'xasesubmissiongui' ), xaseSubmissionGUI::CMD_STANDARD);
 	}
 
 	protected function getUsersWhichVotedForAnswers() {
 		$votings_for_answer = xaseVoting::where(array('answer_id' => $this->xase_answer->getId()))->get();
 		$users = [];
 		foreach($votings_for_answer as $voting) {
-			$users[] = xaseUser::where(array('usr_id' => $voting->getUserId()))->first();
-		}
+
+			$users[] = xaseilUser::where(array('usr_id' => $voting->getUserId()))->first();
+	}
 		return $users;
 	}
+
+
+/*	protected function getUserWhoAnsweredItem() {
+		return xaseilUser::where(array('id' => $this->xase_answer->getUserId()))->first();
+	}*/
 
 	public function createListing($voters_array) {
 		$tpl = new ilTemplate("tpl.upvoters.html", true, true, "Customizing/global/plugins/Services/Repository/RepositoryObject/AssistedExercise");
 
-		$user_who_answered_item = xaseUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
+		$user_who_answered_item = xaseilUser::where(array('usr_id' => $this->xase_answer->getUserId()))->first();
 
-		$tpl->setVariable("META_INFO", $this->pl->txt("upvoters_for_answer_from") . " " . $user_who_answered_item->getFirstname() . " " . $user_who_answered_item->getLastname() . " " . $this->pl->txt("on_the_question") . " " . $this->xase_item->getItemTitle());
+
+		$tpl->setVariable("META_INFO", $this->obj_facade->getLanguageValue("upvoters_for_answer_from") . " " . $user_who_answered_item->getFirstname() . " " . $user_who_answered_item->getLastname() . " " . $this->obj_facade->getLanguageValue("on_the_question") . " " . $this->xase_question->getTitle());
 
 		$tpl->setCurrentBlock("LIST");
 		/**
-		 * @var $voter xaseUser
+		 * @var $voter xaseilUser
 		 */
 		foreach($voters_array as $voter) {
 			$tpl->setVariable("LIST_ITEM", $voter->getFirstname() . " " . $voter->getLastname());

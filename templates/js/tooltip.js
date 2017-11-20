@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 
-    var tooltips = $('#task').children('a');
+    var tooltips = $('#question_text').children('a');
 
     var existing_hint_data = $('.existing-hint-data');
     var data_hints = [];
