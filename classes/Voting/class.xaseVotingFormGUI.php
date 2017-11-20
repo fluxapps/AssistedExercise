@@ -101,6 +101,8 @@ class xaseVotingFormGUI extends ilPropertyFormGUI {
 		$answer_1 = new xaseAnswer($this->getInput('answer_1_id'));
 		$answer_2 = new xaseAnswer($this->getInput('answer_2_id'));
 
+
+
 		switch($this->getInput('answer_id')) {
 			case xaseVotingGUI::RADIO_OPTION_EQUAL:
 				//TODO Refactor Use Timestamp
@@ -117,8 +119,8 @@ class xaseVotingFormGUI extends ilPropertyFormGUI {
 				$downvote = $answer_2->getId();
 				break;
 			case $this->getInput('answer_2_id'):
-				$upvote = $answer_1->getId();
-				$downvote = $answer_2->getId();
+				$upvote = $answer_2->getId();
+				$downvote = $answer_1->getId();
 				break;
 		}
 

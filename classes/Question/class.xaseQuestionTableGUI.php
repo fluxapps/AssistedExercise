@@ -155,6 +155,9 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 
 			//TODO Refactor - Status Object with status to lang
 			if($k == 'answer_status') {
+
+				$a_set['answer_status_id'] = $a_set[$k];
+
 				switch($a_set[$k]) {
 					case xaseAnswer::ANSWER_STATUS_OPEN:
 						$a_set[$k] = $this->obj_facade->getLanguageValue('open');
@@ -166,6 +169,8 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 						$a_set[$k] = $this->obj_facade->getLanguageValue('can_be_voted');
 						break;
 				}
+
+
 			}
 
 			//TODO
@@ -276,7 +281,7 @@ class xaseQuestionTableGUI extends ilTable2GUI {
 
 				//ToDo Refactor!
 
-				if($a_set['answer_status'] == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
+				if($a_set['answer_status_id'] == xaseAnswer::ANSWER_STATUS_CAN_BE_VOTED) {
 
 					/*if(count(xaseVotings::getUnvotedAnswersOfUser($this->obj_facade->getIlObjObId(), $this->dic->user()->getId(), $a_set['question_id'])) >= 2
 						OR
