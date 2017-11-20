@@ -2,7 +2,7 @@ $(document).ready(function() {
 
     //TODO: Handle document.selection and else hint_trigger_text click cases
 
-    var task = $('#task')[0];
+    var task = $('#question_text')[0];
     var counter = 0;
 
     // boolean argument number_only is optional. If it is set the function returns only the counter.

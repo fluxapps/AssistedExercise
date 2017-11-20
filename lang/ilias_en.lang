@@ -10,7 +10,7 @@ completely_teacher_controlled#:#Completely teacher controlled
 description#:#Description
 finish_time#:#Finish Time
 first_name#:#First Name
-general_settings#:#General Settings
+general_settings#:#General Setting
 max_points#:#Maximum points
 max_achievable_points#:#Maximum achievable points
 number_of_used_hints#:#Number of used hints
@@ -40,7 +40,7 @@ perm_settings#:#Permissions
 total_used_hints#:#Total of used hints
 disposal_date#:#Disposal date
 save#:#Save
-settings_assisted_exercise#:#Settings Assisted Exercise
+settings_assisted_exercise#:#Setting Assisted Exercise
 start_time#:#Start Time
 student_creates_question#:#Student creates question
 time_limited#:#Limited Availability Period
@@ -49,8 +49,8 @@ title#:#Title
 rate_student_answers#:#Rate students answers
 disposals_until#:#Disposals at the latest
 sample_solution_visible#:#Sample solution visible
-after_exercise_completion#:#After exercise completion
-exercise_finished_questions_answered#:#The exercise is considered finished if all questions were answered.
+after_exercise_completion#:#After question is answered
+exercise_finished_questions_answered#:#The question is answered if it is set to rating.
 after_definied_date#:#After definied date:
 cb_additional_points_for_voting#:#Students get x% of the points per item, which they votet for and where the teacher votes them best.
 number_of_percentage#:#Percentage
@@ -150,3 +150,10 @@ show#:#Show
 answers_are_equal#:#Both answers are equally. The vote goes to the earlier registered answer.
 severity#:#Severity
 severity_info#:#Please estimate the difficulty of this question: 1 simple; 5 very difficult.
+enable_student_voting#:#Enable Student Voting
+use_hints_info#:#Points are deducted when using the tips.
+unanswered_questions_info#:#Du hast %s unbeantworte Fragen. Starte jetzt eine Fragerunde.
+start_question_round#:#Start Answering Questions
+question_x_of_y#:#Question %s of %s
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Congratulations! You answered all questions!

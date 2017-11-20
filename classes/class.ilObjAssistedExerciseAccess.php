@@ -4,99 +4,79 @@
  * Class    ilObjAssistedExerciseAccess
  *
  * @author  Benjamin Seglias <bs@studer-raimann.ch>
+ * @author  Martin Studer <ms@studer-raimann.ch>
+ *
  */
-
 require_once('./Services/Repository/classes/class.ilObjectPluginAccess.php');
 
 class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 
 	/**
-	 * Checks wether a user may invoke a command or not
-	 * (this method is called by ilAccessHandler::checkAccess)
-	 *
-	 * Please do not check any preconditions handled by
-	 * ilConditionHandler here. Also don't do usual RBAC checks.
-	 *
-	 * @param    string $a_cmd        command (not permission!)
-	 * @param    string $a_permission permission
-	 * @param    int    $a_ref_id     reference id
-	 * @param    int    $a_obj_id     object id
-	 * @param    int    $a_user_id    user id (if not provided, current user is taken)
-	 *
-	 * @return    boolean        true, if everything is ok
+	 * @var ilObjAssistedExerciseFacade
 	 */
-	public function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = '') {
-		/**
-		 * @var \ILIAS\DI\Container
-		 */
-		global $DIC;
+	protected $obj_facade;
+	/**
+	 * @var int
+	 */
+	protected $il_user_id;
 
-		if ($a_user_id == '') {
-			$a_user_id = $DIC->user()->getId();
-		}
-		if ($a_obj_id === NULL) {
-			$a_obj_id = ilObject2::_lookupObjId($a_ref_id);
-		}
 
-		switch ($a_permission) {
-			case 'read':
-				if (!self::checkOnline($a_ref_id) && !$DIC->access()->checkAccessOfUser($a_user_id, 'read', '', $a_ref_id)) {
-					return false;
-				}
-				break;
-		}
-
-		return true;
+	/**
+	 * ilObjAssistedExerciseAccess constructor.
+	 *
+	 * @param ilObjAssistedExerciseFacade $obj_facade
+	 * @param int                         $il_user_id
+	 */
+	public function __construct() {
 	}
 
 
 	/**
-	 * @param null $ref_id
-	 * @param null $user_id
+	 * ilObjAssistedExerciseAccess constructor.
 	 *
-	 * @return bool
-	 */
-	public static function hasReadAccess($ref_id = NULL, $user_id = NULL) {
-
-		return (new self)->hasAccess('read', $ref_id, $user_id);
-	}
-
-
-	/**
-	 * @param null $ref_id
-	 * @param null $user_id
+	 * @param ilObjAssistedExerciseFacade $obj_facade
+	 * @param int                         $il_user_id
 	 *
-	 * @return bool
+	 * @return ilObjAssistedExerciseAccess
 	 */
-	public static function hasWriteAccess($ref_id = NULL, $user_id = NULL) {
+	public static function getInstance($obj_facade, $il_user_id = 0) {
+		$access = new self();
+		$access->obj_facade = $obj_facade;
+		$access->il_user_id = $il_user_id;
 
-		return (new self)->hasAccess('write', $ref_id, $user_id);
+		return $access;
 	}
 
 
-	/**
-	 * @param null $ref_id
-	 * @param null $user_id
-	 *
-	 * @return bool
-	 */
-	public static function hasDeleteAccess($ref_id = NULL, $user_id = NULL) {
-		return (new self)->hasAccess('delete', $ref_id, $user_id);
+	public function hasReadAccess() {
+		if ($this->obj_facade == 0 || $this->il_user_id == 0) {
+			return false;
+		}
+
+		if($this->hasWriteAccess()) {
+			return true;
+		}
+
+		if (!self::isTimeLimitRespected($this->obj_facade)) {
+			return false;
+		}
+
+		if(!self::checkOnline($this->obj_facade->getIlObjObId())) {
+			return false;
+		}
+
+		return $this->obj_facade->getDic()->access()->checkAccessOfUser($this->il_user_id, 'read', '', $this->obj_facade->getIlObjRefId());
 	}
 
 
-	protected function hasAccess($permission, $ref_id = NULL, $user_id = NULL) {
-		global $ilUser, $ilAccess;
-		/**
-		 * @var $ilAccess ilAccessHandler
-		 */
-		$ref_id = $ref_id ? $ref_id : $_GET['ref_id'];
-		$user_id = $user_id ? $user_id : $ilUser->getId();
-
-		return $ilAccess->checkAccessOfUser($user_id, $permission, '', $ref_id);
+	public function hasWriteAccess() {
+		return $this->obj_facade->getDic()->access()->checkAccessOfUser($this->il_user_id, 'write', '', $this->obj_facade->getIlObjRefId());
 	}
 
-	// TODO implement this method correctly
+
+	public function hasDeleteAccess() {
+		return $this->obj_facade->getDic()->access()->checkAccessOfUser($this->il_user_id, 'delete', '', $this->obj_facade->getIlObjRefId());
+	}
 
 
 	/**
@@ -107,9 +87,50 @@ class ilObjAssistedExerciseAccess extends ilObjectPluginAccess {
 	public static function checkOnline($a_id) {
 		global $ilDB;
 		//return true;
-		$set = $ilDB->query('SELECT is_online FROM rep_robj_xase_settings WHERE id = ' . $ilDB->quote($a_id, 'integer'));
+		$set = $ilDB->query('SELECT is_online FROM xase_settings WHERE assisted_exercise_object_id = ' . $ilDB->quote($a_id, 'integer'));
 		$rec = $ilDB->fetchAssoc($set);
 
 		return (boolean)$rec['is_online'];
+	}
+
+
+	public static function isTimeLimitRespected($obj_facade) {
+		if ($obj_facade->getSetting()->getIsTimeLimited()) {
+			$current_date = date('Y-m-d h:i:s', time());
+			$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+
+			$start_date = DateTime::createFromFormat('Y-m-d H:i:s', $obj_facade->getSetting()->getStartDate());
+			if ($current_date_datetime->getTimestamp() < $start_date->getTimestamp()) {
+				return false;
+			}
+
+			$end_date = DateTime::createFromFormat('Y-m-d H:i:s', $obj_facade->getSetting()->getEndDate());
+			if ($current_date_datetime->getTimestamp() > $end_date->getTimestamp()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * @param ilObjAssistedExerciseFacade $obj_facade
+	 *
+	 * @return bool
+	 */
+	public static function isDisposalLimitRespected($obj_facade) {
+		if ($obj_facade->getSetting()->getRateAnswers()) {
+			$current_date = date('Y-m-d h:i:s', time());
+			$current_date_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $current_date);
+
+			$end_date = DateTime::createFromFormat('Y-m-d H:i:s', $obj_facade->getSetting()->getDisposalDate());
+
+			if ($current_date_datetime->getTimestamp() > $end_date->getTimestamp()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

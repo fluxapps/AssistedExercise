@@ -1,3 +1,4 @@
+
 add_task#:#Frage hinzufügen
 always_visible#:#Immer sichtbar
 always_visibility_info#:#Vor und nach dem angegebenem Zeitraum wird nur der Titel der Unterstüzten Übung angezeigt. Die Teilnehmer können die unterstützte Übung nicht durchführen.
@@ -6,7 +7,7 @@ availability#:#Verfügbarkeit
 cancel#:#Abbrechen
 changes_saved_success#:#Änderungen gespeichert
 common_actions#:#Aktionen
-completely_teacher_controlled#:#komplett Lehrkraft gesteuert
+completely_teacher_controlled#:#Lehrkraft erstellt Fragen
 description#:#Beschreibung
 finish_time#:#Endzeit
 first_name#:#Vorname
@@ -53,8 +54,8 @@ disposal_date#:#Abgabedatum
 rate_student_answers#:#Antworten der Schüler bewerten
 disposals_until#:#Abgaben bis spätestens:
 sample_solution_visible#:#Musterlösung einsehbar
-after_exercise_completion#:#Nach Abschluss der Übung
-exercise_finished_questions_answered#:#Die Übung gilt als abgeschlossen wenn alle Fragen beantwortet wurden.
+after_exercise_completion#:#Nach Abschluss der Frage
+exercise_finished_questions_answered#:#Die Frage gilt als abgeschlossen, sobald diese zur Bewertung eingereicht wurde.
 after_definied_date#:#Ab definiertem Datum:
 cb_additional_points_for_voting#:#Schüler erhalten x% der Punkte jener Items, welche durch sie gevotet worden sind und durch die Lehrkraft am besten bewertet wurden.
 number_of_percentage#:#Anzahl Prozent
@@ -137,14 +138,14 @@ upvoters_for_answer_from#:#Upvoters auf die Antwort von
 on_the_question#:#auf die Frage
 msg_input_please_chose_disposal_date#:#Bitte geben Sie ein Abgabedatum an.
 info_regarding_disposal_date#:#Information betreffend Abgabedatum
-assessment_can_be_done_after_the_defined_disposal_date#:#Bewertungen erst können nach dem definierten Abgabedatum vorgenommen werden.
+assessment_can_be_done_after_the_defined_disposal_date#:#Bewertungen können erst nach dem definierten Abgabedatum vorgenommen werden.
 answer_1#:#Antwort 1
 answer_2#:#Antwort 2
 vote_for#:#Voten für
 please_choose_an_answer#:#Bitte wählen Sie eine Antwort aus.
 created_by#:#Erstellt durch
 answered_by#:#Beantwortet durch
-no_more_answers_to_vote#:#Derzeit gibt es weiteren Antworten mehr für welche gevotet werden könnte
+no_more_answers_to_vote#:#Derzeit gibt es auf diese Frage keine weiteren Antworten mehr, für welche gevotet werden könnte
 delete_my_votings#:#Meine Votings löschen
 vote#:#Vote
 number_of_upvotings_my_answer#:#Anzahl Upvotings auf meine Antwort
@@ -153,3 +154,11 @@ show#:#Anzeigen
 answers_are_equal#:#Beide Antworten sind gleich gut. Der Vote geht an die früher eingetragene Antwort.
 severity#:#Schwierigkeitsgrad
 severity_info#:#Bitte schätzen Sie den Schwierigkeitsgrad dieser Frage ein: 1 einfach; 5 sehr schwierig.
+enable_student_voting#:#Voting-Funktion für Studierende aktivieren
+use_hints_info#:#Bei der Nutzung der Tipps werden dir Punkte abgezogen.
+show_level_1#:#Level 1 zeigen -> -%s Pkt.
+show_level_2#:#Level 2 zeigen -> -%s Pkt.
+unanswered_questions_info#:#Sie haben %s unbeantworte Fragen. Starten Sie jetzt eine Fragerunde.
+start_question_round#:#Fragerunde starten
+question_open#:#Noch %s Fragen sind offen.
+all_questions_answered#:#Sehr schön! Du hast alle Fragen beantwortet!
